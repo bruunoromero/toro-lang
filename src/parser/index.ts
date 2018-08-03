@@ -5,15 +5,13 @@ import { Visitor } from "./visitor";
 export const parse = (tokens: IToken[]) => {
   parser.input = tokens;
 
-  const ctx = parser.importClause();
+  const ctx = parser.program();
   const visitor = new Visitor();
 
   if (parser.errors.length) {
-    parser.errors.forEach(error => {
-      console.log(error);
-    });
+    console.log(parser.errors[0].token);
 
-    throw Error("Parser error");
+    // throw Error("Parser error");
   }
 
   return visitor.visit(ctx);

@@ -1,14 +1,15 @@
 import { createToken, Lexer } from "chevrotain";
 
-export const NEW_LINE = createToken({
-  name: "NEW_LINE",
-  pattern: /(\r\n|\r|\n)/,
-});
+// export const NEW_LINE = createToken({
+//   name: "NEW_LINE",
+//   pattern: /\r?\n/,
+// });
 
 export const WHITE_SPACE = createToken({
   pattern: /\s+/,
   name: "WHITE_SPACE",
   group: Lexer.SKIPPED,
+  line_breaks: true,
 });
 
 export const COMMENT = createToken({
@@ -52,6 +53,11 @@ export const COLON = createToken({
   name: "COLON",
 });
 
+export const SEMI_COLON = createToken({
+  pattern: /;/,
+  name: "SEMI_COLON",
+});
+
 export const COMMA = createToken({
   pattern: /,/,
   name: "COMMA",
@@ -68,13 +74,14 @@ export const FAT_ARROW = createToken({
 });
 
 export const SPECIALS = [
-  NEW_LINE,
+  // NEW_LINE,
   WHITE_SPACE,
   COMMENT,
   ARROW,
   FAT_ARROW,
   COMMA,
   COLON,
+  SEMI_COLON,
   LCURLY,
   RCURLY,
   LBRACE,

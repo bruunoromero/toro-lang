@@ -1,6 +1,6 @@
-import { LCURLY } from "./../lexer/specials";
+import { Parser, IToken, IRuleConfig, Lexer } from "chevrotain";
 import { EQUALS } from "./../lexer/operators";
-import { Parser, IToken } from "chevrotain";
+import { LCURLY, SEMI_COLON } from "./../lexer/specials";
 
 import { TOKENS } from "../lexer";
 import { IMPORT, DEF } from "../lexer/keywords";
@@ -13,9 +13,16 @@ class ToroParser extends Parser {
     this.performSelfAnalysis();
   }
 
-  public importClause = this.RULE("importClause", () => {
+  public program = this.RULE("program", () => {
+    this.MANY(() => {
+      this.OR([{ ALT: () => this.SUBRULE(this.importClause) }]);
+    });
+  });
+
+  private importClause = this.RULE("importClause", () => {
     this.CONSUME(IMPORT);
     this.CONSUME(IDENTIFIER);
+    this.CONSUME(SEMI_COLON);
   });
 }
 
