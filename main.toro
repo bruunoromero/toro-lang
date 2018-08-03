@@ -1,17 +1,14 @@
-import List
-
+import DOM
 # All functions in `toro` are curried
 #
 # List.map : (a -> b) -> [a] -> [b]
 
 def main = {
-  def l = [1, 2, 3, 4]
-  def mapper(item: Int): Int = item * 2
-  def mapWithFunc = List.map(mapper)
-  mapWithFunc(l)
+  def id = DOM.querySelector("#teste")
 
-  # Same code as above
-  # List.map((item) => item * 2, [1, 2, 3, 4])
-  # List.map(it * 2, [1, 2, 3, 4])
+  match(id) {
+    Just(el) -> ...
+    None -> ...
+  }
 
 }

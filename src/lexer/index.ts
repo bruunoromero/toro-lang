@@ -6,7 +6,7 @@ import { KEYWORDS } from "./keywords";
 import { SPECIALS } from "./specials";
 import { OPERATORS } from "./operators";
 
-const TOKENS = _.concat(SPECIALS, OPERATORS, KEYWORDS, LITERALS);
+export const TOKENS = _.concat(SPECIALS, OPERATORS, KEYWORDS, LITERALS);
 
 const LEXER = new Lexer(TOKENS);
 
@@ -21,5 +21,5 @@ export const tokenize = (input: string) => {
     throw Error("Tokenization error");
   }
 
-  return output;
+  return output.tokens;
 };

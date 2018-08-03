@@ -5,7 +5,7 @@ export const NEW_LINE = createToken({
   pattern: /(\r\n|\r|\n)/,
 });
 
-export const WS = createToken({
+export const WHITE_SPACE = createToken({
   pattern: /\s+/,
   name: "WHITE_SPACE",
   group: Lexer.SKIPPED,
@@ -69,7 +69,7 @@ export const FAT_ARROW = createToken({
 
 export const SPECIALS = [
   NEW_LINE,
-  WS,
+  WHITE_SPACE,
   COMMENT,
   ARROW,
   FAT_ARROW,
