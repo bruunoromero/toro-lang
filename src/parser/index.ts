@@ -9,7 +9,7 @@ export const parse = (tokens: IToken[]) => {
   const visitor = new Visitor();
 
   if (parser.errors.length) {
-    console.log(parser.errors[0].token);
+    console.log(parser.errors[0]);
 
     // throw Error("Parser error");
   }

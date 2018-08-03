@@ -13,7 +13,6 @@ export const DOUBLE = createToken({
 export const INTEGER = createToken({
   name: "INTEGER",
   pattern: /\d+/,
-  longer_alt: DOUBLE,
 });
 
 export const STRING = createToken({

@@ -13,7 +13,6 @@ export const EQUALS_EQUALS = createToken({
 export const EQUALS = createToken({
   pattern: /=/,
   name: "EQUALS",
-  longer_alt: EQUALS_EQUALS,
 });
 
 export const TIMES_TIMES = createToken({
@@ -24,7 +23,6 @@ export const TIMES_TIMES = createToken({
 export const TIMES = createToken({
   pattern: /\*/,
   name: "TIMES",
-  longer_alt: TIMES_TIMES,
 });
 
 export const PLUS_PLUS = createToken({
@@ -35,7 +33,6 @@ export const PLUS_PLUS = createToken({
 export const PLUS = createToken({
   pattern: /\+/,
   name: "PLUS",
-  longer_alt: PLUS_PLUS,
 });
 
 export const MINUS = createToken({
@@ -61,7 +58,6 @@ export const PIPE_PIPE = createToken({
 export const PIPE = createToken({
   pattern: /\|/,
   name: "PIPE",
-  longer_alt: PIPE_PIPE,
 });
 
 export const AMPERSAND_AMPERSAND = createToken({
@@ -72,7 +68,6 @@ export const AMPERSAND_AMPERSAND = createToken({
 export const AMPERSAND = createToken({
   pattern: /&/,
   name: "AMPERSAND",
-  longer_alt: AMPERSAND_AMPERSAND,
 });
 
 export const OPERATORS = [

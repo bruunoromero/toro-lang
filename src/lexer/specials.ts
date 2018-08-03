@@ -20,32 +20,32 @@ export const COMMENT = createToken({
 
 export const LCURLY = createToken({
   pattern: /{/,
-  name: "LEFT_CURLY",
+  name: "LCURLY",
 });
 
 export const RCURLY = createToken({
   pattern: /}/,
-  name: "RIGHT_CURLY",
+  name: "RCURLY",
 });
 
 export const LBRACE = createToken({
   pattern: /\[/,
-  name: "LEFT_BRACE",
+  name: "LBRACE",
 });
 
 export const RBRACE = createToken({
   pattern: /\]/,
-  name: "RIGHT_BRACE",
+  name: "RBRACE",
 });
 
 export const LPAREN = createToken({
   pattern: /\(/,
-  name: "LEFT_PAREN",
+  name: "LPAREN",
 });
 
 export const RPAREN = createToken({
   pattern: /\)/,
-  name: "RIGHT_PAREN",
+  name: "RPAREN",
 });
 
 export const COLON = createToken({

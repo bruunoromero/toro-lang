@@ -1,5 +1,6 @@
+import * as _ from "lodash";
+
 import { AST } from "./ast";
-import { ImportClause } from "./import-clause";
 import { BaseVisitor } from "./parser";
 
 export class Visitor extends BaseVisitor {
@@ -13,14 +14,29 @@ export class Visitor extends BaseVisitor {
 
   program(ctx: any) {
     console.log(ctx);
-    // if (ctx.importClause) {
-    //   console.log(ctx.importClause);
-    // }
-    // return this.visit(ctx.program);
+    if (ctx.importClause) {
+      this.ast.modules = this.visit(ctx.importClause);
+    }
+
+    if (ctx.definitionClause) {
+      this.visit(ctx.definitionClause);
+    }
   }
 
   importClause(ctx: any) {
-    console.log("asaasa");
+    return ctx;
+  }
+
+  definitionClause(ctx: any) {
+    console.log(ctx);
+    return ctx;
+  }
+
+  expression(ctx: any) {
+    return ctx;
+  }
+
+  block(ctx: any) {
     return ctx;
   }
 }

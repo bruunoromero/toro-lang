@@ -2,8 +2,13 @@ import { parse } from "./parser";
 import { tokenize } from "./lexer";
 
 const example = `
-import IO;
-import DOM;
+import Console;
+import Toro.Lexer;
+
+def main = {
+  def a = 10;
+  Console.log("Ola mundo");
+}
 `;
 
 const tokens = tokenize(example);
