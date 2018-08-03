@@ -1,10 +1,27 @@
 import * as fs from "fs";
-import { LEXER } from "./lexer";
+import { tokenize } from "./lexer";
 
-const toro = `
-def main = {}
+const example = `
+import IO
+import List
+
+# All functions in \`toro\` are curried
+#
+# List.map : (a -> b) -> [a] -> [b]
+
+def map(list: List of Int): List of Double = {
+  List.map(it * 2.2, list)
+}
+
+def main = {
+    def list = [1, 2, 3, 4]
+    def output = map(list)
+    IO.print(output)
+}
 `;
 
-const tokens = LEXER.tokenize(toro);
+const output = tokenize(example);
 
-console.log(tokens);
+output.tokens.forEach(token =>
+  console.log(token.image, token.tokenType!!.tokenName),
+);
