@@ -100,7 +100,6 @@ class ToroParser extends Parser {
 
   private functionCall = this.RULE("functionCall", () => {
     this.SUBRULE(this.reference);
-
     this.OPTION(() => {
       this.CONSUME1(LPAREN);
       this.MANY_SEP({
