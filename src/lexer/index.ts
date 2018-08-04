@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { Lexer } from "chevrotain";
+import { Lexer, IToken } from "chevrotain";
 
 import { LITERALS } from "./literals";
 import { KEYWORDS } from "./keywords";
@@ -10,7 +10,7 @@ export const TOKENS = _.concat(SPECIALS, OPERATORS, KEYWORDS, LITERALS);
 
 const LEXER = new Lexer(TOKENS);
 
-export const tokenize = (input: string) => {
+export const tokenize = (input: string): IToken[] => {
   const output = LEXER.tokenize(input);
 
   if (output.errors.length) {

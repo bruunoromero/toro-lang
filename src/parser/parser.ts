@@ -1,6 +1,7 @@
 import { Parser, IToken } from "chevrotain";
 
 import {
+  COMMA,
   LCURLY,
   RCURLY,
   LPAREN,
@@ -8,10 +9,10 @@ import {
   SEMI_COLON,
 } from "./../lexer/specials";
 
-import { EQUALS, PERIOD } from "./../lexer/operators";
 import { TOKENS } from "../lexer";
 import { IMPORT, DEF } from "../lexer/keywords";
-import { IDENTIFIER, STRING, INTEGER } from "../lexer/literals";
+import { EQUALS, PERIOD } from "./../lexer/operators";
+import { IDENTIFIER, STRING, INTEGER, DOUBLE } from "../lexer/literals";
 
 class ToroParser extends Parser {
   constructor(input: IToken[]) {
@@ -27,12 +28,15 @@ class ToroParser extends Parser {
 
   private importClause = this.RULE("importClause", () => {
     this.CONSUME(IMPORT);
-    this.CONSUME1(IDENTIFIER);
-    this.MANY(() => {
-      this.CONSUME2(PERIOD);
-      this.CONSUME3(IDENTIFIER);
+    this.SUBRULE(this.reference);
+    this.CONSUME1(SEMI_COLON);
+  });
+
+  private reference = this.RULE("reference", () => {
+    this.MANY_SEP({
+      SEP: PERIOD,
+      DEF: () => this.CONSUME1(IDENTIFIER),
     });
-    this.CONSUME4(SEMI_COLON);
   });
 
   private definitionClause = this.RULE("definitionClause", () => {
@@ -40,38 +44,55 @@ class ToroParser extends Parser {
     this.CONSUME1(IDENTIFIER);
     this.CONSUME2(EQUALS);
     this.OR([
-      { ALT: () => this.SUBRULE(this.block) },
-      { ALT: () => this.SUBRULE1(this.expression) },
+      { ALT: () => this.SUBRULE1(this.block) },
+      {
+        ALT: () => {
+          this.SUBRULE2(this.expression);
+          this.CONSUME3(SEMI_COLON);
+        },
+      },
     ]);
   });
 
   private expression = this.RULE("expression", () => {
     this.OR([
-      { ALT: () => this.SUBRULE(this.definitionClause) },
+      { ALT: () => this.SUBRULE(this.term) },
       {
-        ALT: () => {
-          this.CONSUME(INTEGER);
-          this.CONSUME1(SEMI_COLON);
-        },
-      },
-      {
-        ALT: () => {
-          this.CONSUME2(IDENTIFIER);
-          this.CONSUME3(PERIOD);
-          this.CONSUME4(IDENTIFIER);
-          this.CONSUME5(LPAREN);
-          this.CONSUME6(STRING);
-          this.CONSUME7(RPAREN);
-          this.CONSUME8(SEMI_COLON);
-        },
+        ALT: () => this.SUBRULE(this.functionCall),
       },
     ]);
+  });
+
+  private term = this.RULE("term", () => {
+    this.OR([
+      { ALT: () => this.CONSUME(STRING) },
+      { ALT: () => this.CONSUME(DOUBLE) },
+      { ALT: () => this.CONSUME(INTEGER) },
+    ]);
+  });
+
+  private functionCall = this.RULE("functionCall", () => {
+    this.SUBRULE(this.reference);
+
+    this.OPTION(() => {
+      this.CONSUME(RPAREN);
+      this.MANY_SEP({
+        SEP: COMMA,
+        DEF: () => this.SUBRULE(this.expression),
+      });
+      this.CONSUME1(LPAREN);
+    });
+
+    this.CONSUME2(SEMI_COLON);
   });
 
   private block = this.RULE("block", () => {
     this.CONSUME(LCURLY);
     this.MANY(() => {
-      this.SUBRULE(this.expression);
+      this.OR([
+        { ALT: () => this.SUBRULE(this.expression) },
+        { ALT: () => this.SUBRULE(this.definitionClause) },
+      ]);
     });
     this.CONSUME1(RCURLY);
   });
