@@ -54,11 +54,11 @@ export class Visitor extends BaseVisitor {
     return new DefinitionClause(IDENTIFIER[0].image, expressions);
   }
 
-  expression({ term }: any): ExpressionClause[] {
+  expression({ value, ...res }: any): ExpressionClause[] {
     let exps: ExpressionClause[] = [];
-
-    if (term) {
-      exps = [this.visit(term[0])];
+    console.log(res);
+    if (value) {
+      exps = [this.visit(value[0])];
     }
 
     return exps;
@@ -66,7 +66,7 @@ export class Visitor extends BaseVisitor {
 
   functionCall(ctx: any) {}
 
-  term({ STRING, INTEGER, DOUBLE }: any): ValueClause<string | number> {
+  value({ STRING, INTEGER, DOUBLE }: any): ValueClause<string | number> {
     let value;
 
     if (STRING) {
@@ -81,6 +81,12 @@ export class Visitor extends BaseVisitor {
 
     return value;
   }
+
+  addition(ctx: any) {}
+  multiplication(ctx: any) {}
+  atomic(ctx: any) {}
+  parenthesis(ctx: any) {}
+  arithmetic(ctx: any) {}
 
   reference({ IDENTIFIER }: any): string[] {
     return _.map(IDENTIFIER, id => id.image);

@@ -15,7 +15,8 @@ export const tokenize = (input: string): IToken[] => {
   const output = LEXER.tokenize(input);
 
   if (output.errors.length) {
-    throw new AggregateError(output.errors);
+    const messages = _.map(output.errors, error => error.toString());
+    throw new AggregateError(messages);
   }
 
   return output.tokens;
