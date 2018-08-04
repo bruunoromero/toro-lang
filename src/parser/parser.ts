@@ -118,6 +118,6 @@ class ToroParser extends Parser {
   });
 }
 
-export const parser = new ToroParser([]);
+export const PARSER = new ToroParser([]);
 
-export const BaseVisitor = parser.getBaseCstVisitorConstructor();
+export const BaseVisitor = PARSER.getBaseCstVisitorConstructor();
