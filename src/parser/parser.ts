@@ -88,6 +88,7 @@ class ToroParser extends Parser {
     this.SUBRULE(this.arithmetic);
     this.CONSUME(RPAREN);
   });
+
   private value = this.RULE("value", () => {
     this.OR([
       { ALT: () => this.CONSUME(STRING) },
