@@ -7,11 +7,11 @@ import {
   LPAREN,
   RPAREN,
   SEMI_COLON,
-} from "./../lexer/specials";
+} from "../lexer/specials";
 
 import { TOKENS } from "../lexer";
 import { IMPORT, DEF } from "../lexer/keywords";
-import { EQUALS, PERIOD } from "./../lexer/operators";
+import { EQUALS, PERIOD } from "../lexer/operators";
 import { IDENTIFIER, STRING, INTEGER, DOUBLE } from "../lexer/literals";
 
 class ToroParser extends Parser {
@@ -44,30 +44,27 @@ class ToroParser extends Parser {
     this.CONSUME1(IDENTIFIER);
     this.CONSUME2(EQUALS);
     this.OR([
-      { ALT: () => this.SUBRULE1(this.block) },
-      {
-        ALT: () => {
-          this.SUBRULE2(this.expression);
-          this.CONSUME3(SEMI_COLON);
-        },
-      },
+      { ALT: () => this.SUBRULE(this.block) },
+      { ALT: () => this.SUBRULE1(this.expression) },
     ]);
   });
 
   private expression = this.RULE("expression", () => {
     this.OR([
-      { ALT: () => this.SUBRULE(this.term) },
       {
-        ALT: () => this.SUBRULE(this.functionCall),
+        ALT: () => this.SUBRULE(this.term),
       },
+      { ALT: () => this.SUBRULE1(this.functionCall) },
+      { ALT: () => this.SUBRULE(this.definitionClause) },
     ]);
+    this.CONSUME(SEMI_COLON);
   });
 
   private term = this.RULE("term", () => {
     this.OR([
       { ALT: () => this.CONSUME(STRING) },
-      { ALT: () => this.CONSUME(DOUBLE) },
-      { ALT: () => this.CONSUME(INTEGER) },
+      { ALT: () => this.CONSUME1(DOUBLE) },
+      { ALT: () => this.CONSUME2(INTEGER) },
     ]);
   });
 
@@ -88,13 +85,8 @@ class ToroParser extends Parser {
 
   private block = this.RULE("block", () => {
     this.CONSUME(LCURLY);
-    this.MANY(() => {
-      this.OR([
-        { ALT: () => this.SUBRULE(this.expression) },
-        { ALT: () => this.SUBRULE(this.definitionClause) },
-      ]);
-    });
-    this.CONSUME1(RCURLY);
+    this.AT_LEAST_ONE(() => this.SUBRULE(this.expression));
+    this.CONSUME(RCURLY);
   });
 }
 

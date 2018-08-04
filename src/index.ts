@@ -5,10 +5,9 @@ const example = `
 import Console;
 import Toro.Lexer;
 
-def main = {
-  def a = 10;
-}
+def main = { "ola"; }
 `;
 
 const tokens = tokenize(example);
 const ast = parse(tokens);
+console.log(ast.definitions[0].expressions);

@@ -4,11 +4,7 @@ import { ExpressionClause } from "./expression-clause";
 export class DefinitionClause extends Clause {
   static TYPE = "DEFINITION_CLAUSE";
 
-  constructor(
-    public name: string,
-    public definitions: DefinitionClause[],
-    public expressions: ExpressionClause[],
-  ) {
+  constructor(public name: string, public expressions: ExpressionClause[]) {
     super(DefinitionClause.TYPE);
   }
 }
