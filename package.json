@@ -5,15 +5,9 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "commitmsg": "commitlint -e",
     "start": "npx ts-node src/index.ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json -c tslint.json"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "cross-env npm run lint && npm run test"
-    }
   },
   "devDependencies": {
     "@commitlint/cli": "^7.0.0",
