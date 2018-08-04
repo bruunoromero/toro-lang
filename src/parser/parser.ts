@@ -1,4 +1,3 @@
-import { PLUS, TIMES } from "./../lexer/operators";
 import { Parser, IToken } from "chevrotain";
 
 import {
@@ -12,7 +11,7 @@ import {
 
 import { TOKENS } from "../lexer";
 import { IMPORT, DEF } from "../lexer/keywords";
-import { EQUALS, PERIOD } from "../lexer/operators";
+import { EQUALS, PERIOD, PLUS, TIMES } from "../lexer/operators";
 import { IDENTIFIER, STRING, INTEGER, DOUBLE } from "../lexer/literals";
 
 class ToroParser extends Parser {
