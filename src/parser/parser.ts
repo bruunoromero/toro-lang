@@ -33,7 +33,7 @@ class ToroParser extends Parser {
   });
 
   private reference = this.RULE("reference", () => {
-    this.MANY_SEP({
+    this.AT_LEAST_ONE_SEP({
       SEP: PERIOD,
       DEF: () => this.CONSUME1(IDENTIFIER),
     });

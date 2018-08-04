@@ -22,7 +22,7 @@ export class Visitor extends BaseVisitor {
 
   program(ctx: any): AST {
     if (ctx.importClause) {
-      this.ast.modules = _.map(ctx.importClause, (clause: any) =>
+      this.ast.imports = _.map(ctx.importClause, (clause: any) =>
         this.visit(clause),
       );
     }
@@ -36,8 +36,9 @@ export class Visitor extends BaseVisitor {
     return this.ast;
   }
 
-  importClause({ IDENTIFIER }: any): ImportClause {
-    const path = _.map(IDENTIFIER, (identifier: IToken) => identifier.image);
+  importClause({ reference }: any): ImportClause {
+    const path = this.visit(reference[0]);
+
     return new ImportClause(path);
   }
 
@@ -81,7 +82,9 @@ export class Visitor extends BaseVisitor {
     return value;
   }
 
-  reference(ctx: any) {}
+  reference({ IDENTIFIER }: any): string[] {
+    return _.map(IDENTIFIER, id => id.image);
+  }
 
   block({ expression }: any): ExpressionClause[] {
     const expressions = expression

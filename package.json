@@ -25,6 +25,7 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
+    "aggregate-error": "^1.0.0",
     "chevrotain": "^3.7.4",
     "lodash": "^4.17.10"
   }

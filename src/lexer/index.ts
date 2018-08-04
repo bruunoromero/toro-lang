@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import { Lexer, IToken } from "chevrotain";
+import AggregateError from "aggregate-error";
 
 import { LITERALS } from "./literals";
 import { KEYWORDS } from "./keywords";
@@ -14,11 +15,7 @@ export const tokenize = (input: string): IToken[] => {
   const output = LEXER.tokenize(input);
 
   if (output.errors.length) {
-    output.errors.forEach(error => {
-      console.log(error);
-    });
-
-    throw Error("Tokenization error");
+    throw new AggregateError(output.errors);
   }
 
   return output.tokens;

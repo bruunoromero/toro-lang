@@ -1,3 +1,5 @@
+import AggregateError from "aggregate-error";
+
 import { AST } from "./ast";
 import { IToken } from "chevrotain";
 import { parser } from "./parser";
@@ -10,9 +12,7 @@ export const parse = (tokens: IToken[]): AST => {
   const visitor = new Visitor();
 
   if (parser.errors.length) {
-    console.log(parser.errors[0]);
-
-    // throw Error("Parser error");
+    throw new AggregateError(parser.errors);
   }
 
   return visitor.visit(ctx);
