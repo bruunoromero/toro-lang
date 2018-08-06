@@ -1,4 +1,14 @@
-import { createToken } from "chevrotain";
+import { createToken, Lexer } from "chevrotain";
+
+export const ADDITION_OPERATOR = createToken({
+  name: "ADDITION_OPERATOR",
+  pattern: Lexer.NA,
+});
+
+export const MULTIPLICATION_OPERATOR = createToken({
+  name: "MULTIPLICATION_OPERATOR",
+  pattern: Lexer.NA,
+});
 
 export const PERIOD = createToken({
   pattern: /\./,
@@ -23,6 +33,13 @@ export const TIMES_TIMES = createToken({
 export const TIMES = createToken({
   pattern: /\*/,
   name: "TIMES",
+  categories: MULTIPLICATION_OPERATOR,
+});
+
+export const SLASH = createToken({
+  pattern: /\//,
+  name: "SLASH",
+  categories: MULTIPLICATION_OPERATOR,
 });
 
 export const PLUS_PLUS = createToken({
@@ -31,18 +48,15 @@ export const PLUS_PLUS = createToken({
 });
 
 export const PLUS = createToken({
-  pattern: /\+/,
   name: "PLUS",
+  pattern: /\+/,
+  categories: ADDITION_OPERATOR,
 });
 
 export const MINUS = createToken({
   pattern: /\-/,
   name: "MINUS",
-});
-
-export const SLASH = createToken({
-  pattern: /\//,
-  name: "SLASH",
+  categories: ADDITION_OPERATOR,
 });
 
 export const PERCENT = createToken({
@@ -76,10 +90,12 @@ export const OPERATORS = [
   EQUALS,
   TIMES_TIMES,
   TIMES,
+  SLASH,
+  MULTIPLICATION_OPERATOR,
   PLUS_PLUS,
   PLUS,
   MINUS,
-  SLASH,
+  ADDITION_OPERATOR,
   PERCENT,
   PIPE_PIPE,
   PIPE,

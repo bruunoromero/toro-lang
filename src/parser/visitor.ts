@@ -1,14 +1,23 @@
 import * as _ from "lodash";
+import { tokenMatcher } from "chevrotain";
 
-import { AST } from "../ast/ast";
+import { TIMES, PLUS } from "./../lexer/operators";
+
+import { AST } from "../ast";
 import { BaseVisitor } from "./parser";
 import { ValueClause } from "../ast/value-clause";
+import { BlockClause } from "./../ast/block-caluse";
 import { DoubleClause } from "../ast/double-clause";
 import { StringClause } from "../ast/string-clause";
 import { ImportClause } from "../ast/import-clause";
 import { IntegerClause } from "../ast/integer-clause";
 import { ExpressionClause } from "../ast/expression-clause";
 import { DefinitionClause } from "../ast/definition-clause";
+import { BinaryOperation, AtomicValue } from "./../ast/binary-operation";
+import { DivisionOperation } from "../ast/division-operation";
+import { AdditionOperation } from "./../ast/addition-operation";
+import { SubtractionOperation } from "./../ast/subtraction-operation";
+import { MultiplicationOperation } from "../ast/multiplication-operation";
 
 export class Visitor extends BaseVisitor {
   ast: AST;
@@ -19,17 +28,29 @@ export class Visitor extends BaseVisitor {
     this.validateVisitor();
   }
 
-  program(ctx: any): AST {
-    if (ctx.importClause) {
-      this.ast.imports = _.map(ctx.importClause, (clause: any) =>
-        this.visit(clause),
-      );
+  program({ definitionClause, importClause }: any): AST {
+    if (importClause) {
+      _.each(importClause, (clause: any) => {
+        const impt = this.visit(clause);
+
+        if (this.ast.imports.has(impt.path)) {
+          // TODO: throw duplicated import error
+        } else {
+          this.ast.imports.set(impt.path, impt);
+        }
+      });
     }
 
-    if (ctx.definitionClause) {
-      this.ast.definitions = _.map(ctx.definitionClause, (definition: any) =>
-        this.visit(definition),
-      );
+    if (definitionClause) {
+      _.each(definitionClause, (definition: any) => {
+        const def = this.visit(definition);
+
+        if (this.ast.definitions.has(def.name)) {
+          // TODO: throw duplicated declaration error
+        } else {
+          this.ast.definitions.set(def.name, def);
+        }
+      });
     }
 
     return this.ast;
@@ -53,49 +74,131 @@ export class Visitor extends BaseVisitor {
     return new DefinitionClause(IDENTIFIER[0].image, expressions);
   }
 
-  expression({ value, ...res }: any): ExpressionClause[] {
-    let exps: ExpressionClause[] = [];
-    console.log(res);
-    if (value) {
-      exps = [this.visit(value[0])];
-    }
-
-    return exps;
+  expression({ addition }: any): ExpressionClause {
+    return this.visit(addition);
   }
 
   functionCall(ctx: any) {}
 
-  value({ STRING, INTEGER, DOUBLE }: any): ValueClause<string | number> {
-    let value;
+  value({
+    MINUS,
+    STRING,
+    DOUBLE,
+    INTEGER,
+    PLUS: HAS_PLUS,
+  }: any): ValueClause<string | number> {
+    const multiplier = MINUS ? -1 : 1;
 
     if (STRING) {
-      value = new StringClause(_.trim(STRING[0].image, '"'));
+      if (HAS_PLUS && MINUS) {
+        throw Error("Could not parse value");
+      }
+
+      return new StringClause(_.trim(STRING[0].image, '"'));
     } else if (INTEGER) {
-      value = new IntegerClause(parseInt(INTEGER[0].image, 10));
+      const value = multiplier * parseInt(INTEGER[0].image, 10);
+      return new IntegerClause(value);
     } else if (DOUBLE) {
-      value = new DoubleClause(parseFloat(DOUBLE[0].image));
-    } else {
-      throw Error("Could not parse value");
+      const value = multiplier * parseFloat(DOUBLE[0].image);
+      return new DoubleClause(value);
     }
 
-    return value;
+    throw Error("Could not parse value");
   }
 
-  addition(ctx: any) {}
-  multiplication(ctx: any) {}
-  atomic(ctx: any) {}
-  parenthesis(ctx: any) {}
-  arithmetic(ctx: any) {}
+  addition(ctx: any): AtomicValue | BinaryOperation {
+    const left = this.visit(ctx.lhs);
+    let operatorType = new AdditionOperation(left, new IntegerClause(0));
+
+    if (ctx.rhs) {
+      ctx.rhs.forEach((rhsOperand: any, idx: any) => {
+        // there will be one operator for each rhs operand
+        const rhsValue = this.visit(rhsOperand);
+        const operator = ctx.ADDITION_OPERATOR[idx];
+
+        let newOperatorType: BinaryOperation;
+
+        if (tokenMatcher(operator, PLUS)) {
+          newOperatorType = new AdditionOperation(operatorType.left, rhsValue);
+        } else {
+          newOperatorType = new SubtractionOperation(
+            operatorType.left,
+            rhsValue,
+          );
+        }
+
+        operatorType.right = newOperatorType;
+        operatorType = newOperatorType;
+      });
+    }
+
+    return operatorType.squash();
+  }
+
+  multiplication(ctx: any): AtomicValue | BinaryOperation {
+    const left = this.visit(ctx.lhs);
+    let operatorType = new MultiplicationOperation(left, new IntegerClause(1));
+
+    if (ctx.rhs) {
+      ctx.rhs.forEach((rhsOperand: any, idx: any) => {
+        // there will be one operator for each rhs operand
+        const rhsValue = this.visit(rhsOperand);
+        const operator = ctx.MULTIPLICATION_OPERATOR[idx];
+
+        let newOperatorType: BinaryOperation;
+
+        if (tokenMatcher(operator, TIMES)) {
+          newOperatorType = new MultiplicationOperation(
+            operatorType.left,
+            rhsValue,
+          );
+        } else {
+          newOperatorType = new DivisionOperation(operatorType.left, rhsValue);
+        }
+
+        operatorType.right = newOperatorType;
+        operatorType = newOperatorType;
+      });
+    }
+
+    return operatorType.squash();
+  }
+
+  atomic(ctx: any) {
+    if (ctx.parenthesis) {
+      // passing an array to "this.visit" is equivalent
+      // to passing the array's first element
+      return this.visit(ctx.parenthesis);
+    } else if (ctx.value) {
+      // If a key exists on the ctx, at least one element is guaranteed
+      return this.visit(ctx.value);
+    }
+  }
+
+  parenthesis(ctx: any) {
+    return this.visit(ctx.arithmetic);
+  }
 
   reference({ IDENTIFIER }: any): string[] {
     return _.map(IDENTIFIER, id => id.image);
   }
 
-  block({ expression }: any): ExpressionClause[] {
+  block({ expression, definitionClause }: any): BlockClause {
     const expressions = expression
       ? _.map(expression, (exp: any) => this.visit(exp))
       : [];
 
-    return expressions;
+    const definitions = new Map();
+    if (definitionClause) {
+      _.each(definitionClause, def => {
+        const definition = this.visit(def);
+        if (definitions.has(definition.name)) {
+        } else {
+          definitions.set(definition.name, def);
+        }
+      });
+    }
+
+    return new BlockClause(definitions, expressions);
   }
 }

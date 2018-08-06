@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import { IToken } from "chevrotain";
 import AggregateError from "aggregate-error";
 
-import { AST } from "../ast/ast";
+import { AST } from "../ast";
 import { PARSER } from "./parser";
 import { Visitor } from "./visitor";
 

@@ -5,8 +5,9 @@ const example = `
 import Console;
 import Toro.Lexer;
 
-def main = 10 * (20 + 10) + call();
+def main = -10 + 20 * -5;
 `;
 
 const tokens = tokenize(example);
 const ast = parse(tokens);
+console.log(ast.definitions.get("main"));

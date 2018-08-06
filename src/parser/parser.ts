@@ -1,3 +1,5 @@
+import { PLUS, MINUS } from "./../lexer/operators";
+import { EXPORT } from "./../lexer/keywords";
 import { Parser, IToken } from "chevrotain";
 
 import {
@@ -11,7 +13,12 @@ import {
 
 import { TOKENS } from "../lexer";
 import { IMPORT, DEF } from "../lexer/keywords";
-import { EQUALS, PERIOD, PLUS, TIMES } from "../lexer/operators";
+import {
+  EQUALS,
+  PERIOD,
+  ADDITION_OPERATOR,
+  MULTIPLICATION_OPERATOR,
+} from "../lexer/operators";
 import { IDENTIFIER, STRING, INTEGER, DOUBLE } from "../lexer/literals";
 
 class ToroParser extends Parser {
@@ -23,7 +30,10 @@ class ToroParser extends Parser {
 
   public program = this.RULE("program", () => {
     this.MANY(() => this.SUBRULE(this.importClause));
-    this.MANY1(() => this.SUBRULE1(this.definitionClause));
+    this.MANY1(() => {
+      this.OPTION(() => this.CONSUME(EXPORT));
+      this.SUBRULE1(this.definitionClause);
+    });
   });
 
   private importClause = this.RULE("importClause", () => {
@@ -44,26 +54,24 @@ class ToroParser extends Parser {
 
   private block = this.RULE("block", () => {
     this.CONSUME(LCURLY);
-    this.AT_LEAST_ONE(() => this.SUBRULE(this.expression));
+    this.AT_LEAST_ONE(() =>
+      this.OR([
+        { ALT: () => this.SUBRULE(this.expression) },
+        { ALT: () => this.SUBRULE(this.definitionClause) },
+      ]),
+    );
     this.CONSUME(RCURLY);
   });
 
   private expression = this.RULE("expression", () => {
-    this.OR([
-      { ALT: () => this.SUBRULE(this.arithmetic) },
-      { ALT: () => this.SUBRULE(this.definitionClause) },
-    ]);
+    this.SUBRULE(this.addition);
     this.CONSUME(SEMI_COLON);
   });
 
-  private arithmetic = this.RULE("arithmetic", () => {
-    this.SUBRULE(this.addition);
-  });
-
   private addition = this.RULE("addition", () => {
-    this.SUBRULE(this.multiplication, { LABEL: "lhs" });
+    this.SUBRULE(this.multiplication, { LABEL: "lhs" }).children.lhs;
     this.MANY(() => {
-      this.CONSUME(PLUS);
+      this.CONSUME(ADDITION_OPERATOR);
       this.SUBRULE2(this.multiplication, { LABEL: "rhs" });
     });
   });
@@ -71,26 +79,32 @@ class ToroParser extends Parser {
   private multiplication = this.RULE("multiplication", () => {
     this.SUBRULE(this.atomic, { LABEL: "lhs" });
     this.MANY(() => {
-      this.CONSUME(TIMES);
+      this.CONSUME(MULTIPLICATION_OPERATOR);
       this.SUBRULE2(this.atomic, { LABEL: "rhs" });
     });
   });
 
-  private atomic = this.RULE("atomic", () =>
+  private atomic = this.RULE("atomic", () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.parenthesis) },
       { ALT: () => this.SUBRULE(this.value) },
-    ]),
-  );
+    ]);
+  });
 
   private parenthesis = this.RULE("parenthesis", () => {
     this.CONSUME(LPAREN);
-    this.SUBRULE(this.arithmetic);
+    this.SUBRULE(this.addition);
     this.CONSUME(RPAREN);
   });
 
   private value = this.RULE("value", () => {
-    this.OR([
+    this.OPTION(() => {
+      this.OR([
+        { ALT: () => this.CONSUME(PLUS) },
+        { ALT: () => this.CONSUME1(MINUS) },
+      ]);
+    });
+    this.OR1([
       { ALT: () => this.CONSUME(STRING) },
       { ALT: () => this.CONSUME1(DOUBLE) },
       { ALT: () => this.CONSUME2(INTEGER) },

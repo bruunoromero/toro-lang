@@ -1,9 +1,10 @@
 import { Clause } from "./clause";
 import { ExpressionClause } from "./expression-clause";
+import { DefinitionClause } from "./definition-clause";
 
-export class DefinitionClause extends Clause {
+export class BlockClause extends Clause {
   constructor(
-    public readonly name: string,
+    public readonly definitions: Map<string, DefinitionClause>,
     public readonly expressions: ExpressionClause[],
   ) {
     super();
