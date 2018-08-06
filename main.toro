@@ -1,14 +1,11 @@
-import DOM
+import DOM;
+
 # All functions in `toro` are curried
 #
 # List.map : (a -> b) -> [a] -> [b]
 
 def main = {
-  def id = DOM.querySelector("#teste")
-
-  match(id) {
-    Just(el) -> ...
-    None -> ...
-  }
-
+  def element: Maybe(DOM.Node) = DOM.querySelector("#teste");
+  
+  DOM.map(DOM.setText("Hello World!"), element);
 }
