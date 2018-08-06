@@ -1,10 +1,10 @@
 import { Clause } from "./clause";
-import { FunctionClause } from "./function-clause";
+import { FunctionLiteral } from "./function-literal";
 
 export class Definition extends Clause {
   constructor(
     public readonly name: string,
-    public readonly value: FunctionClause,
+    public readonly value: FunctionLiteral,
     public exports: boolean = false,
   ) {
     super();

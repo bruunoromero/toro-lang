@@ -4,9 +4,9 @@ import { Block } from "../ast/block";
 
 export const generateBlock = (block: Block) => {
   const defs = `
-    ${Array.from(block.definitions)
-      .map(([name, def]) => generateFunction(name, def.value))
-      .join("\n")}
+${Array.from(block.definitions)
+    .map(([name, def]) => generateFunction(name, def.value))
+    .join("\n")}
     `;
 
   const exps = Array.from(block.expressions).map(exp =>

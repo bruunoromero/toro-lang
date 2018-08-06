@@ -10,7 +10,7 @@ import { Block } from "../ast/block";
 import { Double } from "../ast/double";
 import { ImportClause } from "../ast/import-clause";
 import { Integer } from "../ast/integer";
-import { FunctionClause } from "../ast/function-clause";
+import { FunctionLiteral } from "../ast/function-literal";
 import { Expression } from "../ast/expression";
 import { Definition } from "../ast/definition";
 import { BinaryOperation, AtomicValue } from "../ast/binary-operation";
@@ -95,7 +95,7 @@ export class Visitor extends BaseVisitor {
 
     const def = new Definition(
       IDENTIFIER[0].image,
-      new FunctionClause(parameters, expressions),
+      new FunctionLiteral(parameters, expressions),
     );
 
     _.each(expression, exp => {

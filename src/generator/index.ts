@@ -6,12 +6,12 @@ export const generate = (ast: AST) => {
   const defs = Array.from(ast.definitions);
 
   return `
-    'use strict';
-    ${defs
-      .map(([name, def]) => generateFunction(name, def.value))
-      .filter(v => v)
-      .join("\n")}
-      
-    ${ast.exports.map(name => generateExports(name)).join("\n")}
+'use strict';
+${defs
+    .map(([name, def]) => generateFunction(name, def.value))
+    .filter(v => v)
+    .join("\n")}
+  
+${ast.exports.map(name => generateExports(name)).join("\n")}
     `;
 };
