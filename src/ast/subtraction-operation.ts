@@ -1,19 +1,17 @@
 import { BinaryOperation, AtomicValue } from "./binary-operation";
-import { IntegerClause } from "./integer-clause";
-import { DoubleClause } from "./double-clause";
+import { Integer } from "./integer";
+import { Double } from "./double";
 export class SubtractionOperation extends BinaryOperation {
-  evaluate(): AtomicValue {
-    if (this.left.is(IntegerClause) && this.right!.is(IntegerClause)) {
+  evaluate(): AtomicValue | BinaryOperation {
+    if (this.left.is(Integer) && this.right!.is(Integer)) {
       const value =
-        (this.left as IntegerClause).value -
-        (this.right as IntegerClause).value;
-      return new IntegerClause(value);
-    } else if (this.left.is(DoubleClause) && this.right!.is(DoubleClause)) {
-      const value =
-        (this.left as DoubleClause).value - (this.right! as DoubleClause).value;
-      return new DoubleClause(value);
+        (this.left as Integer).value - (this.right as Integer).value;
+      return new Integer(value);
+    } else if (this.left.is(Double) && this.right!.is(Double)) {
+      const value = (this.left as Double).value - (this.right! as Double).value;
+      return new Double(value);
     }
 
-    throw new Error("diferent types");
+    return this;
   }
 }

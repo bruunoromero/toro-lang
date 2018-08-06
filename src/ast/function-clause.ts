@@ -1,13 +1,11 @@
-import { BlockClause } from "./block-caluse";
-import { ValueClause } from "./value-clause";
-import { ExpressionClause } from "./expression-clause";
+import { Block } from "./block";
+import { Value } from "./value";
+import { Expression } from "./expression";
 
-export class FunctionClause extends ValueClause<
-  ExpressionClause | BlockClause
-> {
+export class FunctionClause extends Value<Expression | Block> {
   constructor(
     public readonly parameters: Map<string, string>,
-    public readonly value: ExpressionClause | BlockClause,
+    public readonly value: Expression | Block,
   ) {
     super(value);
   }

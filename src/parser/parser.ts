@@ -76,13 +76,15 @@ class ToroParser extends Parser {
 
   private block = this.RULE("block", () => {
     this.CONSUME(LCURLY);
-    this.AT_LEAST_ONE(() =>
-      this.OR([
-        { ALT: () => this.SUBRULE(this.expression) },
-        { ALT: () => this.SUBRULE(this.definitionClause) },
-      ]),
-    );
+    this.MANY(() => this.SUBRULE(this.expressionOrDefinition));
     this.CONSUME(RCURLY);
+  });
+
+  private expressionOrDefinition = this.RULE("expressionOrDefinition", () => {
+    this.OR([
+      { ALT: () => this.SUBRULE(this.expression) },
+      { ALT: () => this.SUBRULE(this.definitionClause) },
+    ]);
   });
 
   private expression = this.RULE("expression", () => {

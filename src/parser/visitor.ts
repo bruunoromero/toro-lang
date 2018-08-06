@@ -5,15 +5,14 @@ import { TIMES, PLUS } from "../lexer/operators";
 
 import { AST } from "../ast";
 import { BaseVisitor } from "./parser";
-import { ValueClause } from "../ast/value-clause";
-import { BlockClause } from "../ast/block-caluse";
-import { DoubleClause } from "../ast/double-clause";
-import { StringClause } from "../ast/string-clause";
+import { Value } from "../ast/value";
+import { Block } from "../ast/block";
+import { Double } from "../ast/double";
 import { ImportClause } from "../ast/import-clause";
-import { IntegerClause } from "../ast/integer-clause";
+import { Integer } from "../ast/integer";
 import { FunctionClause } from "../ast/function-clause";
-import { ExpressionClause } from "../ast/expression-clause";
-import { DefinitionClause } from "../ast/definition-clause";
+import { Expression } from "../ast/expression";
+import { Definition } from "../ast/definition";
 import { BinaryOperation, AtomicValue } from "../ast/binary-operation";
 import { DivisionOperation } from "../ast/division-operation";
 import { AdditionOperation } from "../ast/addition-operation";
@@ -79,8 +78,8 @@ export class Visitor extends BaseVisitor {
     expression,
     IDENTIFIER,
     parameterDefinition,
-  }: any): DefinitionClause {
-    let expressions!: BlockClause;
+  }: any): Definition {
+    let expressions!: Block;
 
     let parameters = new Map();
 
@@ -91,10 +90,10 @@ export class Visitor extends BaseVisitor {
     if (block) {
       expressions = this.visit(block[0]);
     } else if (expression) {
-      expressions = new BlockClause(new Map(), [this.visit(expression[0])]);
+      expressions = new Block(new Map(), [this.visit(expression[0])]);
     }
 
-    const def = new DefinitionClause(
+    const def = new Definition(
       IDENTIFIER[0].image,
       new FunctionClause(parameters, expressions),
     );
@@ -121,7 +120,7 @@ export class Visitor extends BaseVisitor {
     return parameters;
   }
 
-  expression({ addition }: any): ExpressionClause {
+  expression({ addition }: any): Expression {
     return this.visit(addition);
   }
 
@@ -129,7 +128,7 @@ export class Visitor extends BaseVisitor {
     const add = _.map(addition, (addi: any) => this.visit(addi));
     const ref = this.visit(reference);
 
-    return new ExpressionClause(new IntegerClause(10));
+    return new Expression(new Integer(10));
   }
 
   value({
@@ -139,7 +138,7 @@ export class Visitor extends BaseVisitor {
     INTEGER,
     functionCall,
     PLUS: HAS_PLUS,
-  }: any): ValueClause<string | number> {
+  }: any): Value<string | number> {
     const multiplier = MINUS ? -1 : 1;
 
     if (STRING) {
@@ -147,13 +146,13 @@ export class Visitor extends BaseVisitor {
         throw Error("Could not parse value");
       }
 
-      return new StringClause(_.trim(STRING[0].image, '"'));
+      // return new String(_.trim(STRING[0].image, '"'));
     } else if (INTEGER) {
       const value = multiplier * parseInt(INTEGER[0].image, 10);
-      return new IntegerClause(value);
+      return new Integer(value);
     } else if (DOUBLE) {
       const value = multiplier * parseFloat(DOUBLE[0].image);
-      return new DoubleClause(value);
+      return new Double(value);
     } else if (functionCall) {
       return this.visit(functionCall);
     }
@@ -238,7 +237,9 @@ export class Visitor extends BaseVisitor {
     return _.map(IDENTIFIER, id => id.image);
   }
 
-  block({ expression, definitionClause }: any): BlockClause {
+  expressionOrDefinition(ctx: any) {}
+
+  block({ expression, definitionClause }: any): Block {
     const expressions = expression
       ? _.map(expression, (exp: any) => this.visit(exp))
       : [];
@@ -254,6 +255,6 @@ export class Visitor extends BaseVisitor {
       });
     }
 
-    return new BlockClause(definitions, expressions);
+    return new Block(definitions, expressions);
   }
 }

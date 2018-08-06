@@ -3,11 +3,11 @@ import { parse } from "./parser";
 import { tokenize } from "./lexer";
 
 const example = `
-def greet(to: String) = {
-    String.concat("Hello ", to);
+def greet(to: Int) = {
+    to;
 }
 
-export def main = greet("world!");
+export def main = greet(10);
 `;
 
 const tokens = tokenize(example);

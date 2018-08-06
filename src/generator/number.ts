@@ -1,6 +1,6 @@
-import { DoubleClause } from "./../ast/double-clause";
-import { IntegerClause } from "../ast/integer-clause";
+import { Double } from "../ast/double";
+import { Integer } from "../ast/integer";
 
-export const generateNumber = ({ value }: IntegerClause | DoubleClause) => {
+export const generateNumber = ({ value }: Integer | Double) => {
   return value;
 };

@@ -1,10 +1,10 @@
 import { ImportClause } from "./import-clause";
-import { DefinitionClause } from "./definition-clause";
+import { Definition } from "./definition";
 
 export class AST {
   exports: string[];
   imports: Map<string[], ImportClause>;
-  definitions: Map<string, DefinitionClause>;
+  definitions: Map<string, Definition>;
 
   constructor() {
     this.exports = [];

@@ -1,8 +1,8 @@
 import { generateExpression } from "./expression";
 import { generateFunction } from "./function";
-import { BlockClause } from "./../ast/block-caluse";
+import { Block } from "../ast/block";
 
-export const generateBlock = (block: BlockClause) => {
+export const generateBlock = (block: Block) => {
   const defs = `
     ${Array.from(block.definitions)
       .map(([name, def]) => generateFunction(name, def.value))

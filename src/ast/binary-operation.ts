@@ -1,9 +1,8 @@
 import { Clause } from "./clause";
-import { StringClause } from "./string-clause";
-import { DoubleClause } from "./double-clause";
-import { IntegerClause } from "./integer-clause";
+import { Double } from "./double";
+import { Integer } from "./integer";
 
-export type AtomicValue = IntegerClause | DoubleClause | StringClause;
+export type AtomicValue = Integer | Double;
 
 export abstract class BinaryOperation extends Clause {
   constructor(
@@ -33,5 +32,5 @@ export abstract class BinaryOperation extends Clause {
     return this;
   }
 
-  abstract evaluate(): AtomicValue;
+  abstract evaluate(): AtomicValue | BinaryOperation;
 }

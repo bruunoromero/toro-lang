@@ -1,25 +1,19 @@
+import { Block } from "../ast/block";
+import { Double } from "../ast/double";
 import { generateBlock } from "./block";
-import { BlockClause } from "./../ast/block-caluse";
-import { StringClause } from "./../ast/string-clause";
+import { Integer } from "../ast/integer";
 import { generateNumber } from "./number";
-import { DoubleClause } from "../ast/double-clause";
-import { IntegerClause } from "../ast/integer-clause";
-import { ExpressionClause } from "../ast/expression-clause";
-import { generateString } from "./string";
+import { Expression } from "../ast/expression";
 
-export const generateExpression = (
-  exp: ExpressionClause | BlockClause,
-): any => {
-  if (exp.is(BlockClause)) {
-    return generateBlock(exp as BlockClause);
+export const generateExpression = (exp: Expression | Block): any => {
+  if (exp.is(Block)) {
+    return generateBlock(exp as Block);
   } else {
-    const expression = (exp as ExpressionClause).expression;
-    if (expression.is(IntegerClause)) {
-      return `${generateNumber(expression as IntegerClause)};`;
-    } else if (expression.is(DoubleClause)) {
-      return `${generateNumber(expression as DoubleClause)};`;
-    } else if (expression.is(StringClause)) {
-      return `${generateString(expression as StringClause)};`;
+    const expression = (exp as Expression).expression;
+    if (expression.is(Integer)) {
+      return `${generateNumber(expression as Integer)};`;
+    } else if (expression.is(Double)) {
+      return `${generateNumber(expression as Double)};`;
     }
   }
 };
