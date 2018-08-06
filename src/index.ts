@@ -7,7 +7,7 @@ def greet(to: String) = {
     String.concat("Hello ", to);
 }
 
-def main = greet("world!");
+export def main = greet("world!");
 `;
 
 const tokens = tokenize(example);

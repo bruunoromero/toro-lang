@@ -4,7 +4,7 @@ import { FunctionClause } from "../ast/function-clause";
 export const generateFunction = (name: string, func: FunctionClause) => {
   return `
     function ${name}(${generateParameters(func)}) {
-        ${generateExpression(func.value)}
+      ${generateExpression(func.value)}
     }
     `;
 };

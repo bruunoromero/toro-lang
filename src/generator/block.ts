@@ -16,8 +16,5 @@ export const generateBlock = (block: BlockClause) => {
   const last = exps[exps.length - 1];
   exps[exps.length - 1] = "return " + last;
 
-  return `
-    ${defs}
-    ${exps}
-  `;
+  return `${defs}${exps}`;
 };

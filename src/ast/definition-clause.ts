@@ -5,6 +5,7 @@ export class DefinitionClause extends Clause {
   constructor(
     public readonly name: string,
     public readonly value: FunctionClause,
+    public exports: boolean = false,
   ) {
     super();
   }

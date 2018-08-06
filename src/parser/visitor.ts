@@ -29,7 +29,7 @@ export class Visitor extends BaseVisitor {
     this.validateVisitor();
   }
 
-  program({ definitionClause, importClause }: any): AST {
+  program({ exportableDefinitionClause, importClause }: any): AST {
     if (importClause) {
       _.each(importClause, (clause: any) => {
         const impt = this.visit(clause);
@@ -42,14 +42,18 @@ export class Visitor extends BaseVisitor {
       });
     }
 
-    if (definitionClause) {
-      _.each(definitionClause, (definition: any) => {
+    if (exportableDefinitionClause) {
+      _.each(exportableDefinitionClause, (definition: any) => {
         const def = this.visit(definition);
 
         if (this.ast.definitions.has(def.name)) {
           // TODO: throw duplicated declaration error
         } else {
           this.ast.definitions.set(def.name, def);
+
+          if (def.exports) {
+            this.ast.exports.push(def.name);
+          }
         }
       });
     }
@@ -61,6 +65,13 @@ export class Visitor extends BaseVisitor {
     const path = this.visit(reference[0]);
 
     return new ImportClause(path);
+  }
+
+  exportableDefinitionClause({ EXPORT, definitionClause }: any) {
+    const def = this.visit(definitionClause);
+    def.exports = !!EXPORT;
+
+    return def;
   }
 
   definitionClause({

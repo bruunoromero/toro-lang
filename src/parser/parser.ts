@@ -31,10 +31,7 @@ class ToroParser extends Parser {
 
   public program = this.RULE("program", () => {
     this.MANY(() => this.SUBRULE(this.importClause));
-    this.MANY1(() => {
-      this.OPTION(() => this.CONSUME(EXPORT));
-      this.SUBRULE1(this.definitionClause);
-    });
+    this.MANY1(() => this.SUBRULE(this.exportableDefinitionClause));
   });
 
   private importClause = this.RULE("importClause", () => {
@@ -42,6 +39,14 @@ class ToroParser extends Parser {
     this.SUBRULE(this.reference);
     this.CONSUME1(SEMI_COLON);
   });
+
+  private exportableDefinitionClause = this.RULE(
+    "exportableDefinitionClause",
+    () => {
+      this.OPTION(() => this.CONSUME(EXPORT));
+      this.SUBRULE1(this.definitionClause);
+    },
+  );
 
   private definitionClause = this.RULE("definitionClause", () => {
     this.CONSUME(DEF);
