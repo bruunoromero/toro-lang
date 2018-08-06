@@ -1,8 +1,8 @@
 import * as _ from "lodash";
 
+import { AST } from "../../../src/ast/ast";
 import { parse } from "./../../../src/parser";
 import { tokenize } from "../../../src/lexer";
-import { AST } from "../../../src/parser/ast";
 
 const oneImportCorrect = `
 import IO;

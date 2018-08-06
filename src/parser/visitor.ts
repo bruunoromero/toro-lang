@@ -1,15 +1,14 @@
 import * as _ from "lodash";
-import { IToken } from "chevrotain";
 
-import { AST } from "./ast";
+import { AST } from "../ast/ast";
 import { BaseVisitor } from "./parser";
-import { ValueClause } from "./value-clause";
-import { DoubleClause } from "./double-clause";
-import { StringClause } from "./string-clause";
-import { ImportClause } from "./import-clause";
-import { IntegerClause } from "./integer-clause";
-import { ExpressionClause } from "./expression-clause";
-import { DefinitionClause } from "./definition-clause";
+import { ValueClause } from "../ast/value-clause";
+import { DoubleClause } from "../ast/double-clause";
+import { StringClause } from "../ast/string-clause";
+import { ImportClause } from "../ast/import-clause";
+import { IntegerClause } from "../ast/integer-clause";
+import { ExpressionClause } from "../ast/expression-clause";
+import { DefinitionClause } from "../ast/definition-clause";
 
 export class Visitor extends BaseVisitor {
   ast: AST;

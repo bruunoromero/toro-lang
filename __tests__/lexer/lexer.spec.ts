@@ -2,8 +2,8 @@ import * as _ from "lodash";
 
 import { tokenize } from "./../../src/lexer";
 import { EQUALS } from "./../../src/lexer/operators";
-import { IDENTIFIER, STRING } from "./../../src/lexer/literals";
 import { DEF, IMPORT } from "./../../src/lexer/keywords";
+import { IDENTIFIER, STRING } from "./../../src/lexer/literals";
 import {
   LPAREN,
   RPAREN,
