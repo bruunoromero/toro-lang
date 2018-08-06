@@ -1,13 +1,15 @@
+import { generate } from "./generator";
 import { parse } from "./parser";
 import { tokenize } from "./lexer";
 
 const example = `
-import Console;
-import Toro.Lexer;
+def greet(to: String) = {
+    String.concat("Hello ", to);
+}
 
-def main = -10 + 20 * -5;
+def main = greet("world!");
 `;
 
 const tokens = tokenize(example);
 const ast = parse(tokens);
-console.log(ast.definitions.get("main"));
+console.log(generate(ast));

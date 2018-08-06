@@ -1,5 +1,6 @@
-import { PLUS, MINUS } from "./../lexer/operators";
-import { EXPORT } from "./../lexer/keywords";
+import { COLON } from "../lexer/specials";
+import { PLUS, MINUS } from "../lexer/operators";
+import { EXPORT } from "../lexer/keywords";
 import { Parser, IToken } from "chevrotain";
 
 import {
@@ -45,11 +46,27 @@ class ToroParser extends Parser {
   private definitionClause = this.RULE("definitionClause", () => {
     this.CONSUME(DEF);
     this.CONSUME1(IDENTIFIER);
+    this.OPTION(() => {
+      this.CONSUME(LPAREN);
+      this.SUBRULE(this.parameterDefinition);
+      this.CONSUME(RPAREN);
+    });
     this.CONSUME2(EQUALS);
     this.OR([
-      { ALT: () => this.SUBRULE(this.block) },
-      { ALT: () => this.SUBRULE1(this.expression) },
+      { ALT: () => this.SUBRULE1(this.block) },
+      { ALT: () => this.SUBRULE2(this.expression) },
     ]);
+  });
+
+  private parameterDefinition = this.RULE("parameterDefinition", () => {
+    this.MANY_SEP({
+      SEP: COMMA,
+      DEF: () => {
+        this.CONSUME(IDENTIFIER, { LABEL: "name" });
+        this.CONSUME1(COLON);
+        this.CONSUME2(IDENTIFIER, { LABEL: "type" });
+      },
+    });
   });
 
   private block = this.RULE("block", () => {
@@ -69,7 +86,7 @@ class ToroParser extends Parser {
   });
 
   private addition = this.RULE("addition", () => {
-    this.SUBRULE(this.multiplication, { LABEL: "lhs" }).children.lhs;
+    this.SUBRULE(this.multiplication, { LABEL: "lhs" });
     this.MANY(() => {
       this.CONSUME(ADDITION_OPERATOR);
       this.SUBRULE2(this.multiplication, { LABEL: "rhs" });
@@ -118,7 +135,7 @@ class ToroParser extends Parser {
       this.CONSUME1(LPAREN);
       this.MANY_SEP({
         SEP: COMMA,
-        DEF: () => this.SUBRULE(this.expression),
+        DEF: () => this.SUBRULE(this.addition),
       });
       this.CONSUME(RPAREN);
     });

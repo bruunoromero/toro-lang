@@ -1,22 +1,23 @@
 import * as _ from "lodash";
 import { tokenMatcher } from "chevrotain";
 
-import { TIMES, PLUS } from "./../lexer/operators";
+import { TIMES, PLUS } from "../lexer/operators";
 
 import { AST } from "../ast";
 import { BaseVisitor } from "./parser";
 import { ValueClause } from "../ast/value-clause";
-import { BlockClause } from "./../ast/block-caluse";
+import { BlockClause } from "../ast/block-caluse";
 import { DoubleClause } from "../ast/double-clause";
 import { StringClause } from "../ast/string-clause";
 import { ImportClause } from "../ast/import-clause";
 import { IntegerClause } from "../ast/integer-clause";
+import { FunctionClause } from "../ast/function-clause";
 import { ExpressionClause } from "../ast/expression-clause";
 import { DefinitionClause } from "../ast/definition-clause";
-import { BinaryOperation, AtomicValue } from "./../ast/binary-operation";
+import { BinaryOperation, AtomicValue } from "../ast/binary-operation";
 import { DivisionOperation } from "../ast/division-operation";
-import { AdditionOperation } from "./../ast/addition-operation";
-import { SubtractionOperation } from "./../ast/subtraction-operation";
+import { AdditionOperation } from "../ast/addition-operation";
+import { SubtractionOperation } from "../ast/subtraction-operation";
 import { MultiplicationOperation } from "../ast/multiplication-operation";
 
 export class Visitor extends BaseVisitor {
@@ -62,29 +63,70 @@ export class Visitor extends BaseVisitor {
     return new ImportClause(path);
   }
 
-  definitionClause({ IDENTIFIER, block, expression }: any): DefinitionClause {
-    let expressions: ExpressionClause[] = [];
+  definitionClause({
+    block,
+    expression,
+    IDENTIFIER,
+    parameterDefinition,
+  }: any): DefinitionClause {
+    let expressions!: BlockClause;
+
+    let parameters = new Map();
+
+    if (parameterDefinition) {
+      parameters = this.visit(parameterDefinition);
+    }
 
     if (block) {
       expressions = this.visit(block[0]);
     } else if (expression) {
-      expressions = [this.visit(expression[0])];
+      expressions = new BlockClause(new Map(), [this.visit(expression[0])]);
     }
 
-    return new DefinitionClause(IDENTIFIER[0].image, expressions);
+    const def = new DefinitionClause(
+      IDENTIFIER[0].image,
+      new FunctionClause(parameters, expressions),
+    );
+
+    _.each(expression, exp => {
+      exp.parent = def;
+    });
+
+    return def;
+  }
+
+  parameterDefinition({ name, type }: any) {
+    const parameters = new Map();
+    _.each(name, (value, idx) => {
+      if (!parameters.has(value)) {
+        const parameterType = type[idx].image;
+
+        parameters.set(value.image, parameterType);
+      } else {
+        throw Error("Double parameter declararion");
+      }
+    });
+
+    return parameters;
   }
 
   expression({ addition }: any): ExpressionClause {
     return this.visit(addition);
   }
 
-  functionCall(ctx: any) {}
+  functionCall({ reference, addition }: any) {
+    const add = _.map(addition, (addi: any) => this.visit(addi));
+    const ref = this.visit(reference);
+
+    return new ExpressionClause(new IntegerClause(10));
+  }
 
   value({
     MINUS,
     STRING,
     DOUBLE,
     INTEGER,
+    functionCall,
     PLUS: HAS_PLUS,
   }: any): ValueClause<string | number> {
     const multiplier = MINUS ? -1 : 1;
@@ -101,6 +143,8 @@ export class Visitor extends BaseVisitor {
     } else if (DOUBLE) {
       const value = multiplier * parseFloat(DOUBLE[0].image);
       return new DoubleClause(value);
+    } else if (functionCall) {
+      return this.visit(functionCall);
     }
 
     throw Error("Could not parse value");
@@ -108,7 +152,7 @@ export class Visitor extends BaseVisitor {
 
   addition(ctx: any): AtomicValue | BinaryOperation {
     const left = this.visit(ctx.lhs);
-    let operatorType = new AdditionOperation(left, new IntegerClause(0));
+    let operatorType = new AdditionOperation(left);
 
     if (ctx.rhs) {
       ctx.rhs.forEach((rhsOperand: any, idx: any) => {
@@ -137,7 +181,7 @@ export class Visitor extends BaseVisitor {
 
   multiplication(ctx: any): AtomicValue | BinaryOperation {
     const left = this.visit(ctx.lhs);
-    let operatorType = new MultiplicationOperation(left, new IntegerClause(1));
+    let operatorType = new MultiplicationOperation(left);
 
     if (ctx.rhs) {
       ctx.rhs.forEach((rhsOperand: any, idx: any) => {
