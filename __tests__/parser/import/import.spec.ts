@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 
-import { AST } from "../../../src/ast/ast";
+import { AST } from "../../../src/ast";
 import { parse } from "./../../../src/parser";
 import { tokenize } from "../../../src/lexer";
 
@@ -37,10 +37,13 @@ describe("import", () => {
     const ast = parse(tokens);
 
     expect(ast).toBeInstanceOf(AST);
-    expect(ast.imports.length).toBe(1);
-    expect(ast.definitions.length).toBe(0);
+    expect(ast.imports.size).toBe(1);
+    expect(ast.definitions.size).toBe(0);
 
-    const moduleNames = _.map(ast.imports, ipt => ipt.path);
+    const moduleNames = _.map(
+      Array.from(ast.imports),
+      ([key, value]) => value.path,
+    );
 
     expect(moduleNames).toEqual([["IO"]]);
   });
@@ -50,10 +53,13 @@ describe("import", () => {
     const ast = parse(tokens);
 
     expect(ast).toBeInstanceOf(AST);
-    expect(ast.imports.length).toBe(2);
-    expect(ast.definitions.length).toBe(0);
+    expect(ast.imports.size).toBe(2);
+    expect(ast.definitions.size).toBe(0);
 
-    const moduleNames = _.map(ast.imports, ipt => ipt.path);
+    const moduleNames = _.map(
+      Array.from(ast.imports),
+      ([key, value]) => value.path,
+    );
 
     expect(moduleNames).toEqual([["IO"], ["Core", "List"]]);
   });
