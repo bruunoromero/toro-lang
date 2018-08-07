@@ -8,9 +8,9 @@ import {
   PLUS,
   MINUS,
   EQUALS,
-  PERIOD,
-  ADDITION_OPERATOR,
-  MULTIPLICATION_OPERATOR,
+  DOT,
+  PRECEDENCE1,
+  PRECEDENCE2,
 } from "../lexer/operators";
 
 import {
@@ -121,40 +121,44 @@ class ToroParser extends Parser {
   });
 
   private expression = this.RULE("expression", () => {
-    this.SUBRULE(this.addition);
+    this.OR([
+      { ALT: () => this.SUBRULE(this.precendence1) },
+      { ALT: () => this.CONSUME(CHAR) },
+      { ALT: () => this.CONSUME1(STRING) },
+    ]);
     this.CONSUME(SEMI_COLON);
   });
 
-  private addition = this.RULE("addition", () => {
-    this.SUBRULE(this.multiplication, { LABEL: "lhs" });
+  private precendence1 = this.RULE("precendence1", () => {
+    this.SUBRULE(this.precendence2, { LABEL: "lhs" });
     this.MANY(() => {
-      this.CONSUME(ADDITION_OPERATOR);
-      this.SUBRULE2(this.multiplication, { LABEL: "rhs" });
+      this.CONSUME(PRECEDENCE1);
+      this.SUBRULE2(this.precendence2, { LABEL: "rhs" });
     });
   });
 
-  private multiplication = this.RULE("multiplication", () => {
-    this.SUBRULE(this.atomic, { LABEL: "lhs" });
+  private precendence2 = this.RULE("precendence2", () => {
+    this.SUBRULE(this.arithmeticExpression, { LABEL: "lhs" });
     this.MANY(() => {
-      this.CONSUME(MULTIPLICATION_OPERATOR);
-      this.SUBRULE2(this.atomic, { LABEL: "rhs" });
+      this.CONSUME(PRECEDENCE2);
+      this.SUBRULE2(this.arithmeticExpression, { LABEL: "rhs" });
     });
   });
 
-  private atomic = this.RULE("atomic", () => {
+  private arithmeticExpression = this.RULE("arithmeticExpression", () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.parenthesis) },
-      { ALT: () => this.SUBRULE(this.value) },
+      { ALT: () => this.SUBRULE(this.atomicValues) },
     ]);
   });
 
   private parenthesis = this.RULE("parenthesis", () => {
     this.CONSUME(LPAREN);
-    this.SUBRULE(this.addition);
+    this.SUBRULE(this.precendence1);
     this.CONSUME(RPAREN);
   });
 
-  private value = this.RULE("value", () => {
+  private atomicValues = this.RULE("atomicValues", () => {
     this.OPTION(() => {
       this.OR([
         { ALT: () => this.CONSUME(PLUS) },
@@ -162,14 +166,17 @@ class ToroParser extends Parser {
       ]);
     });
     this.OR1([
-      { ALT: () => this.CONSUME(CHAR) },
-      { ALT: () => this.CONSUME1(STRING) },
       { ALT: () => this.CONSUME2(DOUBLE) },
       { ALT: () => this.CONSUME3(INTEGER) },
-      { ALT: () => this.CONSUME4(TRUE) },
-      { ALT: () => this.CONSUME5(FALSE) },
-      { ALT: () => this.SUBRULE(this.list) },
       { ALT: () => this.SUBRULE1(this.functionCall) },
+    ]);
+  });
+
+  private booleanValues = this.RULE("booleanValues", () => {
+    this.OR([
+      { ALT: () => this.CONSUME(TRUE) },
+      { ALT: () => this.CONSUME1(FALSE) },
+      { ALT: () => this.SUBRULE(this.functionCall) },
     ]);
   });
 
@@ -177,7 +184,7 @@ class ToroParser extends Parser {
     this.CONSUME(LBRACE);
     this.MANY_SEP({
       SEP: COMMA,
-      DEF: () => this.SUBRULE(this.addition),
+      DEF: () => this.SUBRULE(this.precendence1),
     });
     this.CONSUME(RBRACE);
   });
@@ -188,7 +195,7 @@ class ToroParser extends Parser {
       this.CONSUME1(LPAREN);
       this.MANY_SEP({
         SEP: COMMA,
-        DEF: () => this.SUBRULE(this.addition),
+        DEF: () => this.SUBRULE(this.precendence1),
       });
       this.CONSUME(RPAREN);
     });
@@ -196,7 +203,7 @@ class ToroParser extends Parser {
 
   private reference = this.RULE("reference", () => {
     this.AT_LEAST_ONE_SEP({
-      SEP: PERIOD,
+      SEP: DOT,
       DEF: () => this.CONSUME1(IDENTIFIER),
     });
   });

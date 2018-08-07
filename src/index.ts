@@ -3,7 +3,7 @@ import { tokenize } from "./lexer";
 
 const example = `
 export def main<T>(xs: List<T>): Int = { 
-    10;
+    10 + "ola mundo";
 }
 `;
 

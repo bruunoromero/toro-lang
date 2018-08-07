@@ -194,7 +194,7 @@ export class Visitor extends BaseVisitor {
     return this.visit(addition);
   }
 
-  addition(ctx: any): AtomicValue | BinaryOperation {
+  precendence1(ctx: any): AtomicValue | BinaryOperation {
     const left = this.visit(ctx.lhs);
     let operatorType = new AdditionOperation(ctx, left);
 
@@ -228,7 +228,7 @@ export class Visitor extends BaseVisitor {
     return operatorType.squash();
   }
 
-  multiplication(ctx: any): AtomicValue | BinaryOperation {
+  precendence2(ctx: any): AtomicValue | BinaryOperation {
     const left = this.visit(ctx.lhs);
     let operatorType = new MultiplicationOperation(ctx, left);
 
@@ -262,7 +262,7 @@ export class Visitor extends BaseVisitor {
     return operatorType.squash();
   }
 
-  atomic(ctx: any) {
+  arithmeticExpression(ctx: any) {
     if (ctx.parenthesis) {
       // passing an array to "this.visit" is equivalent
       // to passing the array's first element
@@ -272,6 +272,12 @@ export class Visitor extends BaseVisitor {
       return this.visit(ctx.value);
     }
   }
+
+  atomicValues(ctx: any) {}
+
+  logical(ctx: any) {}
+
+  booleanValues(ctx: any) {}
 
   parenthesis(ctx: any) {
     return this.visit(ctx.addition);
