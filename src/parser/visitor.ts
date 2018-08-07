@@ -120,44 +120,29 @@ export class Visitor extends BaseVisitor {
     return parameters;
   }
 
-  expression({ addition }: any): Expression {
-    return this.visit(addition);
-  }
+  block({ expression, definitionClause }: any): Block {
+    const expressions = expression
+      ? _.map(expression, (exp: any) => this.visit(exp))
+      : [];
 
-  functionCall({ reference, addition }: any) {
-    const add = _.map(addition, (addi: any) => this.visit(addi));
-    const ref = this.visit(reference);
-
-    return new Expression(new Integer(10));
-  }
-
-  value({
-    MINUS,
-    STRING,
-    DOUBLE,
-    INTEGER,
-    functionCall,
-    PLUS: HAS_PLUS,
-  }: any): Value<string | number> {
-    const multiplier = MINUS ? -1 : 1;
-
-    if (STRING) {
-      if (HAS_PLUS && MINUS) {
-        throw Error("Could not parse value");
-      }
-
-      // return new String(_.trim(STRING[0].image, '"'));
-    } else if (INTEGER) {
-      const value = multiplier * parseInt(INTEGER[0].image, 10);
-      return new Integer(value);
-    } else if (DOUBLE) {
-      const value = multiplier * parseFloat(DOUBLE[0].image);
-      return new Double(value);
-    } else if (functionCall) {
-      return this.visit(functionCall);
+    const definitions = new Map();
+    if (definitionClause) {
+      _.each(definitionClause, def => {
+        const definition = this.visit(def);
+        if (definitions.has(definition.name)) {
+        } else {
+          definitions.set(definition.name, def);
+        }
+      });
     }
 
-    throw Error("Could not parse value");
+    return new Block(definitions, expressions);
+  }
+
+  expressionOrDefinition(ctx: any) {}
+
+  expression({ addition }: any): Expression {
+    return this.visit(addition);
   }
 
   addition(ctx: any): AtomicValue | BinaryOperation {
@@ -229,34 +214,49 @@ export class Visitor extends BaseVisitor {
     }
   }
 
+  parenthesis(ctx: any) {
+    return this.visit(ctx.addition);
+  }
+
+  value({
+    MINUS,
+    STRING,
+    DOUBLE,
+    INTEGER,
+    functionCall,
+    PLUS: HAS_PLUS,
+  }: any): Value<string | number> {
+    const multiplier = MINUS ? -1 : 1;
+
+    if (STRING) {
+      if (HAS_PLUS && MINUS) {
+        throw Error("Could not parse value");
+      }
+
+      // return new String(_.trim(STRING[0].image, '"'));
+    } else if (INTEGER) {
+      const value = multiplier * parseInt(INTEGER[0].image, 10);
+      return new Integer(value);
+    } else if (DOUBLE) {
+      const value = multiplier * parseFloat(DOUBLE[0].image);
+      return new Double(value);
+    } else if (functionCall) {
+      return this.visit(functionCall);
+    }
+
+    throw Error("Could not parse value");
+  }
+
   array(ctx: any) {}
 
-  parenthesis(ctx: any) {
-    return this.visit(ctx.arithmetic);
+  functionCall({ reference, addition }: any) {
+    const add = _.map(addition, (addi: any) => this.visit(addi));
+    const ref = this.visit(reference);
+
+    return new Expression(new Integer(10));
   }
 
   reference({ IDENTIFIER }: any): string[] {
     return _.map(IDENTIFIER, id => id.image);
-  }
-
-  expressionOrDefinition(ctx: any) {}
-
-  block({ expression, definitionClause }: any): Block {
-    const expressions = expression
-      ? _.map(expression, (exp: any) => this.visit(exp))
-      : [];
-
-    const definitions = new Map();
-    if (definitionClause) {
-      _.each(definitionClause, def => {
-        const definition = this.visit(def);
-        if (definitions.has(definition.name)) {
-        } else {
-          definitions.set(definition.name, def);
-        }
-      });
-    }
-
-    return new Block(definitions, expressions);
   }
 }

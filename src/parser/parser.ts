@@ -140,6 +140,15 @@ class ToroParser extends Parser {
     ]);
   });
 
+  private array = this.RULE("array", () => {
+    this.CONSUME(LBRACE);
+    this.MANY_SEP({
+      SEP: COMMA,
+      DEF: () => this.SUBRULE(this.addition),
+    });
+    this.CONSUME(RBRACE);
+  });
+
   private functionCall = this.RULE("functionCall", () => {
     this.SUBRULE(this.reference);
     this.OPTION(() => {
@@ -150,15 +159,6 @@ class ToroParser extends Parser {
       });
       this.CONSUME(RPAREN);
     });
-  });
-
-  private array = this.RULE("array", () => {
-    this.CONSUME(LBRACE);
-    this.MANY_SEP({
-      SEP: COMMA,
-      DEF: () => this.SUBRULE(this.addition),
-    });
-    this.CONSUME(RBRACE);
   });
 
   private reference = this.RULE("reference", () => {
