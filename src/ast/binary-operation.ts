@@ -8,10 +8,11 @@ export type AtomicValue = Integer | Double | BooleanLiteral | ListType;
 
 export abstract class BinaryOperation extends Clause {
   constructor(
+    public readonly ctx: any,
     public left: AtomicValue | BinaryOperation,
     public right?: AtomicValue | BinaryOperation,
   ) {
-    super();
+    super(ctx);
   }
 
   squash(): AtomicValue | BinaryOperation {

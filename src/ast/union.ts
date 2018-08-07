@@ -11,11 +11,12 @@ export class Constructor {
 
 export class Union extends Type implements Type {
   constructor(
+    public readonly ctx: any,
     public readonly name: string,
     public readonly types: Type[],
     public readonly constructors: Map<string, Constructor>,
   ) {
-    super(name);
+    super(ctx, name);
   }
 }
 

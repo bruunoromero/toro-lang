@@ -4,9 +4,10 @@ import { Expression } from "./expression";
 
 export class Block extends Clause {
   constructor(
+    public readonly ctx: any,
     public readonly definitions: Map<string, Definition>,
     public readonly expressions: Expression[],
   ) {
-    super();
+    super(ctx);
   }
 }

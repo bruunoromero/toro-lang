@@ -64,10 +64,11 @@ export class Visitor extends BaseVisitor {
     return this.ast;
   }
 
-  importClause({ reference }: any): ImportClause {
+  importClause(ctx: any): ImportClause {
+    const { reference } = ctx;
     const path = this.visit(reference[0]);
 
-    return new ImportClause(path);
+    return new ImportClause(ctx, path);
   }
 
   exportableDefinitionClause({ EXPORT, definitionClause }: any) {
@@ -92,9 +93,10 @@ export class Visitor extends BaseVisitor {
     // return s;
   }
 
-  genericsDefinition({ IDENTIFIER }: any) {
+  genericsDefinition(ctx: any) {
+    const { IDENTIFIER } = ctx;
     const counts = _.countBy(IDENTIFIER, id => id.image);
-    const types = _.map(IDENTIFIER, id => new Type(id.image, false));
+    const types = _.map(IDENTIFIER, id => new Type(ctx, id.image, false));
 
     const pairs = _.toPairs(counts);
     const repeatedPairs = _.filter(pairs, ([key, value]) => value > 1);
@@ -108,14 +110,15 @@ export class Visitor extends BaseVisitor {
     return types;
   }
 
-  definitionClause({
-    type,
-    block,
-    expression,
-    IDENTIFIER,
-    genericsDefinition,
-    parameterDefinition,
-  }: any): Definition {
+  definitionClause(ctx: any): Definition {
+    const {
+      type,
+      block,
+      expression,
+      IDENTIFIER,
+      genericsDefinition,
+      parameterDefinition,
+    } = ctx;
     let expressions!: Block;
 
     let parameters = new Map();
@@ -132,13 +135,14 @@ export class Visitor extends BaseVisitor {
     if (block) {
       expressions = this.visit(block);
     } else if (expression) {
-      expressions = new Block(new Map(), [this.visit(expression[0])]);
+      expressions = new Block(ctx, new Map(), [this.visit(expression[0])]);
     }
 
     const def = new Definition(
+      ctx,
       IDENTIFIER[0].image,
-      new FunctionLiteral(parameters, expressions, new Type("ola")),
-      new Type("ola"),
+      new FunctionLiteral(ctx, parameters, expressions, new Type(ctx, "ola")),
+      new Type(ctx, "ola"),
       gensDefs,
     );
 
@@ -164,7 +168,8 @@ export class Visitor extends BaseVisitor {
     return parameters;
   }
 
-  block({ expression, definitionClause }: any): Block {
+  block(ctx: any): Block {
+    const { expression, definitionClause } = ctx;
     const expressions = expression
       ? _.map(expression, (exp: any) => this.visit(exp))
       : [];
@@ -180,7 +185,7 @@ export class Visitor extends BaseVisitor {
       });
     }
 
-    return new Block(definitions, expressions);
+    return new Block(ctx, definitions, expressions);
   }
 
   expressionOrDefinition(ctx: any) {}
@@ -191,7 +196,7 @@ export class Visitor extends BaseVisitor {
 
   addition(ctx: any): AtomicValue | BinaryOperation {
     const left = this.visit(ctx.lhs);
-    let operatorType = new AdditionOperation(left);
+    let operatorType = new AdditionOperation(ctx, left);
 
     if (ctx.rhs) {
       ctx.rhs.forEach((rhsOperand: any, idx: any) => {
@@ -202,9 +207,14 @@ export class Visitor extends BaseVisitor {
         let newOperatorType: BinaryOperation;
 
         if (tokenMatcher(operator, PLUS)) {
-          newOperatorType = new AdditionOperation(operatorType.left, rhsValue);
+          newOperatorType = new AdditionOperation(
+            ctx,
+            operatorType.left,
+            rhsValue,
+          );
         } else {
           newOperatorType = new SubtractionOperation(
+            ctx,
             operatorType.left,
             rhsValue,
           );
@@ -220,7 +230,7 @@ export class Visitor extends BaseVisitor {
 
   multiplication(ctx: any): AtomicValue | BinaryOperation {
     const left = this.visit(ctx.lhs);
-    let operatorType = new MultiplicationOperation(left);
+    let operatorType = new MultiplicationOperation(ctx, left);
 
     if (ctx.rhs) {
       ctx.rhs.forEach((rhsOperand: any, idx: any) => {
@@ -232,11 +242,16 @@ export class Visitor extends BaseVisitor {
 
         if (tokenMatcher(operator, TIMES)) {
           newOperatorType = new MultiplicationOperation(
+            ctx,
             operatorType.left,
             rhsValue,
           );
         } else {
-          newOperatorType = new DivisionOperation(operatorType.left, rhsValue);
+          newOperatorType = new DivisionOperation(
+            ctx,
+            operatorType.left,
+            rhsValue,
+          );
         }
 
         operatorType.right = newOperatorType;
@@ -262,34 +277,35 @@ export class Visitor extends BaseVisitor {
     return this.visit(ctx.addition);
   }
 
-  value({
-    CHAR,
-    TRUE,
-    list,
-    FALSE,
-    MINUS,
-    STRING,
-    DOUBLE,
-    INTEGER,
-    functionCall,
-    PLUS: HAS_PLUS,
-  }: any): Value<any> {
+  value(ctx: any): Value<any> {
+    const {
+      CHAR,
+      TRUE,
+      list,
+      FALSE,
+      MINUS,
+      STRING,
+      DOUBLE,
+      INTEGER,
+      functionCall,
+      PLUS: HAS_PLUS,
+    } = ctx;
     const multiplier = MINUS ? -1 : 1;
 
     if (STRING) {
       // return new String(_.trim(STRING[0].image, '"'));
     } else if (INTEGER) {
       const value = multiplier * parseInt(INTEGER[0].image, 10);
-      return new Integer(value);
+      return new Integer(ctx, value);
     } else if (CHAR) {
-      return new Char(_.trim(CHAR[0].image, "'"));
+      return new Char(ctx, _.trim(CHAR[0].image, "'"));
     } else if (DOUBLE) {
       const value = multiplier * parseFloat(DOUBLE[0].image);
-      return new Double(value);
+      return new Double(ctx, value);
     } else if (TRUE) {
-      return new BooleanLiteral(true);
+      return new BooleanLiteral(ctx, true);
     } else if (FALSE) {
-      return new BooleanLiteral(false);
+      return new BooleanLiteral(ctx, false);
     } else if (list) {
       return this.visit(list);
     } else if (functionCall) {
@@ -301,11 +317,12 @@ export class Visitor extends BaseVisitor {
 
   list(ctx: any) {}
 
-  functionCall({ reference, addition }: any) {
+  functionCall(ctx: any) {
+    const { reference, addition } = ctx;
     const add = _.map(addition, (addi: any) => this.visit(addi));
     const ref = this.visit(reference);
 
-    return new Expression(new Integer(10));
+    return new Expression(ctx, new Integer(ctx, 10));
   }
 
   reference({ IDENTIFIER }: any): string[] {
