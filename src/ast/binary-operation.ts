@@ -1,8 +1,10 @@
 import { Clause } from "./clause";
 import { Double } from "./double";
 import { Integer } from "./integer";
+import { ListType } from "./primitives";
+import { BooleanLiteral } from "./boolean";
 
-export type AtomicValue = Integer | Double;
+export type AtomicValue = Integer | Double | BooleanLiteral | ListType;
 
 export abstract class BinaryOperation extends Clause {
   constructor(

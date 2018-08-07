@@ -1,5 +1,6 @@
 import { Type } from "./type";
 import { Union, Constructor } from "./union";
+import { ParametrizableType } from "./parametrizable-type";
 
 export class AnyType extends Type {
   constructor() {
@@ -25,14 +26,14 @@ export class BooleanType extends Type {
   }
 }
 
-export class ArrayType extends Union {
-  constructor(public readonly type: Type) {
-    super("Array", [type], new Map());
-
-    this.constructors.set("Array", new Constructor(this, [type], "Array"));
+export class CharType extends Type {
+  constructor() {
+    super("Char");
   }
 }
 
-// type Array(Any) = Array(Any)
-
-// Array(Array(10))
+export class ListType extends ParametrizableType {
+  constructor(public readonly type: Type) {
+    super("List", [type]);
+  }
+}

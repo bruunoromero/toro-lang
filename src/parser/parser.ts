@@ -1,11 +1,24 @@
-import { RBRACE, LBRACE } from "./../lexer/specials";
-import { CHAR } from "./../lexer/literals";
-import { COLON } from "../lexer/specials";
-import { PLUS, MINUS } from "../lexer/operators";
-import { EXPORT } from "../lexer/keywords";
 import { Parser, IToken } from "chevrotain";
 
+import { TOKENS } from "../lexer";
+import { IMPORT, DEF, FALSE, EXPORT, TRUE } from "../lexer/keywords";
+import { CHAR, IDENTIFIER, STRING, INTEGER, DOUBLE } from "../lexer/literals";
+
 import {
+  PLUS,
+  MINUS,
+  EQUALS,
+  PERIOD,
+  ADDITION_OPERATOR,
+  MULTIPLICATION_OPERATOR,
+} from "../lexer/operators";
+
+import {
+  LT,
+  RT,
+  RBRACE,
+  LBRACE,
+  COLON,
   COMMA,
   LCURLY,
   RCURLY,
@@ -13,16 +26,6 @@ import {
   RPAREN,
   SEMI_COLON,
 } from "../lexer/specials";
-
-import { TOKENS } from "../lexer";
-import { IMPORT, DEF } from "../lexer/keywords";
-import {
-  EQUALS,
-  PERIOD,
-  ADDITION_OPERATOR,
-  MULTIPLICATION_OPERATOR,
-} from "../lexer/operators";
-import { IDENTIFIER, STRING, INTEGER, DOUBLE } from "../lexer/literals";
 
 class ToroParser extends Parser {
   constructor(input: IToken[]) {
@@ -53,16 +56,44 @@ class ToroParser extends Parser {
   private definitionClause = this.RULE("definitionClause", () => {
     this.CONSUME(DEF);
     this.CONSUME1(IDENTIFIER);
-    this.OPTION(() => {
-      this.CONSUME(LPAREN);
-      this.SUBRULE(this.parameterDefinition);
-      this.CONSUME(RPAREN);
+    this.OPTION(() => this.SUBRULE(this.genericsDefinition));
+    this.OPTION1(() => {
+      this.CONSUME2(LPAREN);
+      this.SUBRULE1(this.parameterDefinition);
+      this.CONSUME3(RPAREN);
     });
-    this.CONSUME2(EQUALS);
+    this.OPTION2(() => {
+      this.CONSUME4(COLON);
+      this.SUBRULE2(this.type);
+    });
+    this.CONSUME4(EQUALS);
     this.OR([
-      { ALT: () => this.SUBRULE1(this.block) },
-      { ALT: () => this.SUBRULE2(this.expression) },
+      { ALT: () => this.SUBRULE3(this.block) },
+      { ALT: () => this.SUBRULE4(this.expression) },
     ]);
+  });
+
+  private type = this.RULE("type", () => {
+    this.CONSUME(IDENTIFIER);
+    this.OPTION(() => this.SUBRULE(this.generics));
+  });
+
+  private generics = this.RULE("generics", () => {
+    this.CONSUME(LT);
+    this.AT_LEAST_ONE_SEP({
+      SEP: COMMA,
+      DEF: () => this.SUBRULE(this.type),
+    });
+    this.CONSUME2(RT);
+  });
+
+  private genericsDefinition = this.RULE("genericsDefinition", () => {
+    this.CONSUME(LT);
+    this.AT_LEAST_ONE_SEP({
+      SEP: COMMA,
+      DEF: () => this.CONSUME(IDENTIFIER),
+    });
+    this.CONSUME2(RT);
   });
 
   private parameterDefinition = this.RULE("parameterDefinition", () => {
@@ -71,7 +102,7 @@ class ToroParser extends Parser {
       DEF: () => {
         this.CONSUME(IDENTIFIER, { LABEL: "name" });
         this.CONSUME1(COLON);
-        this.CONSUME2(IDENTIFIER, { LABEL: "type" });
+        this.SUBRULE(this.type);
       },
     });
   });
@@ -135,12 +166,14 @@ class ToroParser extends Parser {
       { ALT: () => this.CONSUME1(STRING) },
       { ALT: () => this.CONSUME2(DOUBLE) },
       { ALT: () => this.CONSUME3(INTEGER) },
-      { ALT: () => this.SUBRULE(this.array) },
+      { ALT: () => this.CONSUME4(TRUE) },
+      { ALT: () => this.CONSUME5(FALSE) },
+      { ALT: () => this.SUBRULE(this.list) },
       { ALT: () => this.SUBRULE1(this.functionCall) },
     ]);
   });
 
-  private array = this.RULE("array", () => {
+  private list = this.RULE("list", () => {
     this.CONSUME(LBRACE);
     this.MANY_SEP({
       SEP: COMMA,

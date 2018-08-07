@@ -2,9 +2,14 @@ import { createToken } from "chevrotain";
 
 import { IDENTIFIER } from "./literals";
 
-export const OF = createToken({
-  pattern: /of/,
-  name: "OF",
+export const TRUE = createToken({
+  pattern: /true/,
+  name: "TRUE",
+});
+
+export const FALSE = createToken({
+  pattern: /false/,
+  name: "FALSE",
 });
 
 export const DEF = createToken({
@@ -47,4 +52,15 @@ export const ALIAS = createToken({
   name: "ALIAS",
 });
 
-export const KEYWORDS = [OF, DEF, IMPORT, IF, ELSE, MATCH, TYPE, EXPORT, ALIAS];
+export const KEYWORDS = [
+  TRUE,
+  FALSE,
+  DEF,
+  IMPORT,
+  IF,
+  ELSE,
+  MATCH,
+  TYPE,
+  EXPORT,
+  ALIAS,
+];

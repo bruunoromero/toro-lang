@@ -1,22 +1,26 @@
+import { Char } from "../ast/char";
+import { BooleanLiteral } from "../ast/boolean";
 import * as _ from "lodash";
 import { tokenMatcher } from "chevrotain";
 
 import { TIMES, PLUS } from "../lexer/operators";
 
 import { AST } from "../ast";
-import { BaseVisitor } from "./parser";
+import { Type } from "../ast/type";
+import { List } from "../ast/list";
 import { Value } from "../ast/value";
 import { Block } from "../ast/block";
 import { Double } from "../ast/double";
-import { ImportClause } from "../ast/import-clause";
+import { BaseVisitor } from "./parser";
 import { Integer } from "../ast/integer";
-import { FunctionLiteral } from "../ast/function-literal";
 import { Expression } from "../ast/expression";
 import { Definition } from "../ast/definition";
-import { BinaryOperation, AtomicValue } from "../ast/binary-operation";
+import { ImportClause } from "../ast/import-clause";
+import { FunctionLiteral } from "../ast/function-literal";
 import { DivisionOperation } from "../ast/division-operation";
 import { AdditionOperation } from "../ast/addition-operation";
 import { SubtractionOperation } from "../ast/subtraction-operation";
+import { BinaryOperation, AtomicValue } from "../ast/binary-operation";
 import { MultiplicationOperation } from "../ast/multiplication-operation";
 
 export class Visitor extends BaseVisitor {
@@ -73,29 +77,69 @@ export class Visitor extends BaseVisitor {
     return def;
   }
 
+  type(ctx: any) {}
+
+  generics({ type, IDENTIFIER }: any) {
+    const s = new Set();
+    const types = _.map(type, this.visit);
+    _.each(types, t => {
+      if (s.has(t.name)) {
+      } else {
+        t.add(t.name);
+      }
+    });
+
+    // return s;
+  }
+
+  genericsDefinition({ IDENTIFIER }: any) {
+    const counts = _.countBy(IDENTIFIER, id => id.image);
+    const types = _.map(IDENTIFIER, id => new Type(id.image, false));
+
+    const pairs = _.toPairs(counts);
+    const repeatedPairs = _.filter(pairs, ([key, value]) => value > 1);
+    const repeats = _.fromPairs(repeatedPairs);
+    const repeatedKeys = _.keys(repeats);
+
+    _.each(repeatedKeys, key => {
+      throw new Error(`Repeated generic type ${key}`);
+    });
+
+    return types;
+  }
+
   definitionClause({
+    type,
     block,
     expression,
     IDENTIFIER,
+    genericsDefinition,
     parameterDefinition,
   }: any): Definition {
     let expressions!: Block;
 
     let parameters = new Map();
+    let gensDefs = [];
+
+    if (genericsDefinition) {
+      gensDefs = this.visit(genericsDefinition);
+    }
 
     if (parameterDefinition) {
       parameters = this.visit(parameterDefinition);
     }
 
     if (block) {
-      expressions = this.visit(block[0]);
+      expressions = this.visit(block);
     } else if (expression) {
       expressions = new Block(new Map(), [this.visit(expression[0])]);
     }
 
     const def = new Definition(
       IDENTIFIER[0].image,
-      new FunctionLiteral(parameters, expressions),
+      new FunctionLiteral(parameters, expressions, new Type("ola")),
+      new Type("ola"),
+      gensDefs,
     );
 
     _.each(expression, exp => {
@@ -219,27 +263,35 @@ export class Visitor extends BaseVisitor {
   }
 
   value({
+    CHAR,
+    TRUE,
+    list,
+    FALSE,
     MINUS,
     STRING,
     DOUBLE,
     INTEGER,
     functionCall,
     PLUS: HAS_PLUS,
-  }: any): Value<string | number> {
+  }: any): Value<any> {
     const multiplier = MINUS ? -1 : 1;
 
     if (STRING) {
-      if (HAS_PLUS && MINUS) {
-        throw Error("Could not parse value");
-      }
-
       // return new String(_.trim(STRING[0].image, '"'));
     } else if (INTEGER) {
       const value = multiplier * parseInt(INTEGER[0].image, 10);
       return new Integer(value);
+    } else if (CHAR) {
+      return new Char(_.trim(CHAR[0].image, "'"));
     } else if (DOUBLE) {
       const value = multiplier * parseFloat(DOUBLE[0].image);
       return new Double(value);
+    } else if (TRUE) {
+      return new BooleanLiteral(true);
+    } else if (FALSE) {
+      return new BooleanLiteral(false);
+    } else if (list) {
+      return this.visit(list);
     } else if (functionCall) {
       return this.visit(functionCall);
     }
@@ -247,7 +299,7 @@ export class Visitor extends BaseVisitor {
     throw Error("Could not parse value");
   }
 
-  array(ctx: any) {}
+  list(ctx: any) {}
 
   functionCall({ reference, addition }: any) {
     const add = _.map(addition, (addi: any) => this.visit(addi));

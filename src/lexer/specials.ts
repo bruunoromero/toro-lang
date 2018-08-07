@@ -48,6 +48,16 @@ export const RPAREN = createToken({
   name: "RPAREN",
 });
 
+export const LT = createToken({
+  pattern: /\</,
+  name: "LT",
+});
+
+export const RT = createToken({
+  pattern: /\>/,
+  name: "RT",
+});
+
 export const COLON = createToken({
   pattern: /:/,
   name: "COLON",
@@ -74,7 +84,8 @@ export const FAT_ARROW = createToken({
 });
 
 export const SPECIALS = [
-  // NEW_LINE,
+  LT,
+  RT,
   WHITE_SPACE,
   COMMENT,
   ARROW,
