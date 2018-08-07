@@ -1,3 +1,5 @@
+import { RBRACE, LBRACE } from "./../lexer/specials";
+import { CHAR } from "./../lexer/literals";
 import { COLON } from "../lexer/specials";
 import { PLUS, MINUS } from "../lexer/operators";
 import { EXPORT } from "../lexer/keywords";
@@ -129,10 +131,12 @@ class ToroParser extends Parser {
       ]);
     });
     this.OR1([
-      { ALT: () => this.CONSUME(STRING) },
-      { ALT: () => this.CONSUME1(DOUBLE) },
-      { ALT: () => this.CONSUME2(INTEGER) },
-      { ALT: () => this.SUBRULE(this.functionCall) },
+      { ALT: () => this.CONSUME(CHAR) },
+      { ALT: () => this.CONSUME1(STRING) },
+      { ALT: () => this.CONSUME2(DOUBLE) },
+      { ALT: () => this.CONSUME3(INTEGER) },
+      { ALT: () => this.SUBRULE(this.array) },
+      { ALT: () => this.SUBRULE1(this.functionCall) },
     ]);
   });
 
@@ -146,6 +150,15 @@ class ToroParser extends Parser {
       });
       this.CONSUME(RPAREN);
     });
+  });
+
+  private array = this.RULE("array", () => {
+    this.CONSUME(LBRACE);
+    this.MANY_SEP({
+      SEP: COMMA,
+      DEF: () => this.SUBRULE(this.addition),
+    });
+    this.CONSUME(RBRACE);
   });
 
   private reference = this.RULE("reference", () => {

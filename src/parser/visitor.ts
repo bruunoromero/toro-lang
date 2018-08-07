@@ -229,6 +229,8 @@ export class Visitor extends BaseVisitor {
     }
   }
 
+  array(ctx: any) {}
+
   parenthesis(ctx: any) {
     return this.visit(ctx.arithmetic);
   }

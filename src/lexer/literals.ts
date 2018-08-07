@@ -20,4 +20,9 @@ export const STRING = createToken({
   pattern: /".*"/,
 });
 
-export const LITERALS = [IDENTIFIER, DOUBLE, INTEGER, STRING];
+export const CHAR = createToken({
+  name: "CHAR",
+  pattern: /'.'/,
+});
+
+export const LITERALS = [IDENTIFIER, DOUBLE, INTEGER, STRING, CHAR];
