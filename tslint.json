@@ -22,6 +22,7 @@
     "no-console": { "severity": "warning" },
     "variable-name": [false],
     "one-line": [false],
+    "max-classes-per-file": [true, 10],
     "one-variable-per-declaration": [true]
   },
   "rulesDirectory": []

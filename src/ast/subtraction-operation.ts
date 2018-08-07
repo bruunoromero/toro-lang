@@ -1,6 +1,7 @@
-import { BinaryOperation, AtomicValue } from "./binary-operation";
-import { Integer } from "./integer";
 import { Double } from "./double";
+import { Integer } from "./integer";
+import { BinaryOperation, AtomicValue } from "./binary-operation";
+
 export class SubtractionOperation extends BinaryOperation {
   evaluate(): AtomicValue | BinaryOperation {
     if (this.left.is(Integer) && this.right!.is(Integer)) {

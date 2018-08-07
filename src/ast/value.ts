@@ -1,7 +1,8 @@
+import { Type } from "./type";
 import { Clause } from "./clause";
 
-export abstract class Value<T> extends Clause {
-  constructor(public readonly value: T) {
+export class Value<E> extends Clause {
+  constructor(public readonly type: Type, public readonly value: E) {
     super();
   }
 }
