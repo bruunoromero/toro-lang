@@ -5,10 +5,10 @@ import { IMPORT, DEF, FALSE, EXPORT, TRUE } from "../lexer/keywords";
 import { CHAR, IDENTIFIER, STRING, INTEGER, DOUBLE } from "../lexer/literals";
 
 import {
+  DOT,
   PLUS,
   MINUS,
   EQUALS,
-  DOT,
   PRECEDENCE1,
   PRECEDENCE2,
 } from "../lexer/operators";
@@ -31,6 +31,7 @@ const enum ExpressionType {
   Char,
   String,
   Double,
+  Numeric,
   Integer,
   Boolean,
 }
@@ -44,10 +45,10 @@ class ToroParser extends Parser {
     this.performSelfAnalysis();
   }
 
-  private expressionTypeIs(expType: ExpressionType) {
+  private expressionTypeIs(expType: ExpressionType[]) {
     if (this.expressionType === undefined) return true;
 
-    return this.expressionType === expType;
+    return expType.some(t => this.expressionType === this.expressionType);
   }
 
   private setExpressionType(expType: ExpressionType) {
@@ -156,7 +157,8 @@ class ToroParser extends Parser {
   });
 
   private precendence1 = this.RULE("precendence1", () => {
-    const res = this.SUBRULE(this.precendence2, { LABEL: "lhs" });
+    this.OPTION(() => this.SUBRULE(this.unaryOparation));
+    this.SUBRULE(this.precendence2, { LABEL: "lhs" });
     this.MANY(() => {
       this.CONSUME(PRECEDENCE1);
       this.SUBRULE2(this.precendence2, { LABEL: "rhs" });
@@ -167,8 +169,25 @@ class ToroParser extends Parser {
     this.SUBRULE(this.arithmeticExpression, { LABEL: "lhs" });
     this.MANY(() => {
       this.CONSUME(PRECEDENCE2);
-      this.SUBRULE2(this.arithmeticExpression, { LABEL: "rhs" });
+      this.SUBRULE1(this.arithmeticExpression, { LABEL: "rhs" });
     });
+  });
+
+  private unaryOparation = this.RULE("unaryOparation", () => {
+    this.OR([
+      {
+        ALT: () => {
+          this.CONSUME(PLUS);
+          this.setExpressionType(ExpressionType.Numeric);
+        },
+      },
+      {
+        ALT: () => {
+          this.CONSUME(MINUS);
+          this.setExpressionType(ExpressionType.Numeric);
+        },
+      },
+    ]);
   });
 
   private arithmeticExpression = this.RULE("arithmeticExpression", () => {
@@ -187,43 +206,55 @@ class ToroParser extends Parser {
   private atomicValues = this.RULE("atomicValues", () => {
     this.OR([
       {
-        GATE: () => this.expressionTypeIs(ExpressionType.Double),
+        GATE: () =>
+          this.expressionTypeIs([
+            ExpressionType.Numeric,
+            ExpressionType.Double,
+          ]),
         ALT: () => {
           this.CONSUME2(DOUBLE);
           this.setExpressionType(ExpressionType.Double);
         },
       },
       {
-        GATE: () => this.expressionTypeIs(ExpressionType.Integer),
+        GATE: () =>
+          this.expressionTypeIs([
+            ExpressionType.Numeric,
+            ExpressionType.Integer,
+          ]),
         ALT: () => {
           this.CONSUME3(INTEGER);
           this.setExpressionType(ExpressionType.Integer);
         },
       },
       {
-        GATE: () => this.expressionTypeIs(ExpressionType.Boolean),
+        GATE: () => this.expressionTypeIs([ExpressionType.Boolean]),
         ALT: () => {
           this.OR2([
             {
               ALT: () => {
                 this.CONSUME(TRUE);
+                this.setExpressionType(ExpressionType.Boolean);
               },
             },
-            { ALT: () => this.CONSUME1(FALSE) },
+            {
+              ALT: () => {
+                this.CONSUME1(FALSE);
+                this.setExpressionType(ExpressionType.Boolean);
+              },
+            },
           ]);
-
-          this.setExpressionType(ExpressionType.Boolean);
         },
       },
       {
-        GATE: () => this.expressionTypeIs(ExpressionType.Char),
+        GATE: () => this.expressionTypeIs([ExpressionType.Char]),
         ALT: () => {
           this.CONSUME(CHAR);
           this.setExpressionType(ExpressionType.Char);
         },
       },
       {
-        GATE: () => this.expressionTypeIs(ExpressionType.String),
+        GATE: () => this.expressionTypeIs([ExpressionType.String]),
         ALT: () => {
           this.CONSUME1(STRING);
           this.setExpressionType(ExpressionType.String);
