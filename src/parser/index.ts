@@ -1,10 +1,8 @@
-import * as _ from "lodash";
 import { IToken } from "chevrotain";
 import AggregateError from "aggregate-error";
 
-import { AST } from "../ast";
 import { PARSER } from "./parser";
-import { Visitor } from "./visitor";
+import { pprint } from "../utils/print";
 
 export const parse = (tokens: IToken[]) => {
   PARSER.input = tokens;
@@ -12,7 +10,7 @@ export const parse = (tokens: IToken[]) => {
   const ctx = PARSER.program();
 
   if (PARSER.errors.length) {
-    const messages = _.map(PARSER.errors, error => JSON.stringify(error));
+    const messages = PARSER.errors.map(pprint);
     throw new AggregateError(messages);
   }
 

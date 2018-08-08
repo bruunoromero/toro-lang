@@ -1,10 +1,5 @@
 import { createToken, Lexer } from "chevrotain";
 
-// export const NEW_LINE = createToken({
-//   name: "NEW_LINE",
-//   pattern: /\r?\n/,
-// });
-
 export const WHITE_SPACE = createToken({
   pattern: /\s+/,
   name: "WHITE_SPACE",

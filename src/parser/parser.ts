@@ -1,4 +1,3 @@
-import { Char } from "./../ast/char";
 import { Parser, IToken } from "chevrotain";
 
 import { TOKENS } from "../lexer";
@@ -27,7 +26,6 @@ import {
   RPAREN,
   SEMI_COLON,
 } from "../lexer/specials";
-import { pprint } from "../utils/print";
 
 const enum ExpressionType {
   Char,
