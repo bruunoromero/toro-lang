@@ -1,12 +1,12 @@
 import { parse } from "./parser";
 import { tokenize } from "./lexer";
+import { pprint } from "./utils/print";
 
 const example = `
 export def main<T>(xs: List<T>): Int = { 
-    10 + "ola mundo";
+    10 + 100;
 }
 `;
 
 const tokens = tokenize(example);
-const ast = parse(tokens);
-console.log(ast.definitions.get("main"));
+const cst = parse(tokens);

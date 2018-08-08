@@ -1,3 +1,4 @@
+import { Char } from "./../ast/char";
 import { Parser, IToken } from "chevrotain";
 
 import { TOKENS } from "../lexer";
@@ -26,12 +27,41 @@ import {
   RPAREN,
   SEMI_COLON,
 } from "../lexer/specials";
+import { pprint } from "../utils/print";
+
+const enum ExpressionType {
+  Char,
+  String,
+  Double,
+  Integer,
+  Boolean,
+}
 
 class ToroParser extends Parser {
+  canSetExpressionType = true;
+  expressionType?: ExpressionType;
   constructor(input: IToken[]) {
     super(input, TOKENS, { outputCst: true });
 
     this.performSelfAnalysis();
+  }
+
+  private expressionTypeIs(expType: ExpressionType) {
+    if (this.expressionType === undefined) return true;
+
+    return this.expressionType === expType;
+  }
+
+  private setExpressionType(expType: ExpressionType) {
+    if (this.canSetExpressionType) {
+      this.expressionType = expType;
+      this.canSetExpressionType = false;
+    }
+  }
+
+  private resetExpressionType() {
+    this.expressionType = undefined;
+    this.canSetExpressionType = true;
   }
 
   public program = this.RULE("program", () => {
@@ -121,16 +151,14 @@ class ToroParser extends Parser {
   });
 
   private expression = this.RULE("expression", () => {
-    this.OR([
-      { ALT: () => this.SUBRULE(this.precendence1) },
-      { ALT: () => this.CONSUME(CHAR) },
-      { ALT: () => this.CONSUME1(STRING) },
-    ]);
+    this.SUBRULE(this.precendence1);
     this.CONSUME(SEMI_COLON);
+
+    this.resetExpressionType();
   });
 
   private precendence1 = this.RULE("precendence1", () => {
-    this.SUBRULE(this.precendence2, { LABEL: "lhs" });
+    const res = this.SUBRULE(this.precendence2, { LABEL: "lhs" });
     this.MANY(() => {
       this.CONSUME(PRECEDENCE1);
       this.SUBRULE2(this.precendence2, { LABEL: "rhs" });
@@ -159,23 +187,50 @@ class ToroParser extends Parser {
   });
 
   private atomicValues = this.RULE("atomicValues", () => {
-    this.OPTION(() => {
-      this.OR([
-        { ALT: () => this.CONSUME(PLUS) },
-        { ALT: () => this.CONSUME1(MINUS) },
-      ]);
-    });
-    this.OR1([
-      { ALT: () => this.CONSUME2(DOUBLE) },
-      { ALT: () => this.CONSUME3(INTEGER) },
-      { ALT: () => this.SUBRULE1(this.functionCall) },
-    ]);
-  });
-
-  private booleanValues = this.RULE("booleanValues", () => {
     this.OR([
-      { ALT: () => this.CONSUME(TRUE) },
-      { ALT: () => this.CONSUME1(FALSE) },
+      {
+        GATE: () => this.expressionTypeIs(ExpressionType.Double),
+        ALT: () => {
+          this.CONSUME2(DOUBLE);
+          this.setExpressionType(ExpressionType.Double);
+        },
+      },
+      {
+        GATE: () => this.expressionTypeIs(ExpressionType.Integer),
+        ALT: () => {
+          this.CONSUME3(INTEGER);
+          this.setExpressionType(ExpressionType.Integer);
+        },
+      },
+      {
+        GATE: () => this.expressionTypeIs(ExpressionType.Boolean),
+        ALT: () => {
+          this.OR2([
+            {
+              ALT: () => {
+                this.CONSUME(TRUE);
+              },
+            },
+            { ALT: () => this.CONSUME1(FALSE) },
+          ]);
+
+          this.setExpressionType(ExpressionType.Boolean);
+        },
+      },
+      {
+        GATE: () => this.expressionTypeIs(ExpressionType.Char),
+        ALT: () => {
+          this.CONSUME(CHAR);
+          this.setExpressionType(ExpressionType.Char);
+        },
+      },
+      {
+        GATE: () => this.expressionTypeIs(ExpressionType.String),
+        ALT: () => {
+          this.CONSUME1(STRING);
+          this.setExpressionType(ExpressionType.String);
+        },
+      },
       { ALT: () => this.SUBRULE(this.functionCall) },
     ]);
   });
