@@ -10,7 +10,7 @@
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "cross-env npm run grammar:compile && jest",
     "compile": "cross-env npm run grammar:compile && npx tsc",
-    "grammar:compile": "cross-env npm run grammar:clean && npx nearleyc src/grammar.ne -o src/grammar.js",
+    "grammar:compile": "cross-env npx nearleyc src/grammar.ne -o src/grammar.js",
     "grammar:test": "cross-env npm run grammar:compile && npx nearley-test src/grammar.js"
   },
   "devDependencies": {
