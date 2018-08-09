@@ -6,6 +6,8 @@ const lexer = moo.compile({
   DOT: /\./,
   COMMA: /,/,
   COLON: /:/,
+  LANGLE: /</,
+  RANGLE: />/,
   WS: /[ \t]+/,
   LPAREN: /\(/,
   RPAREN: /\)/,
@@ -14,7 +16,7 @@ const lexer = moo.compile({
   LCURLY: /\{/,
   RCURLY: /\}/,
   SEMI_COLON: /;/,
-  NL: { match: /\n/, lineBreaks: true },
+  NL: { match: /\n+/, lineBreaks: true },
 
   /** OPERATORS */
 

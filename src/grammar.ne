@@ -2,11 +2,13 @@
 const lexer = require('./lexer.js');
 %}
 
+@builtin "postprocessors.ne"
+
 @lexer lexer
 
-program -> %IMPORT __ %INTEGER
+program -> _ delimited[import, %NL] _
 
-reference -> %IDENTIFIER 
+import -> _ "import" __ delimited[%IDENTIFIER, %DOT] %WS:?
 
-_ -> %WS
-__ -> %WS
+_ -> (%WS | %NL):*
+__ -> %WS:+

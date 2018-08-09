@@ -4,14 +4,14 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
     "start": "npx ts-node src/index.ts",
     "format": "prettier --write \"src/**/*.ts\"",
-    "grammar:clean": "cross-env rm src/parser.js",
+    "grammar:clean": "cross-env rm src/grammar.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
+    "test": "cross-env npm run grammar:compile && jest",
     "compile": "cross-env npm run grammar:compile && npx tsc",
-    "grammar:compile": "cross-env npx nearleyc src/grammar.ne -o src/parser.js",
-    "grammar:test": "cross-env npm run grammar:compile && npx nearley-test src/parser.js"
+    "grammar:compile": "cross-env npm run grammar:clean && npx nearleyc src/grammar.ne -o src/grammar.js",
+    "grammar:test": "cross-env npm run grammar:compile && npx nearley-test src/grammar.js"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.0.0",
@@ -20,6 +20,7 @@
     "@types/jest": "^23.3.1",
     "@types/js-beautify": "^0.0.31",
     "@types/lodash": "^4.14.115",
+    "@types/nearley": "^2.11.0",
     "@types/node": "^10.5.5",
     "cross-env": "^5.2.0",
     "husky": "^1.0.0-rc.13",
