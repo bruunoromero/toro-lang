@@ -2,28 +2,34 @@
   "defaultSeverity": "error",
   "extends": ["tslint:recommended", "tslint-config-prettier"],
   "jsRules": {
-    "no-unused-expression": true
+    "no-unused-expression": true,
+    "max-line-length": [true, 80],
+    "object-literal-sort-keys": false
   },
   "rules": {
-    "eofline": false,
     "indent": false,
+    "eofline": false,
     "member-access": [false],
     "ordered-imports": [false],
-    "max-line-length": [true, 80],
     "member-ordering": [false],
+    "max-line-length": [true, 80],
+    "object-literal-sort-keys": false,
     "curly": false,
     "interface-name": [false],
     "array-type": [false],
     "no-empty-interface": false,
     "no-empty": false,
     "arrow-parens": false,
-    "object-literal-sort-keys": false,
     "no-unused-expression": false,
     "no-console": { "severity": "warning" },
     "variable-name": [false],
     "one-line": [false],
     "max-classes-per-file": [true, 10],
+    "only-arrow-functions": false,
     "one-variable-per-declaration": [true]
   },
-  "rulesDirectory": []
+  "rulesDirectory": [],
+  "linterOptions": {
+    "exclude": ["lib/**/*", "src/parser.js"]
+  }
 }
