@@ -7,13 +7,25 @@ import { lexer } from './lexer'
 
 @lexer lexer
 
+# Optional White space follwed by an optional Element and an optional White Space
 optional[el]-> _ ($el _):?
+
+# Optional White space follwed by an optional Element and a mandatory White Space
 optionalWithSpace[el] -> _ ($el __):?
+
+# Optional White space follwed by 2 sequences of an optional Element and an optional White Space
 optional2[el1, el2]-> _ ($el1 _):? ($el2 _):?
+
+# Optional White space follwed by sequences of an optional Elements separates by 
+# an Optional White space, Comma and Optional White space
 parameters[el] -> optional[delimited[$el,  _ %COMMA _]]
+
+# Optional White space followed by an Element and an Optional White space,
+# then an Optional sequences of Elements with an Separator
 atLeastOne[el, sep] -> _ $el _ ($sep _ delimited[$el, _ $sep _] _):?
 
-
+# A program is a seqauences of imports separated by Lines,
+# followed by exportable definitions separated by Lines
 program -> delimited[import, %NL]:? delimited[exportableDefinition, %NL]:?
 
 import -> _ "import" __ reference _
