@@ -162,6 +162,10 @@
   version "4.14.115"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.115.tgz#54d171b2ce12c058742443b5f6754760f701b8f9"
 
+"@types/moo@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@types/moo/-/moo-0.4.0.tgz#102c4bf177217a212cdfe35a0088fb98d3ee20d4"
+
 "@types/nearley@^2.11.0":
   version "2.11.0"
   resolved "https://registry.npmjs.org/@types/nearley/-/nearley-2.11.0.tgz#308fd197fdd6d76c52c4ca6f5bb8f42073afa91b"

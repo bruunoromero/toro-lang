@@ -6,10 +6,10 @@ describe("Import", () => {
     const sample = `
 import List
 import List.Core
-`;
+      `;
 
     expect(() => {
-      const result = parse(sample);
+      parse(sample);
     }).not.toThrow();
   });
 });
@@ -20,11 +20,40 @@ describe("Definition", () => {
 def main = {
   def t = {}
 }
-export def teste = {}
+export def teste<T, E>() = {}
 `;
 
     expect(() => {
-      const result = parse(sample);
+      parse(sample);
+    }).not.toThrow();
+  });
+});
+
+describe("Conditional", () => {
+  it("Should parse if expresion", () => {
+    const sample = `
+def main =
+  if(true) {
+
+  } else {
+    
+  }
+`;
+
+    expect(() => {
+      parse(sample);
+    }).not.toThrow();
+  });
+});
+
+describe("Expression", () => {
+  it("Should parse function call", () => {
+    const sample = `
+def main = teste(true, false)
+`;
+
+    expect(() => {
+      parse(sample);
     }).not.toThrow();
   });
 });

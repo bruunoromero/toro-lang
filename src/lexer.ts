@@ -1,6 +1,6 @@
-const moo = require("moo");
+import * as moo from "moo";
 
-const lexer = moo.compile({
+export const lexer = moo.compile({
   /** SPECIALS */
 
   DOT: /\./,
@@ -20,6 +20,9 @@ const lexer = moo.compile({
 
   /** OPERATORS */
 
+  AND: /&&/,
+  OR: /\|\|/,
+  PIPE: /\|/,
   PLUS: /\+/,
   MINUS: /\-/,
   EQUALS: /=/,
@@ -34,11 +37,14 @@ const lexer = moo.compile({
   IDENTIFIER: {
     match: /[a-zA-Z]+/,
     keywords: {
+      IF: "if",
       DEF: "def",
+      TYPE: "type",
+      TRUE: "true",
+      ELSE: "else",
+      FALSE: "false",
       IMPORT: "import",
       EXPORT: "export",
     },
   },
 });
-
-module.exports = lexer;
