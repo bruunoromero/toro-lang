@@ -8,6 +8,8 @@ import { lexer } from './lexer'
 
 @lexer lexer
 
+### --- Macros --- ###
+
 # Optional White space follwed by an optional Element and an optional White Space
 optional[el]-> _ ($el _):?
 
@@ -25,41 +27,23 @@ parameters[el] -> optional[delimited[$el,  _ %COMMA _]]
 # then an Optional sequences of Elements with an Separator
 atLeastOne[el, sep] -> _ $el _ ($sep _ delimited[$el, _ $sep _]):?
 
+
+### --- Main --- ###
+
 # A program is a seqauences of imports separated by Lines,
 # followed by exportable definitions separated by Lines
 program -> delimited[import, %NL]:? delimited[exportableDefinition, %NL]:?
 
 import -> _ "import" __ reference _
 
-### -- Definitions  -- ###
-
 exportableDefinition -> optionalWithSpace["export"] definition _
 
-unionName -> %IDENTIFIER optional[typeParameter]
 
-unionDefinition -> "type" __ unionName "=" atLeastOne[unionType, "|"]
-
-unionType -> %IDENTIFIER ("(" atLeastOne[typeName, %COMMA] ")"):?
-
-constantDefinition -> "let" __ %IDENTIFIER _ "=" _ (block | expression)
-
-functionDefinition -> "def" __ %IDENTIFIER optional[(parameterList | typeParameter _ parameterList)]  "=" _ (block | expression)
-
-definition 
-  -> constantDefinition
-  |  functionDefinition
-  |  unionDefinition
-
-
-ifExpression -> "if" _ "(" optional[expression] ")" _ block _ "else" _ block
-
-block -> "{" optional[delimited[(expression | functionDefinition), %NL]] "}"
+### -- Expressions -- ###
 
 expression
   -> ifExpression
   |  arithmeticExpression
-
-### -- Metematical Operations -- ###
 
 arithmeticExpression -> pipeExpression
 
@@ -101,17 +85,56 @@ atomicValues
   |  charLiteral
   |  listLiteral
   |  recordLiteral
+  |  arrowFunctionExpression
+
+arrowFunctionExpression -> "(" parameters[optionalTypedParameter] ")" _ "=>" _ body
+
+ifExpression -> "if" _ "(" optional[expression] ")" _ body _ "else" _ body
 
 
-typeParameter -> "<" atLeastOne[%IDENTIFIER, %COMMA] ">"
+### -- Definitions  -- ###
 
-argumentList -> "(" parameters[arithmeticExpression]  ")"
+unionName -> %IDENTIFIER optional[genericParameter]
+
+unionDefinition -> "type" __ unionName "=" atLeastOne[unionType, "|"]
+
+unionType -> %IDENTIFIER ("(" atLeastOne[typeDefinition, %COMMA] ")"):?
+
+constantDefinition -> "let" __ %IDENTIFIER _ "=" _ body
+
+functionDefinition -> "def" __ %IDENTIFIER optional[(parameterList | genericParameter _ parameterList)] (_ ":" _ typeDefinition):? "=" _ body
+
+definition 
+  -> constantDefinition
+  |  functionDefinition
+  |  unionDefinition
+
+
+### --- Type Definition --- ###
+
+typeDefinition -> typeName | arrowFunctionType
+
+arrowFunctionType -> "(" parameters[typeName] ")" _ "=>" _ typeName
+
+typeName -> %IDENTIFIER optional["<" atLeastOne[typeDefinition, %COMMA] ">"]
+
+
+### --- UTILS --- ###
+
+body -> block | expression
+
+block -> "{" optional[delimited[(expression | definition), %NL]] "}"
+
+genericParameter -> "<" atLeastOne[%IDENTIFIER, %COMMA] ">"
+
+argumentList -> "(" parameters[arithmeticExpression] ")"
 
 parameterList -> "(" parameters[parameter]  ")"
 
-parameter -> %IDENTIFIER _ ":" _ typeName
+parameter -> %IDENTIFIER _ ":" _ typeDefinition
 
-typeName -> %IDENTIFIER optional["<" atLeastOne[typeName, %COMMA] ">"]
+optionalTypedParameter -> %IDENTIFIER _ (":" _ typeDefinition):?
+
 
 reference -> delimited[%IDENTIFIER,  _ %DOT _]
 

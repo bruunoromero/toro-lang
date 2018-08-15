@@ -11,6 +11,7 @@ export const lexer = moo.compile({
   GTEQ: />=/,
   LT: /</,
   GT: />/,
+  FAT_ARROW: /=>/,
   EQUALS: /==/,
   NOT_EQUALS: /!=/,
   ASSIGN: /=/,

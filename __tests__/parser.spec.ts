@@ -18,9 +18,10 @@ describe("Definition", () => {
   it("Should parse function definition", () => {
     const sample = `
 def main = {
-  def t = {}
+  let t = () => 10
 }
-export def teste<T, E>() = {}
+
+export def teste<T, E>(a: List<Int>): List<Int> = List.merge(a, [1, 2])
 `;
 
     expect(() => {
