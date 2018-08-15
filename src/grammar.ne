@@ -3,6 +3,8 @@ import { lexer } from './lexer'
 %}
 
 @preprocessor typescript
+
+@builtin "number.ne"
 @builtin "postprocessors.ne"
 
 @lexer lexer
@@ -34,19 +36,29 @@ exportableDefinition -> optionalWithSpace["export"]  definition _
 
 definition -> "def" __ %IDENTIFIER optional[(parameterList | typeParameter _ parameterList)]  "=" _ (block | expression)
 
-ifExpression -> "if" _ "(" optional[booleanExpression] ")" _ block _ "else" _ block
+ifExpression -> "if" _ "(" optional[expression] ")" _ block _ "else" _ block
 
 block -> "{" optional[delimited[expression, %NL]] "}"
 
 expression 
   -> definition 
   |  ifExpression
-  |  booleanExpression
+  |  arithmeticExpression
   |  functionCall
 
 functionCall -> reference _ "(" parameters[expression] ")"
 
-booleanExpression -> booleanValues
+arithmeticExpression -> logicalExpression
+
+logicalExpression -> "!":? expression __ ("==" | "!=" | "&&" | "||") __ expression | sumExpression
+
+sumExpression -> sumExpression __ ("+" | "-") __ productExpression | productExpression
+
+productExpression -> productExpression __ ("*" | "/") __ parenthesisExpression | parenthesisExpression
+
+parenthesisExpression -> "(" _ expression _ ")" | arithmeticValues | booleanValues
+
+arithmeticValues -> ("+" | "-"):? %INTEGER | %DOUBLE
 
 booleanValues 
   -> "true" 

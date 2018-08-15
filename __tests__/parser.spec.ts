@@ -56,4 +56,24 @@ def main = teste(true, false)
       parse(sample);
     }).not.toThrow();
   });
+
+  it("Should parse boolean expression", () => {
+    const sample = `
+def main = !true || false
+`;
+
+    expect(() => {
+      parse(sample);
+    }).not.toThrow();
+  });
+
+  it("Should parse arithmetic expression", () => {
+    const sample = `
+def main = (1 + -2)
+`;
+
+    expect(() => {
+      parse(sample);
+    }).not.toThrow();
+  });
 });

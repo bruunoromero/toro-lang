@@ -26,10 +26,12 @@ export const lexer = moo.compile({
   PLUS: /\+/,
   MINUS: /\-/,
   EQUALS: /=/,
+  NEGATE: /!/,
 
   /** PRIMITIVES */
 
   INTEGER: /0|[1-9][0-9]*/,
+  DOUBLE: /(?:(?:0|[1-9][0-9]*)?\.[0-9]+)/,
   STRING: /"(?:\\["\\]|[^\n"\\])*"/,
 
   /** KEYWORDS/IDENTIFIER */
