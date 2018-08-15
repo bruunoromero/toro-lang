@@ -100,9 +100,9 @@ unionDefinition -> "type" __ unionName "=" atLeastOne[unionType, "|"]
 
 unionType -> %IDENTIFIER ("(" atLeastOne[typeDefinition, %COMMA] ")"):?
 
-constantDefinition -> "let" __ %IDENTIFIER _ "=" _ body
+constantDefinition -> "let" __ %IDENTIFIER _ returnType:? "=" _ body
 
-functionDefinition -> "def" __ %IDENTIFIER optional[(parameterList | genericParameter _ parameterList)] (_ ":" _ typeDefinition):? "=" _ body
+functionDefinition -> "def" __ %IDENTIFIER optional[(parameterList | genericParameter _ parameterList)] (_ returnType):? "=" _ body
 
 definition 
   -> constantDefinition
@@ -131,10 +131,11 @@ argumentList -> "(" parameters[arithmeticExpression] ")"
 
 parameterList -> "(" parameters[parameter]  ")"
 
-parameter -> %IDENTIFIER _ ":" _ typeDefinition
+returnType -> ":" _ typeDefinition
 
-optionalTypedParameter -> %IDENTIFIER _ (":" _ typeDefinition):?
+parameter -> %IDENTIFIER _ returnType
 
+optionalTypedParameter -> %IDENTIFIER _ (returnType):?
 
 reference -> delimited[%IDENTIFIER,  _ %DOT _]
 

@@ -34,7 +34,7 @@ export def teste<T, E>(a: List<Int>): List<Int> = List.merge(a, [1, 2])
 def main = {
   print(t)
 }
-let t = 10
+let t: Int = 10
 `;
 
     expect(() => {
