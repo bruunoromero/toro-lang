@@ -15,12 +15,22 @@ import List.Core
 });
 
 describe("Definition", () => {
-  it("Should parse definitions", () => {
+  it("Should parse function definition", () => {
     const sample = `
 def main = {
   def t = {}
 }
 export def teste<T, E>() = {}
+`;
+
+    expect(() => {
+      parse(sample);
+    }).not.toThrow();
+  });
+
+  it("Should parse union definition", () => {
+    const sample = `
+type Something<T> = This(List<Maybe<T>>) | That
 `;
 
     expect(() => {

@@ -6,6 +6,7 @@ export const lexer = moo.compile({
   PIPE: /\|>/,
   AND: /&&/,
   OR: /\|\|/,
+  BOR: /\|/,
   LTEQ: /<=/,
   GTEQ: />=/,
   LT: /</,
