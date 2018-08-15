@@ -76,4 +76,14 @@ def main = (1 + -2)
       parse(sample);
     }).not.toThrow();
   });
+
+  it("Should parse pipe expression", () => {
+    const sample = `
+def main = 1 |> 2
+`;
+
+    expect(() => {
+      parse(sample);
+    }).not.toThrow();
+  });
 });

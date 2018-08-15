@@ -4,7 +4,6 @@ import { lexer } from './lexer'
 
 @preprocessor typescript
 
-@builtin "number.ne"
 @builtin "postprocessors.ne"
 
 @lexer lexer
@@ -18,7 +17,7 @@ optionalWithSpace[el] -> _ ($el __):?
 # Optional White space follwed by 2 sequences of an optional Element and an optional White Space
 optional2[el1, el2]-> _ ($el1 _):? ($el2 _):?
 
-# Optional White space follwed by sequences of an optional Elements separates by 
+# Optional White space follwed by sequences of an optional Elements separated by 
 # an Optional White space, Comma and Optional White space
 parameters[el] -> optional[delimited[$el,  _ %COMMA _]]
 
@@ -38,31 +37,47 @@ definition -> "def" __ %IDENTIFIER optional[(parameterList | typeParameter _ par
 
 ifExpression -> "if" _ "(" optional[expression] ")" _ block _ "else" _ block
 
-block -> "{" optional[delimited[expression, %NL]] "}"
+block -> "{" optional[delimited[(expression | definition), %NL]] "}"
 
 expression 
-  -> definition 
-  |  ifExpression
+  -> ifExpression
   |  arithmeticExpression
-  |  functionCall
 
-functionCall -> reference _ "(" parameters[expression] ")"
+### -- Metematical Operations -- ###
 
-arithmeticExpression -> logicalExpression
+arithmeticExpression -> pipeExpression
 
-logicalExpression -> "!":? expression __ ("==" | "!=" | "&&" | "||") __ expression | sumExpression
+pipeExpression -> pipeExpression __ "|>" __ orExpression | orExpression
+
+orExpression -> andExpression __ "||" __ orExpression | andExpression
+
+andExpression -> comparasionExpression __ "&&" __ andExpression  | comparasionExpression
+
+comparasionExpression -> comparasionExpression __ ("==" | "!=" | "<" | ">" | "<=" | ">=") __ sumExpression | sumExpression
 
 sumExpression -> sumExpression __ ("+" | "-") __ productExpression | productExpression
 
 productExpression -> productExpression __ ("*" | "/") __ parenthesisExpression | parenthesisExpression
 
-parenthesisExpression -> "(" _ expression _ ")" | arithmeticValues | booleanValues
+parenthesisExpression -> "(" _ expression _ ")" | atomicValues
 
-arithmeticValues -> ("+" | "-"):? %INTEGER | %DOUBLE
+arithmeticValues ->  %INTEGER | %DOUBLE
 
-booleanValues 
+booleanValues
   -> "true" 
   |  "false"
+
+functionCall -> reference _ "(" parameters[expression] ")"
+
+stringLiteral -> %STRING
+
+charLiteral -> %CHAR
+
+listLiteral -> "[" parameters[expression] "]"
+
+atomicValues -> ("+" | "-" | "!"):? (arithmeticValues | booleanValues | functionCall | stringLiteral | charLiteral | listLiteral)
+
+
 
 typeParameter -> "<" atLeastOne[%IDENTIFIER, %COMMA] ">"
 

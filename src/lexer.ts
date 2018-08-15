@@ -1,13 +1,28 @@
 import * as moo from "moo";
 
 export const lexer = moo.compile({
+  /** OPERATORS */
+
+  PIPE: /\|>/,
+  AND: /&&/,
+  OR: /\|\|/,
+  LTEQ: /<=/,
+  GTEQ: />=/,
+  LT: /</,
+  GT: />/,
+  EQUALS: /==/,
+  NOT_EQUALS: /!=/,
+  ASSIGN: /=/,
+  NEGATE: /!/,
+  CONCAT: /\+\+/,
+  PLUS: /\+/,
+  MINUS: /\-/,
+
   /** SPECIALS */
 
   DOT: /\./,
   COMMA: /,/,
   COLON: /:/,
-  LANGLE: /</,
-  RANGLE: />/,
   WS: /[ \t]+/,
   LPAREN: /\(/,
   RPAREN: /\)/,
@@ -18,21 +33,12 @@ export const lexer = moo.compile({
   SEMI_COLON: /;/,
   NL: { match: /\n+/, lineBreaks: true },
 
-  /** OPERATORS */
-
-  AND: /&&/,
-  OR: /\|\|/,
-  PIPE: /\|/,
-  PLUS: /\+/,
-  MINUS: /\-/,
-  EQUALS: /=/,
-  NEGATE: /!/,
-
   /** PRIMITIVES */
 
   INTEGER: /0|[1-9][0-9]*/,
   DOUBLE: /(?:(?:0|[1-9][0-9]*)?\.[0-9]+)/,
-  STRING: /"(?:\\["\\]|[^\n"\\])*"/,
+  CHAR: { match: /'.'/, value: x => x.slice(1, -1) },
+  STRING: { match: /".*"/, value: x => x.slice(1, -1) },
 
   /** KEYWORDS/IDENTIFIER */
 
