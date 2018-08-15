@@ -48,6 +48,7 @@ export const lexer = moo.compile({
     keywords: {
       IF: "if",
       DEF: "def",
+      LET: "let",
       TYPE: "type",
       ELSE: "else",
       IMPORT: "import",

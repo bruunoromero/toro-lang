@@ -28,6 +28,19 @@ export def teste<T, E>() = {}
     }).not.toThrow();
   });
 
+  it("Should parse constant definition", () => {
+    const sample = `
+def main = {
+  print(t)
+}
+let t = 10
+`;
+
+    expect(() => {
+      parse(sample);
+    }).not.toThrow();
+  });
+
   it("Should parse union definition", () => {
     const sample = `
 type Something<T> = This(List<Maybe<T>>) | That
@@ -69,8 +82,8 @@ def main = teste(true, false)
 
   it("Should parse boolean expression", () => {
     const sample = `
-def main = !true || false
-`;
+  def main = !true || false
+  `;
 
     expect(() => {
       parse(sample);

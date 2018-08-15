@@ -31,7 +31,9 @@ program -> delimited[import, %NL]:? delimited[exportableDefinition, %NL]:?
 
 import -> _ "import" __ reference _
 
-exportableDefinition -> optionalWithSpace["export"]  definition _
+### -- Definitions  -- ###
+
+exportableDefinition -> optionalWithSpace["export"] definition _
 
 unionName -> %IDENTIFIER optional[typeParameter]
 
@@ -39,17 +41,21 @@ unionDefinition -> "type" __ unionName "=" atLeastOne[unionType, "|"]
 
 unionType -> %IDENTIFIER ("(" atLeastOne[typeName, %COMMA] ")"):?
 
-definition 
-  -> functionDefinition
-  |  unionDefinition
+constantDefinition -> "let" __ %IDENTIFIER _ "=" _ (block | expression)
 
 functionDefinition -> "def" __ %IDENTIFIER optional[(parameterList | typeParameter _ parameterList)]  "=" _ (block | expression)
+
+definition 
+  -> constantDefinition
+  |  functionDefinition
+  |  unionDefinition
+
 
 ifExpression -> "if" _ "(" optional[expression] ")" _ block _ "else" _ block
 
 block -> "{" optional[delimited[(expression | functionDefinition), %NL]] "}"
 
-expression 
+expression
   -> ifExpression
   |  arithmeticExpression
 
@@ -75,7 +81,7 @@ parenthesisExpression -> "(" _ expression _ ")" | atomicValues
 
 arithmeticValues ->  %INTEGER | %DOUBLE
 
-callExpression -> reference optional["(" parameters[expression] ")"]
+valueExpression -> reference (_ argumentList):?
 
 stringLiteral -> %STRING
 
@@ -87,8 +93,7 @@ recordLiteral -> "{" atLeastOne[recordValue, %COMMA] "}"
 
 listLiteral -> "[" parameters[expression] "]"
 
-unaryExpression -> ("+" | "-" | "!"):? (arithmeticValues | callExpression)
-
+unaryExpression -> ("+" | "-" | "!"):? (arithmeticValues | valueExpression)
 
 atomicValues 
   -> unaryExpression
@@ -99,6 +104,8 @@ atomicValues
 
 
 typeParameter -> "<" atLeastOne[%IDENTIFIER, %COMMA] ">"
+
+argumentList -> "(" parameters[arithmeticExpression]  ")"
 
 parameterList -> "(" parameters[parameter]  ")"
 
