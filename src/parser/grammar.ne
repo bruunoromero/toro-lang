@@ -1,6 +1,6 @@
 @{%
 import { lexer } from './lexer'
-import { $import } from './generators.ts'
+import { $import } from './generators'
 %}
 
 @preprocessor typescript
