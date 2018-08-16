@@ -7,11 +7,12 @@ export const lexer = moo.compile({
   AND: /&&/,
   OR: /\|\|/,
   BOR: /\|/,
+  ARROW: /->/,
+  FAT_ARROW: /=>/,
   LTEQ: /<=/,
   GTEQ: />=/,
   LT: /</,
   GT: />/,
-  FAT_ARROW: /=>/,
   EQUALS: /==/,
   NOT_EQUALS: /!=/,
   ASSIGN: /=/,
@@ -45,13 +46,14 @@ export const lexer = moo.compile({
   /** KEYWORDS/IDENTIFIER */
 
   IDENTIFIER: {
-    match: /[a-zA-Z]+/,
+    match: /[a-zA-Z_$]+/,
     keywords: {
       IF: "if",
       DEF: "def",
       LET: "let",
       TYPE: "type",
       ELSE: "else",
+      MATCH: "match",
       IMPORT: "import",
       EXPORT: "export",
     },

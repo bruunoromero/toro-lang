@@ -110,4 +110,17 @@ def main = 1 |> 2
       parse(sample);
     }).not.toThrow();
   });
+
+  it("Should parse match expression", () => {
+    const sample = `
+def main = match(x) {
+  Just(a) -> true 
+  _ -> false
+}
+`;
+
+    expect(() => {
+      parse(sample);
+    }).not.toThrow();
+  });
 });

@@ -43,6 +43,7 @@ exportableDefinition -> optionalWithSpace["export"] definition _
 
 expression
   -> ifExpression
+  |  matchExpression
   |  arithmeticExpression
 
 arithmeticExpression -> pipeExpression
@@ -79,7 +80,7 @@ listLiteral -> "[" parameters[expression] "]"
 
 unaryExpression -> ("+" | "-" | "!"):? (arithmeticValues | valueExpression)
 
-atomicValues 
+atomicValues
   -> unaryExpression
   |  stringLiteral
   |  charLiteral
@@ -89,7 +90,11 @@ atomicValues
 
 arrowFunctionExpression -> "(" parameters[optionalTypedParameter] ")" _ "=>" _ body
 
-ifExpression -> "if" _ "(" optional[expression] ")" _ body _ "else" _ body
+ifExpression -> "if" _ "(" _ expression _ ")" _ body _ "else" _ body
+
+matchExpression -> "match" _ "(" _ expression _ ")" _ "{" delimited[matchClause, %NL] "}"
+
+matchClause -> _ expression __ "->" __ body _
 
 
 ### -- Definitions  -- ###
