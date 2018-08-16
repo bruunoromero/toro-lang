@@ -48,6 +48,7 @@ export const lexer = moo.compile({
   IDENTIFIER: {
     match: /[a-zA-Z_$]+/,
     keywords: {
+      AS: "as",
       IF: "if",
       DEF: "def",
       LET: "let",

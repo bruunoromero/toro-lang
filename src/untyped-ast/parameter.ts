@@ -1,11 +1,12 @@
+import { Type } from "./type";
 import { Clause } from "./clause";
 import { Identifier } from "./identifier";
 
-export class Type extends Clause {
+export class Parameter extends Clause {
   constructor(
     public readonly ctx: any,
-    public readonly name: Identifier,
-    public readonly isConcrete = true,
+    public readonly identifier: Identifier,
+    public readonly type: Type,
   ) {
     super(ctx);
   }

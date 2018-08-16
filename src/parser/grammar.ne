@@ -1,6 +1,21 @@
 @{%
 import { lexer } from './lexer'
-import { $import } from './generators'
+import {
+  $as,
+  $body,
+  $block,
+  $import,
+  $typeName,
+  $reference,
+  $parameter,
+  $identifier,
+  $returnType,
+  $parameterList,
+  $typeDefinition,
+  $arrowFunctionType,
+  $functionDefinition,
+  $exportableDefinition,
+} from './parsers'
 %}
 
 @preprocessor typescript
@@ -15,7 +30,7 @@ import { $import } from './generators'
 optional[el]-> _ ($el _):?
 
 # Optional White space follwed by an optional Element and a mandatory White Space
-optionalWithSpace[el] -> _ ($el __):?
+optionalWithSpace[el] -> ($el __):?
 
 # Optional White space follwed by 2 sequences of an optional Element and an optional White Space
 optional2[el1, el2]-> _ ($el1 _):? ($el2 _):?
@@ -33,11 +48,13 @@ atLeastOne[el, sep] -> _ $el _ ($sep _ delimited[$el, _ $sep _]):?
 
 # A program is a seqauences of imports separated by Lines,
 # followed by exportable definitions separated by Lines
-program -> delimited[import, %NL]:? delimited[exportableDefinition, %NL]:?
+program -> delimited[_ import _, %NL]:? delimited[_ exportableDefinition _, %NL]:?
 
-import -> _ "import" __ reference _ {% $import %}
+import -> "import" __ reference as:? {% $import %}
 
-exportableDefinition -> optionalWithSpace["export"] definition _
+as -> __ "as" __ identifier {% $as %}
+
+exportableDefinition -> optionalWithSpace["export"] definition {% $exportableDefinition %}
 
 
 ### -- Expressions -- ###
@@ -73,7 +90,7 @@ stringLiteral -> %STRING
 
 charLiteral -> %CHAR
 
-recordValue -> %IDENTIFIER __ "=" __ expression
+recordValue -> identifier __ "=" __ expression
 
 recordLiteral -> "{" atLeastOne[recordValue, %COMMA] "}"
 
@@ -100,15 +117,15 @@ matchClause -> expression __ "->" __ body
 
 ### -- Definitions  -- ###
 
-unionName -> %IDENTIFIER optional[genericParameter]
+unionName -> identifier optional[genericParameter]
 
 unionDefinition -> "type" __ unionName "=" atLeastOne[unionType, "|"]
 
-unionType -> %IDENTIFIER ("(" atLeastOne[typeDefinition, %COMMA] ")"):?
+unionType -> identifier ("(" atLeastOne[typeDefinition, %COMMA] ")"):?
 
-constantDefinition -> "let" __ %IDENTIFIER _ returnType:? "=" _ body
+constantDefinition -> "let" __ identifier returnType:? "=" _ body
 
-functionDefinition -> "def" __ %IDENTIFIER optional[(parameterList | genericParameter _ parameterList)] (_ returnType):? "=" _ body
+functionDefinition -> "def" __ identifier optional[(parameterList | genericParameter _ parameterList)] returnType:? "=" _ body {% $functionDefinition %}
 
 definition 
   -> constantDefinition
@@ -118,32 +135,34 @@ definition
 
 ### --- Type Definition --- ###
 
-typeDefinition -> typeName | arrowFunctionType
+typeDefinition -> (typeName | arrowFunctionType) {% $typeDefinition %}
 
-arrowFunctionType -> "(" parameters[typeName] ")" _ "=>" _ typeName
+arrowFunctionType -> "(" parameters[typeName] ")" _ "=>" _ typeName {% $arrowFunctionType %}
 
-typeName -> %IDENTIFIER optional["<" atLeastOne[typeDefinition, %COMMA] ">"]
+typeName -> identifier optional["<" atLeastOne[typeDefinition, %COMMA] ">"] {% $typeName %}
 
 
 ### --- UTILS --- ###
 
-body -> block | expression
+identifier -> %IDENTIFIER {% $identifier %}
 
-block -> "{" optional[delimited[(expression | definition), %NL]] "}"
+body -> (block | expression) {% $body %}
 
-genericParameter -> "<" atLeastOne[%IDENTIFIER, %COMMA] ">"
+block -> "{" optional[delimited[(expression | definition), %NL]] "}" {% $block %}
+
+genericParameter -> "<" atLeastOne[identifier, %COMMA] ">"
 
 argumentList -> "(" parameters[arithmeticExpression] ")"
 
-parameterList -> "(" parameters[parameter]  ")"
+parameterList -> "(" parameters[parameter]  ")" {% $parameterList %}
 
-returnType -> ":" _ typeDefinition
+returnType -> _ ":" _ typeDefinition {% $returnType %}
 
-parameter -> %IDENTIFIER _ returnType
+parameter -> identifier returnType {% $parameter %}
 
-optionalTypedParameter -> %IDENTIFIER _ (returnType):?
+optionalTypedParameter -> identifier returnType:?
 
-reference -> delimited[%IDENTIFIER,  _ %DOT _]
+reference -> delimited[identifier,  _ %DOT _] {% $reference %}
 
 _ -> (%WS | %NL):*
 __ -> %WS:+
