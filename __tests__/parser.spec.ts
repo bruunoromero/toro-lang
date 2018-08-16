@@ -1,5 +1,4 @@
 import { parse } from "../src/parser";
-import { pprint } from "../src/utils/print";
 
 describe("Import", () => {
   it("Should parse imports", () => {

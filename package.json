@@ -6,12 +6,12 @@
   "scripts": {
     "start": "npx ts-node src/index.ts",
     "format": "prettier --write \"src/**/*.ts\"",
-    "grammar:clean": "cross-env rm src/grammar.ts",
+    "grammar:clean": "cross-env rm src/parser/grammar.ts",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "cross-env npm run grammar:compile && jest",
     "compile": "cross-env npm run grammar:compile && npx tsc",
-    "grammar:compile": "cross-env npx nearleyc src/grammar.ne -o src/grammar.ts",
-    "grammar:test": "cross-env npm run grammar:compile && npx nearley-test src/grammar.ts"
+    "grammar:compile": "cross-env npx nearleyc src/parser/grammar.ne -o src/parser/grammar.ts",
+    "grammar:test": "cross-env npm run grammar:compile && npx nearley-test src/parser/grammar.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.0.0",
@@ -23,6 +23,7 @@
     "@types/moo": "^0.4.0",
     "@types/nearley": "^2.11.0",
     "@types/node": "^10.5.5",
+    "@types/ramda": "^0.25.36",
     "cross-env": "^5.2.0",
     "husky": "^1.0.0-rc.13",
     "jest": "^23.4.2",

@@ -1,5 +1,6 @@
 @{%
 import { lexer } from './lexer'
+import { $import } from './generators.ts'
 %}
 
 @preprocessor typescript
@@ -34,7 +35,7 @@ atLeastOne[el, sep] -> _ $el _ ($sep _ delimited[$el, _ $sep _]):?
 # followed by exportable definitions separated by Lines
 program -> delimited[import, %NL]:? delimited[exportableDefinition, %NL]:?
 
-import -> _ "import" __ reference _
+import -> _ "import" __ reference _ {% $import %}
 
 exportableDefinition -> optionalWithSpace["export"] definition _
 

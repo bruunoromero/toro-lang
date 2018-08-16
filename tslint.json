@@ -30,6 +30,6 @@
   },
   "rulesDirectory": [],
   "linterOptions": {
-    "exclude": ["lib/**/*", "src/grammar.ts"]
+    "exclude": ["lib/**/*", "src/parser/grammar.ts"]
   }
 }
