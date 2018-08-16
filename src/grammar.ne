@@ -92,9 +92,9 @@ arrowFunctionExpression -> "(" parameters[optionalTypedParameter] ")" _ "=>" _ b
 
 ifExpression -> "if" _ "(" _ expression _ ")" _ body _ "else" _ body
 
-matchExpression -> "match" _ "(" _ expression _ ")" _ "{" delimited[matchClause, %NL] "}"
+matchExpression -> "match" _ "(" _ expression _ ")" _ "{" delimited[_ matchClause _, %NL] "}"
 
-matchClause -> _ expression __ "->" __ body _
+matchClause -> expression __ "->" __ body
 
 
 ### -- Definitions  -- ###
