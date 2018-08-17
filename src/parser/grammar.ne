@@ -9,12 +9,14 @@ import {
   $reference,
   $parameter,
   $identifier,
-  $returnType,
+  $atLeastOne,
   $parameterList,
   $typeDefinition,
   $arrowFunctionType,
   $functionDefinition,
   $exportableDefinition,
+  $genericParameterList,
+  $functionDefinitionParameters
 } from './parsers'
 %}
 
@@ -27,34 +29,34 @@ import {
 ### --- Macros --- ###
 
 # Optional White space follwed by an optional Element and an optional White Space
-optional[el]-> _ ($el _):?
+optional[el]-> _ ($el _ {% nth(0) %}):? {% nth(1) %}
 
 # Optional White space follwed by an optional Element and a mandatory White Space
-optionalWithSpace[el] -> ($el __):?
+optionalWithSpace[el] -> ($el __ {% nth(0) %}):? {% nth(0) %}
 
 # Optional White space follwed by 2 sequences of an optional Element and an optional White Space
 optional2[el1, el2]-> _ ($el1 _):? ($el2 _):?
 
 # Optional White space follwed by sequences of an optional Elements separated by 
 # an Optional White space, Comma and Optional White space
-parameters[el] -> optional[delimited[$el,  _ %COMMA _]]
+parameters[el] -> optional[delimited[$el {% nth(0) %},  _ %COMMA _] {% nth(0) %}] {% nth(0) %}
 
 # Optional White space followed by an Element and an Optional White space,
 # then an Optional sequences of Elements with an Separator
-atLeastOne[el, sep] -> _ $el _ ($sep _ delimited[$el, _ $sep _]):?
+atLeastOne[el, sep] -> (_ $el _ {% nth(1) %}) ($sep _ delimited[$el {% nth(0) %}, _ $sep _] {% nth(2) %}):? {% $atLeastOne %}
 
 
 ### --- Main --- ###
 
 # A program is a seqauences of imports separated by Lines,
 # followed by exportable definitions separated by Lines
-program -> delimited[_ import _, %NL]:? delimited[_ exportableDefinition _, %NL]:?
+program -> delimited[import {% nth(0) %}, %NL]:? delimited[exportableDefinition {% nth(0) %}, %NL]:?
 
-import -> "import" __ reference as:? {% $import %}
+import -> _ ("import" __ reference as:? {% $import %}) _ {% nth(1) %}
 
 as -> __ "as" __ identifier {% $as %}
 
-exportableDefinition -> optionalWithSpace["export"] definition {% $exportableDefinition %}
+exportableDefinition -> _ (optionalWithSpace["export"] definition {% $exportableDefinition %}) _ {% nth(1) %}
 
 
 ### -- Expressions -- ###
@@ -117,7 +119,7 @@ matchClause -> expression __ "->" __ body
 
 ### -- Definitions  -- ###
 
-unionName -> identifier optional[genericParameter]
+unionName -> identifier optional[genericParameterList]
 
 unionDefinition -> "type" __ unionName "=" atLeastOne[unionType, "|"]
 
@@ -125,7 +127,9 @@ unionType -> identifier ("(" atLeastOne[typeDefinition, %COMMA] ")"):?
 
 constantDefinition -> "let" __ identifier returnType:? "=" _ body
 
-functionDefinition -> "def" __ identifier optional[(parameterList | genericParameter _ parameterList)] returnType:? "=" _ body {% $functionDefinition %}
+functionDefinition -> ("def" __ identifier {% nth(2) %} ) optional[functionDefinitionParameters {% nth(0) %}] returnType:? ("=" _ body {% nth(2) %}) {% $functionDefinition %}
+
+functionDefinitionParameters -> (parameterList | genericParameterList _ parameterList) {% $functionDefinitionParameters %}
 
 definition 
   -> constantDefinition
@@ -148,21 +152,21 @@ identifier -> %IDENTIFIER {% $identifier %}
 
 body -> (block | expression) {% $body %}
 
-block -> "{" optional[delimited[(expression | definition), %NL]] "}" {% $block %}
+block -> "{" optional[delimited[(expression | definition) {% nth(0) %}, %NL]] "}" {% $block %}
 
-genericParameter -> "<" atLeastOne[identifier, %COMMA] ">"
+genericParameterList -> "<" (atLeastOne[identifier {% nth(0) %}, %COMMA] {% $genericParameterList %}) ">" {% nth(1) %}
 
 argumentList -> "(" parameters[arithmeticExpression] ")"
 
-parameterList -> "(" parameters[parameter]  ")" {% $parameterList %}
+parameterList -> "(" (parameters[parameter {% nth(0) %}] {% $parameterList %}) ")" {% nth(1) %}
 
-returnType -> _ ":" _ typeDefinition {% $returnType %}
+returnType -> _ ":" _ typeDefinition {% nth(3) %}
 
 parameter -> identifier returnType {% $parameter %}
 
 optionalTypedParameter -> identifier returnType:?
 
-reference -> delimited[identifier,  _ %DOT _] {% $reference %}
+reference -> delimited[identifier {% nth(0) %},  _ %DOT _] {% $reference %}
 
 _ -> (%WS | %NL):*
 __ -> %WS:+

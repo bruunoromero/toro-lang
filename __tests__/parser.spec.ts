@@ -3,43 +3,40 @@ import { parse } from "../src/parser";
 describe("Import", () => {
   it("Should parse imports", () => {
     const sample = `
-import List
-import List.Core as L
-      `;
+  import List
+  import List.Core as L
+        `;
+
+    expect(() => {
+      parse(sample);
+    }).not.toThrow();
+  });
+
+  // describe("Definition", () => {
+  //   it("Should parse function definition", () => {
+  //     const sample = `
+  // def main = {
+  //   let t = () => 10
+  // }
+
+  // export def teste<T, E>(a: List<Int>): List<Int> = List.merge(a, [1, 2])
+  // `;
+
+  //     expect(() => {
+  //       parse(sample);
+  //     }).not.toThrow();
+  // });
+
+  it("Should parse constant definition", () => {
+    const sample = `
+  def main<T, E>(): Int = 10
+  `;
 
     expect(() => {
       parse(sample);
     }).not.toThrow();
   });
 });
-
-// describe("Definition", () => {
-//   it("Should parse function definition", () => {
-//     const sample = `
-// def main = {
-//   let t = () => 10
-// }
-
-// export def teste<T, E>(a: List<Int>): List<Int> = List.merge(a, [1, 2])
-// `;
-
-//     expect(() => {
-//       parse(sample);
-//     }).not.toThrow();
-  // });
-
-  it("Should parse constant definition", () => {
-    const sample = `
-def main(a: Int) = {
-  print(t)
-}
-let t: Int = 10
-`;
-
-    expect(() => {
-      parse(sample);
-    }).not.toThrow();
-  });
 
 //   it("Should parse union definition", () => {
 //     const sample = `
@@ -59,7 +56,7 @@ let t: Int = 10
 //   if(true) {
 
 //   } else {
-    
+
 //   }
 // `;
 
@@ -113,7 +110,7 @@ let t: Int = 10
 //   it("Should parse match expression", () => {
 //     const sample = `
 // def main = match(x) {
-//   Just(a) -> true 
+//   Just(a) -> true
 //   _ -> false
 // }
 // `;

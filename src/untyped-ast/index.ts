@@ -1,14 +1,11 @@
-import { ImportClause } from "./import-clause";
-import { Definition } from "./definition";
+import { Import } from "./import";
 
 export class AST {
   exports: string[];
-  imports: Map<string[], ImportClause>;
-  definitions: Map<string, Definition>;
+  imports: Map<string[], Import>;
 
   constructor() {
     this.exports = [];
     this.imports = new Map();
-    this.definitions = new Map();
   }
 }
