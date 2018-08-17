@@ -1,21 +1,44 @@
 @{%
 import { lexer } from './lexer'
 import {
-  $as,
+  $div,
   $body,
+  $char,
+  $bang,
+  $mult,
   $block,
+  $uplus,
+  $uminus,
   $import,
+  $double,
+  $string,
+  $integer,
+  $addition,
   $typeName,
   $reference,
   $parameter,
   $identifier,
   $atLeastOne,
+  $subtraction,
+  $orExpression,
+  $argumentList,
+  $andExpression,
   $parameterList,
+  $sumExpression,
+  $unaryOperator,
+  $callExpression,
+  $pipeExpression,
   $typeDefinition,
+  $unaryExpression,
+  $arithmeticValues,
   $arrowFunctionType,
+  $productExpression,
   $functionDefinition,
+  $arithmeticExpression,
   $exportableDefinition,
   $genericParameterList,
+  $comparasionExpression,
+  $parenthesisExpression,
   $functionDefinitionParameters
 } from './parsers'
 %}
@@ -52,9 +75,9 @@ atLeastOne[el, sep] -> (_ $el _ {% nth(1) %}) ($sep _ delimited[$el {% nth(0) %}
 # followed by exportable definitions separated by Lines
 program -> delimited[import {% nth(0) %}, %NL]:? delimited[exportableDefinition {% nth(0) %}, %NL]:?
 
-import -> _ ("import" __ reference as:? {% $import %}) _ {% nth(1) %}
+import -> _ (("import" __ reference {% nth(2) %}) as:? {% $import %}) _ {% nth(1) %}
 
-as -> __ "as" __ identifier {% $as %}
+as -> __ "as" __ identifier {% nth(3) %}
 
 exportableDefinition -> _ (optionalWithSpace["export"] definition {% $exportableDefinition %}) _ {% nth(1) %}
 
@@ -66,46 +89,39 @@ expression
   |  matchExpression
   |  arithmeticExpression
 
-arithmeticExpression -> pipeExpression
+arithmeticExpression -> pipeExpression {% $arithmeticExpression %}
 
-pipeExpression -> pipeExpression __ "|>" __ orExpression | orExpression
+pipeExpression -> (pipeExpression _ "|>" _ orExpression | orExpression) {% $pipeExpression %}
 
-orExpression -> andExpression __ "||" __ orExpression | andExpression
+orExpression -> (andExpression _ "||" _ orExpression | andExpression) {% $orExpression %}
 
-andExpression -> comparasionExpression __ "&&" __ andExpression  | comparasionExpression
+andExpression -> (comparasionExpression _ "&&" _ andExpression | comparasionExpression) {% $andExpression %}
 
 comparasionExpression 
-  -> comparasionExpression __ ("==" | "!=" | "<" | ">" | "<=" | ">=") __ sumExpression 
-  |  sumExpression
+  -> (comparasionExpression _ ("==" | "!=" | "<" | ">" | "<=" | ">=") _ sumExpression | sumExpression) {% $comparasionExpression %}
 
-sumExpression -> sumExpression __ ("+" | "-") __ productExpression | productExpression
+sumExpression -> (sumExpression _ ("+" | "-") _ productExpression | productExpression) {% $sumExpression %}
 
-productExpression -> productExpression __ ("*" | "/") __ parenthesisExpression | parenthesisExpression
+productExpression -> (productExpression _ (mult | div) _ parenthesisExpression | parenthesisExpression) {% $productExpression %}
 
-parenthesisExpression -> "(" _ expression _ ")" | atomicValues
+parenthesisExpression -> ("(" _ expression _ ")" | atomicValues) {% $parenthesisExpression %}
 
-arithmeticValues ->  %INTEGER | %DOUBLE
+arithmeticValues ->  (integer | double) {% $arithmeticValues %}
 
-valueExpression -> reference (_ argumentList):?
+callExpression -> reference (_ argumentList {% nth(1) %} ):? {% $callExpression %}
 
-stringLiteral -> %STRING
+recordValue -> (identifier _ {% nth(0) %}) "=" (_ expression {% nth(1) %})
 
-charLiteral -> %CHAR
+recordLiteral -> "{" atLeastOne[recordValue {% nth(0) %}, %COMMA] "}"
 
-recordValue -> identifier __ "=" __ expression
-
-recordLiteral -> "{" atLeastOne[recordValue, %COMMA] "}"
-
-listLiteral -> "[" parameters[expression] "]"
-
-unaryExpression -> ("+" | "-" | "!"):? (arithmeticValues | valueExpression)
+unaryExpression -> ("-":? arithmeticValues | callExpression) {% $unaryExpression %}
 
 atomicValues
-  -> unaryExpression
-  |  stringLiteral
-  |  charLiteral
-  |  listLiteral
+  -> char
+  |  list
+  |  string
   |  recordLiteral
+  |  unaryExpression
   |  arrowFunctionExpression
 
 arrowFunctionExpression -> "(" parameters[optionalTypedParameter] ")" _ "=>" _ body
@@ -148,15 +164,13 @@ typeName -> identifier optional["<" atLeastOne[typeDefinition, %COMMA] ">"] {% $
 
 ### --- UTILS --- ###
 
-identifier -> %IDENTIFIER {% $identifier %}
-
 body -> (block | expression) {% $body %}
 
-block -> "{" optional[delimited[(expression | definition) {% nth(0) %}, %NL]] "}" {% $block %}
+block -> "{" (optional[delimited[(expression | definition) {% nth(0) %}, %NL] {% nth(0) %}] {% $block %} ) "}" {% nth(1) %}
 
 genericParameterList -> "<" (atLeastOne[identifier {% nth(0) %}, %COMMA] {% $genericParameterList %}) ">" {% nth(1) %}
 
-argumentList -> "(" parameters[arithmeticExpression] ")"
+argumentList -> "(" (parameters[expression {% nth(0) %}] {% $argumentList %}) ")" {% nth(1) %}
 
 parameterList -> "(" (parameters[parameter {% nth(0) %}] {% $parameterList %}) ")" {% nth(1) %}
 
@@ -167,6 +181,28 @@ parameter -> identifier returnType {% $parameter %}
 optionalTypedParameter -> identifier returnType:?
 
 reference -> delimited[identifier {% nth(0) %},  _ %DOT _] {% $reference %}
+
+### --- COMPILER PRIMITIVES --- ###
+
+identifier -> %IDENTIFIER {% $identifier %}
+
+double -> %DOUBLE {% $double %}
+
+integer -> %INTEGER {% $integer %}
+
+char -> %CHAR {% $char %}
+
+string -> %STRING {% $string %}
+
+list -> "[" parameters[expression] "]"
+
+mult -> "*" {% $mult %}
+
+div -> "/" {% $div %}
+
+plus -> "+" {% $addition %}
+
+minus -> "-" {% $subtraction %}
 
 _ -> (%WS | %NL):*
 __ -> %WS:+

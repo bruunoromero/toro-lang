@@ -20,6 +20,8 @@ export const lexer = moo.compile({
   CONCAT: /\+\+/,
   PLUS: /\+/,
   MINUS: /\-/,
+  MULT:  /\*/,
+  DIV:  /\\/,
 
   /** SPECIALS */
 
@@ -38,8 +40,8 @@ export const lexer = moo.compile({
 
   /** PRIMITIVES */
 
-  INTEGER: /0|[1-9][0-9]*/,
   DOUBLE: /(?:(?:0|[1-9][0-9]*)?\.[0-9]+)/,
+  INTEGER: /0|[1-9][0-9]*/,
   CHAR: { match: /'.'/, value: x => x.slice(1, -1) },
   STRING: { match: /".*"/, value: x => x.slice(1, -1) },
 

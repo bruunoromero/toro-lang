@@ -1,16 +1,16 @@
 import { parse } from "../src/parser";
 
 describe("Import", () => {
-  it("Should parse imports", () => {
-    const sample = `
-  import List
-  import List.Core as L
-        `;
+  // it("Should parse imports", () => {
+  //   const sample = `
+  // import List
+  // import List.Core as L
+  //       `;
 
-    expect(() => {
-      parse(sample);
-    }).not.toThrow();
-  });
+  //   expect(() => {
+  //     parse(sample);
+  //   }).not.toThrow();
+  // });
 
   // describe("Definition", () => {
   //   it("Should parse function definition", () => {
@@ -29,7 +29,7 @@ describe("Import", () => {
 
   it("Should parse constant definition", () => {
     const sample = `
-  def main<T, E>(): Int = 10
+  def main<T, E>(): Int = -10.2 * 2 + 2
   `;
 
     expect(() => {

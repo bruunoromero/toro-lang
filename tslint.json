@@ -24,7 +24,7 @@
     "no-console": { "severity": "warning" },
     "variable-name": [false],
     "one-line": [false],
-    "max-classes-per-file": [true, 10],
+    "max-classes-per-file": [true, 20],
     "only-arrow-functions": false,
     "one-variable-per-declaration": [true]
   },

@@ -1,6 +1,8 @@
 import { Type } from "./type";
 import { Union, Constructor } from "./union";
 import { ParametrizableType } from "./parametrizable-type";
+import { Value } from "./value";
+import { Identifier } from "./identifier";
 
 export class AnyType extends Type {
   constructor(public readonly ctx: any) {
@@ -10,13 +12,25 @@ export class AnyType extends Type {
 
 export class IntType extends Type {
   constructor(public readonly ctx: any) {
-    super(ctx, "Int");
+    super(new Identifier(ctx, "Int"));
+  }
+}
+
+export class Integer extends Value<number> {
+  constructor(public readonly ctx: any, public readonly value: number) {
+    super(ctx, new IntType(ctx), value);
   }
 }
 
 export class DoubleType extends Type {
   constructor(public readonly ctx: any) {
-    super(ctx, "Double");
+    super(new Identifier(ctx, "Double"));
+  }
+}
+
+export class Double extends Value<number> {
+  constructor(public readonly ctx: any, public readonly value: number) {
+    super(ctx, new DoubleType(ctx), value);
   }
 }
 
@@ -28,7 +42,13 @@ export class BooleanType extends Type {
 
 export class CharType extends Type {
   constructor(public readonly ctx: any) {
-    super(ctx, "Char");
+    super(new Identifier(ctx, "Char"));
+  }
+}
+
+export class Char extends Value<string> {
+  constructor(public readonly ctx: any, public readonly value: string) {
+    super(ctx, new CharType(ctx), value);
   }
 }
 
