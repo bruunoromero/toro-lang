@@ -1,51 +1,8 @@
 @{%
 import { lexer } from './lexer'
-import {
-  $div,
-  $body,
-  $char,
-  $bang,
-  $mult,
-  $block,
-  $uplus,
-  $uminus,
-  $import,
-  $double,
-  $string,
-  $integer,
-  $addition,
-  $typeName,
-  $reference,
-  $parameter,
-  $identifier,
-  $atLeastOne,
-  $subtraction,
-  $orExpression,
-  $argumentList,
-  $andExpression,
-  $parameterList,
-  $sumExpression,
-  $unaryOperator,
-  $callExpression,
-  $pipeExpression,
-  $typeDefinition,
-  $unaryExpression,
-  $arithmeticValues,
-  $arrowFunctionType,
-  $productExpression,
-  $functionDefinition,
-  $arithmeticExpression,
-  $exportableDefinition,
-  $genericParameterList,
-  $comparasionExpression,
-  $parenthesisExpression,
-  $functionDefinitionParameters
-} from './parsers'
 %}
 
 @preprocessor typescript
-
-@builtin "postprocessors.ne"
 
 @lexer lexer
 
@@ -147,62 +104,4 @@ functionDefinition -> ("def" __ identifier {% nth(2) %} ) optional[functionDefin
 
 functionDefinitionParameters -> (parameterList | genericParameterList _ parameterList) {% $functionDefinitionParameters %}
 
-definition 
-  -> constantDefinition
-  |  functionDefinition
-  |  unionDefinition
-
-
-### --- Type Definition --- ###
-
-typeDefinition -> (typeName | arrowFunctionType) {% $typeDefinition %}
-
-arrowFunctionType -> "(" parameters[typeName] ")" _ "=>" _ typeName {% $arrowFunctionType %}
-
-typeName -> identifier optional["<" atLeastOne[typeDefinition, %COMMA] ">"] {% $typeName %}
-
-
-### --- UTILS --- ###
-
-body -> (block | expression) {% $body %}
-
-block -> "{" (optional[delimited[(expression | definition) {% nth(0) %}, %NL] {% nth(0) %}] {% $block %} ) "}" {% nth(1) %}
-
-genericParameterList -> "<" (atLeastOne[identifier {% nth(0) %}, %COMMA] {% $genericParameterList %}) ">" {% nth(1) %}
-
-argumentList -> "(" (parameters[expression {% nth(0) %}] {% $argumentList %}) ")" {% nth(1) %}
-
-parameterList -> "(" (parameters[parameter {% nth(0) %}] {% $parameterList %}) ")" {% nth(1) %}
-
-returnType -> _ ":" _ typeDefinition {% nth(3) %}
-
-parameter -> identifier returnType {% $parameter %}
-
-optionalTypedParameter -> identifier returnType:?
-
-reference -> delimited[identifier {% nth(0) %},  _ %DOT _] {% $reference %}
-
-### --- COMPILER PRIMITIVES --- ###
-
 identifier -> %IDENTIFIER {% $identifier %}
-
-double -> %DOUBLE {% $double %}
-
-integer -> %INTEGER {% $integer %}
-
-char -> %CHAR {% $char %}
-
-string -> %STRING {% $string %}
-
-list -> "[" parameters[expression] "]"
-
-mult -> "*" {% $mult %}
-
-div -> "/" {% $div %}
-
-plus -> "+" {% $addition %}
-
-minus -> "-" {% $subtraction %}
-
-_ -> (%WS | %NL):*
-__ -> %WS:+
