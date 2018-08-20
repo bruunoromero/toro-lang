@@ -4,6 +4,7 @@ import { lexer } from './lexer';
 import {
   $do,
   $fn,
+  $if,
   $def,
   $nil,
   $list,
