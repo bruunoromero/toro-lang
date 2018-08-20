@@ -2,23 +2,17 @@ import * as moo from "moo";
 
 export const lexer = moo.compile({
   LPAREN: /\(/,
-  RPAREN: /\(/,
+  RPAREN: /\)/,
   LBRACE: /\[/,
   RBRACE: /\]/,
   LCURLY: /\}/,
   RCURLY: /\}/,
   WS: { match: /\s+/, lineBreaks: true },
-  IDENTIFIER: {
-    match: /^[^ \n]*$/,
-    keywords: {
-      COLON: ":",
-    },
-  },
+  NIL: /nil/,
+  TRUE: /true/,
+  FALSE: /false/,
+  STRING: { match: /".*?"/, value: t => t.slice(1, -1) },
+  NUMBER: /-?(?:[0-9]|[1-9][0-9]+)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?\b/,
+  SYMBOL: /:[^ \n]+$/,
+  IDENTIFIER: /[^ \n\(\)\[\]\{\}]+/,
 });
-
-lexer.next = (next => () => {
-  let tok;
-  // tslint:disable-next-line:no-conditional-assignment
-  while ((tok = next.call(lexer)) && tok.type === "WS") {}
-  return tok;
-})(lexer.next);
