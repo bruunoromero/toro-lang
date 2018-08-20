@@ -21,4 +21,24 @@ describe("Parser", () => {
       parse(sample);
     }).not.toThrow();
   });
+
+  it("Should parse correctly nested expressions", () => {
+    const sample = `
+(def a (list :test))
+`;
+
+    expect(() => {
+      parse(sample);
+    }).not.toThrow();
+  });
+
+  it("Should parse correctly read macro expressions", () => {
+    const sample = `
+(fn [a] (println "a"))
+`;
+
+    expect(() => {
+      parse(sample);
+    }).not.toThrow();
+  });
 });

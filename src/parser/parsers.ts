@@ -1,21 +1,69 @@
-import { NumberLiteral } from "./../ast/number";
-import { Identifier } from "../ast/identifier";
+import * as R from "ramda";
 
-export const $string = (data: any) => {
-  // console.log(data);
+import { Nil } from "../ast/nil";
+import { List } from "./../ast/list";
+import { Macro } from "../ast/macro";
+import { Vector } from "../ast/vector";
+import { Primitive } from "../ast/primitive";
+import { SymbolLiteral } from "../ast/symbol";
+import { Identifier } from "../ast/identifier";
+import { StringLiteral } from "./../ast/string";
+import { NumberLiteral } from "./../ast/number";
+import { Definition } from "./../ast/definition";
+import { BooleanLiteral } from "./../ast/boolean";
+import { FunctionLiteral } from "../ast/function";
+
+export const $program = (data: any) => {};
+
+export const $string = ([str]: any): StringLiteral => {
+  return new StringLiteral(str, str.value);
 };
+
 export const $identifier = ([identifier]: any): Identifier => {
   return new Identifier(identifier, identifier.value);
 };
 
-export const $number = ([number]: any) => {
+export const $number = ([number]: any): NumberLiteral => {
   return new NumberLiteral(number, Number(number.value));
 };
 
-export const $symbol = ([symbol]: any) => {
-  console.log(symbol);
+export const $symbol = ([symbol]: any): SymbolLiteral => {
+  return new SymbolLiteral(symbol, symbol.value);
 };
-export const $boolean = ([bool]: any) => {
-  console.log(bool);
+
+export const $true = ([bool]: any): BooleanLiteral => {
+  return new BooleanLiteral(bool, true);
 };
-export const $nil = (data: any) => {};
+
+export const $false = ([bool]: any): BooleanLiteral => {
+  return new BooleanLiteral(bool, false);
+};
+
+export const $nil = ([nil]: any): Nil => {
+  return new Nil(nil);
+};
+
+export const $list = ([, data]: any): List => {
+  return new List(R.flatten(data));
+};
+
+export const $vector = ([, data]: any): Vector => {
+  const exprs = R.flatten(data) as Primitive<any>[];
+  return new Vector(exprs.length, exprs);
+};
+
+export const $fn = ([, , params, data]: any): FunctionLiteral => {
+  return new FunctionLiteral(params, R.flatten(data));
+};
+
+export const $def = ([, , identifier, data]: any): Definition => {
+  return new Definition(identifier, R.flatten(data));
+};
+
+export const $defmacro = ([, , identifier, params, data]: any): Macro => {
+  return new Macro(identifier, params, R.flatten(data));
+};
+
+export const $defsyntax = ([, , identifier, params, data]: any): Macro => {
+  return new Macro(identifier, params, R.flatten(data), true);
+};

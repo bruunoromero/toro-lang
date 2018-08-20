@@ -2,7 +2,6 @@ import { Parser, Grammar } from "nearley";
 
 import * as grammar from "./grammar";
 import { unexpectedEndOfInput, ambiguityFound } from "../utils/errors";
-import { pprint } from "../utils/print";
 
 const compiledGrammar = Grammar.fromCompiled(grammar);
 

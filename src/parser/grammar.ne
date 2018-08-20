@@ -1,11 +1,19 @@
 @{%
 import { lexer } from './lexer';
+
 import {
+  $fn,
+  $def,
   $nil,
+  $list,
+  $true,
+  $false,
+  $vector,
   $string,
   $number,
   $symbol,
-  $boolean,
+  $defmacro,
+  $defsyntax,
   $identifier,
 } from './parsers';
 %}
@@ -14,39 +22,49 @@ import {
 
 @lexer lexer
 
-program -> _ (list _):*
+program -> clauses:*
+
+clauses
+  -> fn
+  |  def
+  |  defmacro
+  |  primitive
+
+fn -> "(" "fn" vector primitive:* ")" {% $fn %}
+
+def -> "(" "def" identifier primitive:* ")" {% $def %}
+
+defmacro -> "(" "defmacro" identifier vector primitive:* ")" {% $defmacro %}
+
+defsyntax -> "(" "defsyntax" identifier vector primitive:* ")" {% $defsyntax %}
 
 primitive
-  -> map
-  |  nil
+  -> nil
+  |  true
   |  list
+  |  false
   |  vector
   |  symbol
   |  number
   |  string
-  |  boolean
   |  identifier
 
-list -> "(" _ (primitive _):* ")"
+list -> "(" primitive:* ")" {% $list %}
+
+vector -> "[" primitive:* "]" {% $vector %}
 
 nil -> %NIL {% $nil %}
 
-true -> %TRUE {% d => d[0] %}
+true -> %TRUE {% $true %}
 
-false -> %FALSE {% d => d[0] %}
-
-boolean -> (true | false) {% d => d[0] %}
-
-map -> "{" _ (primitive _ primitive _):* "}"
-
-vector -> "[" _ (primitive _ primitive _):* "]"
-
-identifier -> %IDENTIFIER {% $identifier %}
+false -> %FALSE {% $false %}
 
 string -> %STRING {% $string %}
 
 number -> %NUMBER {% $number %}
 
 symbol -> %SYMBOL {% $symbol %}
+
+identifier -> %IDENTIFIER {% $identifier %}
 
 _ -> %WS:*
