@@ -17,6 +17,8 @@ export const lexer = moo.compile({
   IDENTIFIER: {
     match: /[^ \n\(\)\[\]\{\}]+/,
     keywords: {
+      DO: "do",
+      IF: "if",
       FN: "fn",
       DEF: "def",
       DEFMACRO: "defmacro",

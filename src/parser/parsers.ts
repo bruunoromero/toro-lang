@@ -1,8 +1,10 @@
 import * as R from "ramda";
 
 import { Nil } from "../ast/nil";
+import { If } from "./../ast/if";
 import { List } from "./../ast/list";
 import { Macro } from "../ast/macro";
+import { Block } from "./../ast/block";
 import { Vector } from "../ast/vector";
 import { Primitive } from "../ast/primitive";
 import { SymbolLiteral } from "../ast/symbol";
@@ -66,4 +68,12 @@ export const $defmacro = ([, , identifier, params, data]: any): Macro => {
 
 export const $defsyntax = ([, , identifier, params, data]: any): Macro => {
   return new Macro(identifier, params, R.flatten(data), true);
+};
+
+export const $do = ([, , data]: any): Block => {
+  return new Block(R.flatten(data));
+};
+
+export const $if = ([, , data]: any): If => {
+  return new If(R.flatten(data));
 };

@@ -2,6 +2,7 @@
 import { lexer } from './lexer';
 
 import {
+  $do,
   $fn,
   $def,
   $nil,
@@ -25,10 +26,17 @@ import {
 program -> clauses:*
 
 clauses
-  -> fn
+  -> do
+  |  fn
+  |  if
   |  def
   |  defmacro
+  |  defsyntax
   |  primitive
+
+do -> "(" "do" primitive:* ")" {% $do %}
+
+if -> "(" "if" primitive:* ")" {% $if %}
 
 fn -> "(" "fn" vector primitive:* ")" {% $fn %}
 
