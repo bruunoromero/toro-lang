@@ -35,7 +35,7 @@ true -> %TRUE {% d => d[0] %}
 
 false -> %FALSE {% d => d[0] %}
 
-boolean -> (true | false) {% $d => d[0] %}
+boolean -> (true | false) {% d => d[0] %}
 
 map -> "{" _ (primitive _ primitive _):* "}"
 
