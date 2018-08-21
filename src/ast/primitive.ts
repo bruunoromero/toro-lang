@@ -1,3 +1,12 @@
-export class Primitive<T> {
-  constructor(public readonly ctx: any, public readonly value: T) {}
+import { Node } from "./node";
+import { Location } from "../parser/location";
+
+export abstract class Primitive<T> extends Node {
+  constructor(public readonly loc: Location, public readonly value: T) {
+    super(loc);
+  }
+
+  transform() {
+    return {};
+  }
 }

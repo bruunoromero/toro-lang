@@ -18,5 +18,5 @@ export const parse = (source: string) => {
     ambiguityFound(parser.results.length);
   }
 
-  return parser.results;
+  return parser.results[0];
 };

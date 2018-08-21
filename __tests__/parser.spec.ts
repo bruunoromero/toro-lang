@@ -1,5 +1,5 @@
 import { parse } from "../src/parser";
-
+import { pprint } from "../src/utils/print";
 describe("Parser", () => {
   it("Should parse correctly a simple expression", () => {
     const sample = `
@@ -7,7 +7,7 @@ describe("Parser", () => {
 `;
 
     expect(() => {
-      parse(sample);
+      console.log(parse(sample));
     }).not.toThrow();
   });
 

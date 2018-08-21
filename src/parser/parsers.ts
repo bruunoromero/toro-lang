@@ -2,10 +2,13 @@ import * as R from "ramda";
 
 import { Nil } from "../ast/nil";
 import { If } from "./../ast/if";
+import { Node } from "../ast/node";
 import { List } from "./../ast/list";
 import { Macro } from "../ast/macro";
+import { Location } from "./location";
 import { Block } from "./../ast/block";
 import { Vector } from "../ast/vector";
+import { Program } from "./../ast/program";
 import { Primitive } from "../ast/primitive";
 import { SymbolLiteral } from "../ast/symbol";
 import { Identifier } from "../ast/identifier";
@@ -15,65 +18,107 @@ import { Definition } from "./../ast/definition";
 import { BooleanLiteral } from "./../ast/boolean";
 import { FunctionLiteral } from "../ast/function";
 
-export const $program = (data: any) => {};
+export const $program = ([program]: any): Program => {
+  return Program.create(program);
+};
 
 export const $string = ([str]: any): StringLiteral => {
-  return new StringLiteral(str, str.value);
+  return new StringLiteral(Location.fromToken(str), str.value);
 };
 
 export const $identifier = ([identifier]: any): Identifier => {
-  return new Identifier(identifier, identifier.value);
+  return new Identifier(Location.fromToken(identifier), identifier.value);
 };
 
 export const $number = ([number]: any): NumberLiteral => {
-  return new NumberLiteral(number, Number(number.value));
+  return new NumberLiteral(Location.fromToken(number), Number(number.value));
 };
 
 export const $symbol = ([symbol]: any): SymbolLiteral => {
-  return new SymbolLiteral(symbol, symbol.value);
+  return new SymbolLiteral(Location.fromToken(symbol), symbol.value);
 };
 
 export const $true = ([bool]: any): BooleanLiteral => {
-  return new BooleanLiteral(bool, true);
+  return new BooleanLiteral(Location.fromToken(bool), true);
 };
 
 export const $false = ([bool]: any): BooleanLiteral => {
-  return new BooleanLiteral(bool, false);
+  return new BooleanLiteral(Location.fromToken(bool), false);
 };
 
 export const $nil = ([nil]: any): Nil => {
-  return new Nil(nil);
+  return new Nil(Location.fromToken(nil));
 };
 
-export const $list = ([, data]: any): List => {
-  return new List(R.flatten(data));
+export const $list = (clause: any): List => {
+  const [, data] = clause;
+  return new List(Location.fromClause(clause), R.flatten(data));
 };
 
-export const $vector = ([, data]: any): Vector => {
+export const $vector = (clause: any): Vector => {
+  const [, data] = clause;
   const exprs = R.flatten(data) as Primitive<any>[];
-  return new Vector(exprs.length, exprs);
+  return new Vector(Location.fromClause(clause), exprs.length, exprs);
 };
 
-export const $fn = ([, , params, data]: any): FunctionLiteral => {
-  return new FunctionLiteral(params, R.flatten(data));
+export const $fn = (clause: any): FunctionLiteral => {
+  const [, , params, data] = clause;
+
+  return new FunctionLiteral(
+    Location.fromClause(clause),
+    params,
+    R.flatten(data),
+  );
 };
 
-export const $def = ([, , identifier, data]: any): Definition => {
-  return new Definition(identifier, R.flatten(data));
+export const $def = (clause: any): Definition => {
+  const [, , identifier, data] = clause;
+
+  return new Definition(
+    Location.fromClause(clause),
+    identifier,
+    R.flatten(data),
+  );
 };
 
-export const $defmacro = ([, , identifier, params, data]: any): Macro => {
-  return new Macro(identifier, params, R.flatten(data));
+export const $defmacro = (clause: any): Macro => {
+  const [, , identifier, params, data] = clause;
+
+  return new Macro(
+    Location.fromClause(clause),
+    identifier,
+    params,
+    R.flatten(data),
+  );
 };
 
-export const $defsyntax = ([, , identifier, params, data]: any): Macro => {
-  return new Macro(identifier, params, R.flatten(data), true);
+export const $defsyntax = (clause: any): Macro => {
+  const [, , identifier, params, data] = clause;
+
+  return new Macro(
+    Location.fromClause(clause),
+    identifier,
+    params,
+    R.flatten(data),
+    true,
+  );
 };
 
-export const $do = ([, , data]: any): Block => {
-  return new Block(R.flatten(data));
+export const $do = (clause: any): Block => {
+  const [, , data] = clause;
+
+  return new Block(Location.fromClause(clause), R.flatten(data));
 };
 
-export const $if = ([, , data]: any): If => {
-  return new If(R.flatten(data));
+export const $if = (clause: any): If => {
+  const [, , data] = clause;
+  return new If(Location.fromClause(clause), R.flatten(data));
+};
+
+export const $primitive = ([prim]: any): Node => {
+  return prim[0];
+};
+
+export const $clause = ([clause]: any): Node => {
+  return clause[0];
 };

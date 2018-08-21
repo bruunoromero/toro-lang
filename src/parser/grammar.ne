@@ -14,8 +14,11 @@ import {
   $string,
   $number,
   $symbol,
+  $clause,
+  $program,
   $defmacro,
   $defsyntax,
+  $primitive,
   $identifier,
 } from './parsers';
 %}
@@ -24,16 +27,17 @@ import {
 
 @lexer lexer
 
-program -> clauses:*
+program -> clause:* {% $program %}
 
-clauses
-  -> do
-  |  fn
-  |  if
-  |  def
-  |  defmacro
-  |  defsyntax
-  |  primitive
+clause
+  -> ( do
+     | fn
+     | if
+     | def
+     | defmacro
+     | defsyntax
+     | primitive
+     ) {% $clause %}
 
 do -> "(" "do" primitive:* ")" {% $do %}
 
@@ -48,15 +52,16 @@ defmacro -> "(" "defmacro" identifier vector primitive:* ")" {% $defmacro %}
 defsyntax -> "(" "defsyntax" identifier vector primitive:* ")" {% $defsyntax %}
 
 primitive
-  -> nil
-  |  true
-  |  list
-  |  false
-  |  vector
-  |  symbol
-  |  number
-  |  string
-  |  identifier
+  -> ( nil
+     | true
+     | list
+     | false
+     | vector
+     | symbol
+     | number
+     | string
+     | identifier
+     ) {% $primitive %}
 
 list -> "(" primitive:* ")" {% $list %}
 
