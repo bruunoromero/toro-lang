@@ -1,11 +1,46 @@
-import DOM;
+module Main exposing (Person, Animal, Maybe, Just, Nothing)
 
-# All functions in `toro` are curried
-#
-# List.map : (a -> b) -> [a] -> [b]
+import Core as C exposing Any
 
-def main = {
-  def element: Maybe(DOM.Node) = DOM.querySelector("#teste");
+# Defined at language core
+interface Any {} 
+
+struct Person {
+  let name: String
+  let age: Maybe(Int)
+
+  def sayHello(name: String): String {
+    print("hello " + name + ", my name is " + self.name)
+  }
+
+  def !!(name: String): String {
+    print("HELLO, " + name)
+  }
+}
+
+struct Animal {
+  def sayHello(name: String): String {
+    print("auau " + name)
+  }
+}
+
+type Maybe('a) = # Defined at language core
+  | Just('a)
+  | Nothing
+
+interface Polite {
+  sayHello(String): String
+}
+
+def greet(p: Polite): String {
+  p.sayHello("User")
+}
+
+def main(): Any {
+  let siri = Person { name: "Siri", age: Nothing }
+  siri.sayHello "User"
   
-  DOM.map(DOM.setText("Hello World!"), element);
+  greet siri
+
+  siri !! "User"
 }

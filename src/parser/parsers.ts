@@ -11,27 +11,13 @@ import { Vector } from "../ast/vector";
 import { Program } from "./../ast/program";
 import { Primitive } from "../ast/primitive";
 import { SymbolLiteral } from "../ast/symbol";
-import { Identifier } from "../ast/identifier";
-import { StringLiteral } from "./../ast/string";
-import { NumberLiteral } from "./../ast/number";
 import { Definition } from "./../ast/definition";
 import { BooleanLiteral } from "./../ast/boolean";
 import { FunctionLiteral } from "../ast/function";
 
 export const $program = ([program]: any): Program => {
-  return Program.create(program);
-};
-
-export const $string = ([str]: any): StringLiteral => {
-  return new StringLiteral(Location.fromToken(str), str.value);
-};
-
-export const $identifier = ([identifier]: any): Identifier => {
-  return new Identifier(Location.fromToken(identifier), identifier.value);
-};
-
-export const $number = ([number]: any): NumberLiteral => {
-  return new NumberLiteral(Location.fromToken(number), Number(number.value));
+  // console.log(program);
+  return Program.create([]);
 };
 
 export const $symbol = ([symbol]: any): SymbolLiteral => {
@@ -113,10 +99,6 @@ export const $do = (clause: any): Block => {
 export const $if = (clause: any): If => {
   const [, , data] = clause;
   return new If(Location.fromClause(clause), R.flatten(data));
-};
-
-export const $primitive = ([prim]: any): Node => {
-  return prim[0];
 };
 
 export const $clause = ([clause]: any): Node => {
