@@ -4,25 +4,19 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "npx ts-node src/index.ts",
+    "test": "cross-env jest",
+    "compile": "cross-env npx tsc",
+    "start": "npx ts-node src/toro.ts",
     "format": "prettier --write \"src/**/*.ts\"",
-    "grammar:clean": "cross-env rm src/parser/grammar.ts",
-    "lint": "tslint -p tsconfig.json -c tslint.json",
-    "test": "cross-env npm run grammar:compile && jest",
-    "compile": "cross-env npm run grammar:compile && npx tsc",
-    "grammar:compile": "cross-env npx nearleyc src/parser/grammar.ne -o src/parser/grammar.ts",
-    "grammar:test": "cross-env npm run grammar:compile && npx nearley-test src/parser/grammar.ts"
+    "lint": "tslint -p tsconfig.json -c tslint.json"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.0.0",
     "@commitlint/config-conventional": "^7.0.1",
     "@types/aggregate-error": "^1.0.0",
     "@types/jest": "^23.3.1",
-    "@types/js-beautify": "^0.0.31",
-    "@types/lodash": "^4.14.115",
-    "@types/moo": "^0.4.0",
-    "@types/nearley": "^2.11.0",
     "@types/node": "^10.5.5",
+    "@types/parsimmon": "^1.10.0",
     "@types/ramda": "^0.25.36",
     "cross-env": "^5.2.0",
     "husky": "^1.0.0-rc.13",
@@ -35,12 +29,8 @@
   },
   "dependencies": {
     "aggregate-error": "^1.0.0",
-    "chevrotain": "^3.7.4",
     "immutable": "4.0.0-rc.9",
-    "js-beautify": "^1.7.5",
-    "lodash": "^4.17.10",
-    "moo": "^0.4.3",
-    "nearley": "^2.15.1",
+    "parsimmon": "^1.12.0",
     "ramda": "^0.25.0"
   }
 }
