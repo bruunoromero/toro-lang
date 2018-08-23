@@ -1,3 +1,7 @@
+import * as R from "ramda";
+import * as P from "parsimmon";
+import { Node } from "../ast/node";
+
 interface Token {
   col: number;
   line: number;
@@ -10,34 +14,47 @@ interface Token {
 
 export interface Position {
   line: number;
+  offset?: number;
   column: number;
 }
 
 export class Location {
   constructor(public readonly start: Position, public readonly end: Position) {}
 
-  private static getStart(token: Token): Position {
-    return {
-      line: token.line,
-      column: token.col,
-    };
+  static getPosition(
+    tokens: Array<P.Node<any, any> | Node>,
+    key: string,
+    fn: (tokens: Array<P.Node<any, any> | Node>) => P.Node<any, any> | Node,
+  ) {
+    const ts = R.flatten(tokens).filter(R.identity);
+    const first = fn(ts);
+
+    if (!first) {
+      return Location.emptyPosition;
+    }
+
+    if ((first as Node).loc) {
+      const node = (first as Node).loc as any;
+      return node[key];
+    }
+
+    const pNode = (first as P.Node<any, any>) as any;
+    return pNode[key];
   }
 
-  private static getEnd(token: Token): Position {
-    return {
-      line: token.line + token.lineBreaks,
-      column: token.col + token.text.length - 1,
-    };
+  static fromToken(token: P.Node<any, any>) {
+    return new Location(token.start, token.end);
   }
 
-  static fromToken(token: Token) {
-    const end = Location.getEnd(token);
-    const start = Location.getStart(token);
-
-    return new Location(start, end);
+  private static getStart(tokens: Array<P.Node<any, any> | Node>): Position {
+    return Location.getPosition(tokens, "start", R.head);
   }
 
-  static fromClause(token: Token[]) {
+  private static getEnd(tokens: Array<P.Node<any, any> | Node>): Position {
+    return Location.getPosition(tokens, "end", R.last);
+  }
+
+  static fromClause(token: any[]) {
     const startToken = token[0];
     const endToken = token[token.length - 1];
 

@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "aggregate-error": "^1.0.0",
+    "immutable": "4.0.0-rc.9",
     "parsimmon": "^1.12.0",
     "ramda": "^0.25.0"
   }

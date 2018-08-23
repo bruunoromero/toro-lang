@@ -1,27 +1,13 @@
+import { KEYWORDS } from "./keywords";
+import * as R from "ramda";
 import * as P from "parsimmon";
 
-const capitalize = (word: string) => word[0].toUpperCase() + word.slice(1);
+import { TOKENS } from "./tokens";
+import { COMMON } from "./common";
+import { CLAUSES } from "./clauses";
+import { OPERATORS } from "./operators";
+import { SPECIALS } from "./specials";
 
-const keyword = (word: string) =>
-  P.string(word).node(`${capitalize(word)}Keyword`);
-
-export const Grammar = P.createLanguage({
-  AsKeyword: () => keyword("as"),
-  ModuleKeyword: () => keyword("module"),
-  ExposingKeyword: () => keyword("exposing"),
-  Identifier: () => P.regexp(/[a-zA-Z][a-zA-Z0-9]*/).node("Identifier"),
-  ModuleDeclaration(r: P.Language) {
-    return P.seq(
-      r.ModuleKeyword.skip(P.whitespace),
-      r.Identifier,
-      P.end.or(P.whitespace.then(r.ExposingDeclaration)),
-    );
-  },
-  ExposingDeclaration(r: P.Language) {
-    return P.seq(
-      r.ExposingKeyword.skip(P.optWhitespace),
-      P.sepBy(r.Identifier, P.string(",")).wrap(P.string("("), P.string(")")),
-      P.end,
-    );
-  },
-});
+export const Grammar = P.createLanguage(
+  R.mergeAll([OPERATORS, SPECIALS, KEYWORDS, TOKENS, COMMON, CLAUSES]),
+);

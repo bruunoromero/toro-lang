@@ -1,13 +1,9 @@
-import { Primitive } from "./primitive";
+import { Node } from "./node";
 import { Identifier } from "./identifier";
 import { Location } from "./../parser/location";
 
-export class Definition extends Primitive<Primitive<any>[]> {
-  constructor(
-    public readonly loc: Location,
-    public readonly name: Identifier,
-    public readonly value: Primitive<any>[],
-  ) {
-    super(loc, value);
+export abstract class Definition extends Node {
+  constructor(public readonly loc: Location, public readonly name: Identifier) {
+    super(loc);
   }
 }
