@@ -1,3 +1,6 @@
+import * as R from "ramda";
+import { Node } from "../ast/node";
+
 interface Token {
   col: number;
   line: number;
@@ -16,33 +19,45 @@ export interface Position {
 export class Location {
   constructor(public readonly start: Position, public readonly end: Position) {}
 
-  private static getStart(token: Token): Position {
+  static getPosition(
+    tokens: Array<Token | Node>,
+    fn: (tokens: Array<Token | Node>) => Token | Node,
+  ) {
+    const ts = R.flatten(tokens).filter(R.identity);
+    const first = fn(ts);
+
+    if (!first) {
+      return Location.emptyPosition;
+    }
+
+    if ((first as Node).loc) {
+      return (first as Node).loc.start;
+    }
+
     return {
-      line: token.line,
-      column: token.col,
+      line: (first as Token).line,
+      column: (first as Token).col,
     };
   }
 
-  private static getEnd(token: Token): Position {
-    return {
-      line: token.line + token.lineBreaks,
-      column: token.col + token.text.length - 1,
-    };
+  private static getStart(tokens: Array<Token | Node>): Position {
+    return Location.getPosition(tokens, R.head);
+  }
+
+  private static getEnd(tokens: Array<Token | Node>): Position {
+    return Location.getPosition(tokens, R.last);
   }
 
   static fromToken(token: Token) {
-    const end = Location.getEnd(token);
-    const start = Location.getStart(token);
+    const end = Location.getEnd([token]);
+    const start = Location.getStart([token]);
 
     return new Location(start, end);
   }
 
-  static fromClause(token: Token[]) {
-    const startToken = token[0];
-    const endToken = token[token.length - 1];
-
-    const end = Location.getEnd(endToken);
-    const start = Location.getStart(startToken);
+  static fromClause(tokens: Array<Token | Node>) {
+    const end = Location.getEnd(tokens);
+    const start = Location.getStart(tokens);
 
     return new Location(start, end);
   }

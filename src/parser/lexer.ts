@@ -16,8 +16,9 @@ export const lexer = moo.compile({
   GENERIC: { match: /'[a-z]/, value: t => t.slice(1) },
   STRING: { match: /".*?"/, value: (t: any) => t.slice(1, -1) },
   OPERATOR: {
-    match: /[.@^+\-$_*/|&!><%=?]+/,
+    match: /[.@^+\-$_*/|&!><%=?,]+/,
     keywords: {
+      COMMA: ",",
       ARROW: "=>",
       RET: "->",
       SUB: "-",

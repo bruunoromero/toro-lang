@@ -36,6 +36,7 @@
   "dependencies": {
     "aggregate-error": "^1.0.0",
     "chevrotain": "^3.7.4",
+    "immutable": "4.0.0-rc.9",
     "js-beautify": "^1.7.5",
     "lodash": "^4.17.10",
     "moo": "^0.4.3",
