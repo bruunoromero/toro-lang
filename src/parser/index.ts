@@ -1,18 +1,12 @@
-// import * as grammar from "./grammar";
-// import { unexpectedEndOfInput, ambiguityFound } from "../utils/errors";
+import { Grammar } from "./grammar";
+import { File } from "../ast/file";
+import { expectingOneOf } from "../utils/errors";
 
-// export const parse = (source: string) => {
-//   const parser = new Parser(compiledGrammar);
-//   parser.feed(source);
-//   parser.finish();
+export const parse = (str: string): File => {
+  const source = Grammar.File.parse(str) as any;
+  if (!source.status) {
+    expectingOneOf(source.index, source.expected);
+  }
 
-//   if (!parser.results.length) {
-//     unexpectedEndOfInput();
-//   }
-
-//   if (parser.results.length > 1) {
-//     ambiguityFound(parser.results.length);
-//   }
-
-//   return parser.results[0];
-// };
+  return source.value;
+};

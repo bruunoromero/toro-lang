@@ -8,9 +8,8 @@ import List as L exposing (create)
 import List as L exposing (create)
 import List as L exposing (create)
 
-def a(teste: List(Int, 'a)) {a}
+def a (teste: List(Int('b), 'a), t:'a) {a}
 `;
 
-const source = Grammar.File.parse(sample) as any;
-
+const source = Grammar.StringLiteral.parse("Hello, world") as any;
 console.log(source);

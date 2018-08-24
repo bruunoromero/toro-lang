@@ -4,8 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "test": "cross-env jest",
     "compile": "cross-env npx tsc",
+    "test": "cross-env jest --verbose",
     "start": "npx ts-node src/toro.ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json -c tslint.json"

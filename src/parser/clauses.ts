@@ -1,3 +1,6 @@
+import { StringLiteral } from "./../ast/string";
+import { IntegerLiteral } from "./../ast/integer";
+import { DoubleLiteral } from "./../ast/double";
 import { FunctionDefinition } from "./../ast/function";
 import * as R from "ramda";
 import * as P from "parsimmon";
@@ -22,7 +25,11 @@ const MODULE = {
     r.ModuleKeyword.skip(P.whitespace)
       .then(P.seq(r.Reference, r.ExposingDeclaration.atMost(1)))
       .wrap(P.optWhitespace, r.end)
-      .map(mod => new Module(Location.fromClause(mod), mod[0], mod[1][0])),
+      .mark()
+      .map(
+        ({ start, end, value }) =>
+          new Module(new Location(start, end), value[0], value[1][0]),
+      ),
 
   AsDeclaration: (r: P.Language) =>
     P.whitespace
@@ -41,18 +48,45 @@ const IMPORT = {
         ),
       )
       .wrap(P.optWhitespace, r.end)
+      .mark()
       .map(
-        imp =>
-          new Import(Location.fromClause(imp), imp[0], imp[1][0], imp[2][0]),
+        ({ start, end, value }) =>
+          new Import(
+            new Location(start, end),
+            value[0],
+            value[1][0],
+            value[2][0],
+          ),
       ),
 };
 
 const FUNCTION_DEFINITION = {
   FunctionDefinition: (r: P.Language) =>
     r.DefKeyword.skip(P.whitespace)
-      .then(P.seq(r.Identifier.skip(P.optWhitespace), r.ParameterList, r.Body))
+      .then(
+        P.seq(
+          r.Identifier.skip(P.optWhitespace),
+          r.RequiredParenParameterList,
+          r.Body,
+        ),
+      )
       .wrap(P.optWhitespace, r.end)
-      .map(f => new FunctionDefinition(Location.fromClause(f), f[0], f[1])),
+      .mark()
+      .map(
+        ({ start, end, value }) =>
+          new FunctionDefinition(new Location(start, end), value[0], value[1]),
+      ),
 };
 
-export const CLAUSES = R.mergeAll([FILE, MODULE, IMPORT, FUNCTION_DEFINITION]);
+const EXPRESSION = {
+  AtomicValue: (r: P.Language) =>
+    P.alt(r.DoubleLiteral, r.IntegerLiteral, r.StringLiteral),
+};
+
+export const CLAUSES = R.mergeAll([
+  FILE,
+  MODULE,
+  IMPORT,
+  EXPRESSION,
+  FUNCTION_DEFINITION,
+]);
