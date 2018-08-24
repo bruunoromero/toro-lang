@@ -1,8 +1,9 @@
-import { TypeParameter, Type } from "./../ast/type";
-import { Parameter } from "./../ast/parameter";
 import * as P from "parsimmon";
+
 import { Location } from "./location";
 import { Generic } from "../ast/type";
+import { Parameter } from "./../ast/parameter";
+import { TypeParameter, Type } from "./../ast/type";
 
 export const COMMON = {
   Reference: (r: P.Language) =>

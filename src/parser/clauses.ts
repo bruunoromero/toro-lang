@@ -1,13 +1,11 @@
-import { StringLiteral } from "./../ast/string";
-import { IntegerLiteral } from "./../ast/integer";
-import { DoubleLiteral } from "./../ast/double";
-import { FunctionDefinition } from "./../ast/function";
 import * as R from "ramda";
 import * as P from "parsimmon";
+
+import { File } from "../ast/file";
 import { Location } from "./location";
 import { Module } from "../ast/module";
 import { Import } from "../ast/import";
-import { File } from "../ast/file";
+import { FunctionDefinition } from "./../ast/function";
 
 const FILE = {
   File: (r: P.Language) =>
@@ -79,8 +77,108 @@ const FUNCTION_DEFINITION = {
 };
 
 const EXPRESSION = {
-  AtomicValue: (r: P.Language) =>
-    P.alt(r.DoubleLiteral, r.IntegerLiteral, r.StringLiteral),
+  Expression: (r: P.Language) => r.OrExpression,
+
+  OrExpression: (r: P.Language) =>
+    P.seq(
+      r.AndExpression,
+      P.seq(
+        r.OrOperator.wrap(P.optWhitespace, P.optWhitespace),
+        r.AndExpression,
+      ).many(),
+    ).mark(),
+
+  AndExpression: (r: P.Language) =>
+    P.seq(
+      r.EqualityExpression,
+      P.seq(
+        r.AndOperator.wrap(P.optWhitespace, P.optWhitespace),
+        r.EqualityExpression,
+      ).many(),
+    ).mark(),
+
+  EqualityExpression: (r: P.Language) =>
+    P.seq(
+      r.ComparassionExpression,
+      P.seq(
+        r.EqualityOperator.or(r.NegationOperator).wrap(
+          P.optWhitespace,
+          P.optWhitespace,
+        ),
+        r.ComparassionExpression,
+      ).many(),
+    ).mark(),
+
+  ComparassionExpression: (r: P.Language) =>
+    P.seq(
+      r.ColonExpression,
+      P.seq(
+        P.alt(r.GTOperator, r.LTOperator).wrap(
+          P.optWhitespace,
+          P.optWhitespace,
+        ),
+        r.ColonExpression,
+      ).many(),
+    ).mark(),
+
+  ColonExpression: (r: P.Language) =>
+    P.seq(
+      r.MultiplicationExpression,
+      P.seq(
+        r.ColonOperator.wrap(P.optWhitespace, P.optWhitespace),
+        r.MultiplicationExpression,
+      ).many(),
+    ).mark(),
+
+  MultiplicationExpression: (r: P.Language) =>
+    P.seq(
+      r.PowerExpression,
+      P.seq(
+        P.alt(
+          r.ModulusOperator,
+          r.DivisionOperator,
+          r.MultiplicationOperator,
+        ).wrap(P.optWhitespace, P.optWhitespace),
+        r.PowerExpression,
+      ).many(),
+    ).mark(),
+
+  PowerExpression: (r: P.Language) =>
+    P.seq(
+      r.HigherPrecedenceExpression,
+      P.seq(
+        r.PowerOperator.wrap(P.optWhitespace, P.optWhitespace),
+        r.HigherPrecedenceExpression,
+      ).many(),
+    ).mark(),
+
+  HigherPrecedenceExpression: (r: P.Language) =>
+    P.seq(
+      r.UnaryExpression,
+      P.seq(
+        r.OtherOperator.wrap(P.optWhitespace, P.optWhitespace),
+        r.UnaryExpression,
+      ).many(),
+    ).mark(),
+
+  UnaryExpression: (r: P.Language) =>
+    P.seq(
+      P.alt(P.string("-"), P.string("!"), P.string("+")).skip(P.optWhitespace),
+      r.UnaryExpression,
+    )
+      .or(r.Primary)
+      .mark(),
+
+  Primary: (r: P.Language) =>
+    P.alt(
+      r.DoubleLiteral,
+      r.IntegerLiteral,
+      r.StringLiteral,
+      r.Expression.wrap(
+        r.LParen.wrap(P.optWhitespace, P.optWhitespace),
+        r.RParen.wrap(P.optWhitespace, P.optWhitespace),
+      ),
+    ),
 };
 
 export const CLAUSES = R.mergeAll([

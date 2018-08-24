@@ -1,10 +1,21 @@
 import * as P from "parsimmon";
-import { capitalize } from "../utils/strings";
 
-const operator = (token: string, name: string) =>
-  P.string(token).node(`${capitalize(name)}Operator`);
+const operator = (token: string) =>
+  P.seq(P.string(token), P.regexp(/[:@^+\-$_*/|&!><%=?]/).many()).mark();
 
 export const OPERATORS = {
-  DotOperator: () => operator(".", "dot"),
-  MinusOperator: () => operator("-", "minus"),
+  GTOperator: () => operator(">"),
+  LTOperator: () => operator("<"),
+  OrOperator: () => operator("|"),
+  AndOperator: () => operator("&"),
+  DotOperator: () => P.string("."),
+  MinusOperator: () => operator("-"),
+  ColonOperator: () => operator(":"),
+  PowerOperator: () => operator("^"),
+  ModulusOperator: () => operator("%"),
+  DivisionOperator: () => operator("/"),
+  EqualityOperator: () => operator("="),
+  NegationOperator: () => operator("!"),
+  MultiplicationOperator: () => operator("*"),
+  OtherOperator: () => P.regexp(/[:@^+\-$_*/|&!><%=?]+/).mark(),
 };

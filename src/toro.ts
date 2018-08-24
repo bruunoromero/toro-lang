@@ -11,5 +11,5 @@ import List as L exposing (create)
 def a (teste: List(Int('b), 'a), t:'a) {a}
 `;
 
-const source = Grammar.StringLiteral.parse("Hello, world") as any;
-console.log(source);
+const source = Grammar.Expression.parse("--10 |> 20 * 30") as any;
+console.log(pprint(source));

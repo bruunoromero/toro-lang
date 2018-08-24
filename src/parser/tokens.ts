@@ -1,10 +1,10 @@
-import { StringLiteral } from "./../ast/string";
-import { DoubleLiteral } from "./../ast/double";
-import { IntegerLiteral } from "./../ast/integer";
 import * as P from "parsimmon";
 
 import { Location } from "./location";
 import { Identifier } from "../ast/identifier";
+import { StringLiteral } from "./../ast/string";
+import { DoubleLiteral } from "./../ast/double";
+import { IntegerLiteral } from "./../ast/integer";
 
 export const TOKENS = {
   Identifier: () =>
@@ -32,31 +32,19 @@ export const TOKENS = {
       ),
   IntegerNumber: () => P.regexp(/0|[1-9][0-9]*/),
   IntegerLiteral: (r: P.Language) =>
-    P.seq(r.MinusOperator.atMost(1).skip(P.optWhitespace), r.IntegerNumber)
-      .node("IntegerLiteral")
-      .map(({ start, end, value }) => {
-        let v = parseInt(value[1], 10);
-        if (value[0].length) {
-          v *= -1;
-        }
-        return new IntegerLiteral(new Location(start, end), v);
-      }),
+    r.IntegerNumber.mark().map(({ start, end, value }) => {
+      const v = parseInt(value, 10);
+
+      return new IntegerLiteral(new Location(start, end), v);
+    }),
   DoubleLiteral: (r: P.Language) =>
-    P.seq(
-      r.MinusOperator.atMost(1).skip(P.optWhitespace),
-      r.IntegerNumber,
-      r.DotOperator,
-      P.regexp(/[0-9]+/),
-    )
+    P.seq(r.IntegerNumber, r.DotOperator, P.regexp(/[0-9]+/))
       .mark()
       .map(({ start, end, value }) => {
-        const init = value[1];
-        const tail = value[3];
-        let v = parseFloat(`${init}.${tail}`);
-        // let value = parseInt(n.value[1], 10);
-        if (value[0].length) {
-          v *= -1;
-        }
+        const init = value[0];
+        const tail = value[2];
+        const v = parseFloat(`${init}.${tail}`);
+
         return new DoubleLiteral(new Location(start, end), v);
       }),
 };
