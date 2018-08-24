@@ -17,5 +17,5 @@ export const OPERATORS = {
   EqualityOperator: () => operator("="),
   NegationOperator: () => operator("!"),
   MultiplicationOperator: () => operator("*"),
-  OtherOperator: () => P.regexp(/[:@^+\-$_*/|&!><%=?]+/).mark(),
+  Operator: () => P.regexp(/[:@^+\-$_*/|&!><%=?]+/).mark(),
 };

@@ -156,16 +156,13 @@ const EXPRESSION = {
     P.seq(
       r.UnaryExpression,
       P.seq(
-        r.OtherOperator.wrap(P.optWhitespace, P.optWhitespace),
+        r.Operator.wrap(P.optWhitespace, P.optWhitespace),
         r.UnaryExpression,
       ).many(),
     ).mark(),
 
   UnaryExpression: (r: P.Language) =>
-    P.seq(
-      P.alt(P.string("-"), P.string("!"), P.string("+")).skip(P.optWhitespace),
-      r.UnaryExpression,
-    )
+    P.seq(r.Operator.skip(P.optWhitespace), r.UnaryExpression)
       .or(r.Primary)
       .mark(),
 
