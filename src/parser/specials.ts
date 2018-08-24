@@ -3,6 +3,8 @@ import * as P from "parsimmon";
 import { Language } from "parsimmon";
 
 export const SPECIALS = {
+  _: () => P.regexp(/ */),
+  end: (r: P.Language) => P.seq(r._, P.end),
   Comma: (r: Language) => P.string(",").node("Comma"),
   Colon: (r: Language) => P.string(":").node("Colon"),
   LParen: (r: Language) => P.string("(").node("LParen"),

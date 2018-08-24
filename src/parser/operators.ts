@@ -6,4 +6,5 @@ const operator = (token: string, name: string) =>
 
 export const OPERATORS = {
   DotOperator: () => operator(".", "dot"),
+  MinusOperator: () => operator("-", "minus"),
 };

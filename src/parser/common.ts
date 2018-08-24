@@ -21,29 +21,53 @@ export const COMMON = {
       )
       .map(exp => exp[1]),
 
+  RequiredParenParameterList: (r: P.Language) =>
+    r.Parameter.sepBy(r.Comma.wrap(P.optWhitespace, P.optWhitespace)).wrap(
+      r.LParen,
+      r.RParen,
+    ),
+
   ParameterList: (r: P.Language) =>
-    r.Parameter.sepBy(r.Comma).wrap(r.LParen, r.RParen),
+    r.LParen.atMost(1).chain((start: any[]) => {
+      const parser = r.Parameter.sepBy(
+        r.Comma.wrap(P.optWhitespace, P.optWhitespace),
+      );
+
+      if (start && start.length) {
+        return parser.skip(r.RParen);
+      }
+
+      return parser;
+    }),
 
   Parameter: (r: P.Language) =>
     P.seq(
       r.Identifier.skip(r.Colon.wrap(P.optWhitespace, P.optWhitespace)),
       r.Type,
     )
-      .wrap(P.optWhitespace, P.optWhitespace)
-      .map(p => new Parameter(Location.fromClause(p), p[0], p[1])),
+      .mark()
+      .map(
+        ({ start, end, value }) =>
+          new Parameter(new Location(start, end), value[0], value[1]),
+      ),
 
   Type: (r: P.Language) =>
     P.seq(r.Reference, r.TypeParameterList.atMost(1))
       .or(r.Generic)
-      .map(t => {
-        if (t[0]) {
-          if (t[1][0]) {
-            return new Generic(Location.fromClause(t), t[0][0], t[1][0]);
+      .mark()
+      .map(({ value, start, end }) => {
+        if (value[0]) {
+          if (value[1][0]) {
+            return new Generic(
+              new Location(start, end),
+              value[0][0],
+              value[1][0],
+            );
           } else {
-            return new Type(Location.fromToken(t[0][0]), t[0][0]);
+            return new Type(new Location(start, end), value[0][0]);
           }
         } else {
-          return new TypeParameter(Location.fromToken(t), t);
+          return new TypeParameter(new Location(start, end), value);
         }
       }),
 
