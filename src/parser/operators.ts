@@ -12,6 +12,12 @@ const operator = (token: string) =>
       value: R.flatten(value).join(""),
     }));
 
+export const mapOperator = ({ start, end, value }: any) => {
+  const loc = new Location(start, end);
+
+  return new BinaryOperator(loc, new Identifier(loc, value));
+};
+
 export const OPERATORS = {
   GTOperator: () => operator(">"),
   LTOperator: () => operator("<"),
@@ -43,9 +49,5 @@ export const OPERATORS = {
       r.EqualityOperator,
       r.NegationOperator,
       r.MultiplicationOperator,
-    ).map(({ start, end, value }) => {
-      const loc = new Location(start, end);
-
-      return new BinaryOperator(loc, new Identifier(loc, value));
-    }),
+    ).map(mapOperator),
 };

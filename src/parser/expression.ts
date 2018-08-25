@@ -1,70 +1,22 @@
+import { mapOperator } from "./operators";
 import * as R from "ramda";
 import * as P from "parsimmon";
 
 import { Node } from "../ast/node";
-import { Identifier } from "../ast/identifier";
-import { Location, Position } from "./location";
+import { Location } from "./location";
+import { UnaryMinus } from "../ast/operator";
 import { BinaryOperator } from "./../ast/operator";
-import { UnaryMinus, AccessOperator } from "../ast/operator";
 
-const buildOperator = (
-  start: Position,
-  end: Position,
-  first: Node,
-  op: any,
-  second: Node,
-) => {
-  if ((op.value as string).endsWith(":")) {
-    return new BinaryOperator(
-      new Location(start, end),
-      new Identifier(new Location(op.start, op.end), op.value),
-      first,
-      second,
-    );
-  }
-
-  return new BinaryOperator(
-    new Location(start, end),
-    new Identifier(new Location(op.start, op.end), op.value),
-    second,
-    first,
-  );
+const buildOperatorTree = (value: any) => {
+  const v = R.flatten(value);
+  return v.slice(1).reduce((curr, acc) => {
+    if (acc instanceof BinaryOperator) {
+      return acc.push(curr as Node);
+    } else {
+      return (curr as BinaryOperator).push(acc as Node);
+    }
+  }, v[0]);
 };
-
-const mapper = ({ start, end, value }: any) => {
-  const [first, res] = value;
-  if (res.length) {
-    const [op, second] = res;
-
-    return buildOperator(start, end, first, op, second);
-  }
-
-  return first;
-};
-
-const buildOperatorTree = ({ start, end, value }: any) => {
-  const exp = R.flatten(value).reverse();
-
-  while (exp.length !== 2 && exp.length) {
-    const [second, op, first] = exp.splice(0, 3) as any[];
-
-    const result = buildOperator(start, end, first, op, second);
-    exp.unshift(result);
-  }
-
-  return exp.reverse();
-};
-
-const expression = (start: P.Parser<{}>, end: P.Parser<{}>) =>
-  P.seq(
-    start,
-    end
-      .many()
-      .mark()
-      .map(buildOperatorTree),
-  )
-    .mark()
-    .map(mapper);
 
 export const EXPRESSION = {
   Expression: (r: P.Language) => r.OperatorExpression,
@@ -104,37 +56,16 @@ export const EXPRESSION = {
         r.Operator.wrap(P.optWhitespace, P.optWhitespace),
         r.AccessExpression,
       ).many(),
-    ).map(value => {
-      const v = R.flatten(value);
-      return v.slice(1).reduce((curr, acc) => {
-        if (acc instanceof BinaryOperator) {
-          return acc.push(curr);
-        } else {
-          return curr.push(acc);
-        }
-      }, v[0]);
-    }),
+    ).map(buildOperatorTree),
 
   AccessExpression: (r: P.Language) =>
     P.seq(
       r.UnaryExpression,
-      P.seq(r.DotOperator.wrap(P.optWhitespace, P.optWhitespace), r.Identifier)
-        .many()
-        .mark()
-        .map(buildOperatorTree),
-    )
-      .mark()
-      .map(({ start, end, value }) => {
-        const [left, res] = value;
-        if (res.length) {
-          const [, right] = res;
-          return new AccessOperator(new Location(start, end))
-            .push(left)
-            .push(right as Node);
-        }
-
-        return left;
-      }),
+      P.seq(
+        r.DotOperator.wrap(P.optWhitespace, P.optWhitespace).map(mapOperator),
+        r.Identifier,
+      ).many(),
+    ).map(buildOperatorTree),
 
   UnaryExpression: (r: P.Language) =>
     P.seq(r.SingleMinusOperator.atMost(1), r.Primary)

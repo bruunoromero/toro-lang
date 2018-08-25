@@ -117,13 +117,3 @@ export class UnaryMinus extends Operator {
     throw new Error("Method not implemented.");
   }
 }
-
-export class AccessOperator extends BinaryOperator {
-  constructor(
-    public readonly loc: Location,
-    public left?: Node,
-    public right?: Node,
-  ) {
-    super(loc, new Identifier(loc, "."), left, right);
-  }
-}
