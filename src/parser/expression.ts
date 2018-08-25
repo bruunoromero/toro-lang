@@ -99,10 +99,10 @@ export const EXPRESSION = {
 
   OperatorExpression: (r: P.Language) =>
     P.seq(
-      r.UnaryExpression,
+      r.AccessExpression,
       P.seq(
         r.Operator.wrap(P.optWhitespace, P.optWhitespace),
-        r.UnaryExpression,
+        r.AccessExpression,
       ).many(),
     ).map(value => {
       const v = R.flatten(value);
@@ -115,32 +115,26 @@ export const EXPRESSION = {
       }, v[0]);
     }),
 
-  // AccessExpression: (r: P.Language) =>
-  //   P.seq(
-  //     r.UnaryExpression,
-  //     P.seq(
-  //       r.DotOperator.wrap(P.optWhitespace, P.optWhitespace),
-  //       r.UnaryExpression,
-  //     )
-  //       .many()
-  //       .mark()
-  //       .map(buildOperatorTree),
-  //   )
-  //     .mark()
-  //     .map(({ start, end, value }) => {
-  //       const [left, res] = value;
+  AccessExpression: (r: P.Language) =>
+    P.seq(
+      r.UnaryExpression,
+      P.seq(r.DotOperator.wrap(P.optWhitespace, P.optWhitespace), r.Identifier)
+        .many()
+        .mark()
+        .map(buildOperatorTree),
+    )
+      .mark()
+      .map(({ start, end, value }) => {
+        const [left, res] = value;
+        if (res.length) {
+          const [, right] = res;
+          return new AccessOperator(new Location(start, end))
+            .push(left)
+            .push(right as Node);
+        }
 
-  //       if (res.length) {
-  //         const [, right] = res;
-  //         return new AccessOperator(
-  //           new Location(start, end),
-  //           left,
-  //           right as any,
-  //         );
-  //       }
-
-  //       return left;
-  //     }),
+        return left;
+      }),
 
   UnaryExpression: (r: P.Language) =>
     P.seq(r.SingleMinusOperator.atMost(1), r.Primary)

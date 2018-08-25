@@ -22,6 +22,7 @@ export const OPERATORS_OPT = {
   "/": 7,
   "%": 7,
   "^": 8,
+  ".": 9,
 };
 
 export abstract class Operator extends Node {
@@ -120,8 +121,8 @@ export class UnaryMinus extends Operator {
 export class AccessOperator extends BinaryOperator {
   constructor(
     public readonly loc: Location,
-    public readonly left: Node,
-    public readonly right: Node,
+    public left?: Node,
+    public right?: Node,
   ) {
     super(loc, new Identifier(loc, "."), left, right);
   }
