@@ -7,7 +7,16 @@ import { CLAUSES } from "./clauses";
 import { KEYWORDS } from "./keywords";
 import { SPECIALS } from "./specials";
 import { OPERATORS } from "./operators";
+import { EXPRESSION } from "./expression";
 
 export const Grammar = P.createLanguage(
-  R.mergeAll([OPERATORS, SPECIALS, KEYWORDS, TOKENS, COMMON, CLAUSES]),
+  R.mergeAll([
+    OPERATORS,
+    SPECIALS,
+    KEYWORDS,
+    TOKENS,
+    COMMON,
+    EXPRESSION,
+    CLAUSES,
+  ]),
 );

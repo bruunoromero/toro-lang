@@ -11,5 +11,5 @@ import List as L exposing (create)
 def a (teste: List(Int('b), 'a), t:'a) {a}
 `;
 
-const source = Grammar.Expression.parse("10.20.30 @ 20") as any;
-// console.log(pprint(source));
+const source = Grammar.Expression.parse("7 - 3 - 2") as any;
+console.log(source.value);
