@@ -8,7 +8,7 @@ export const OPERATORS = {
   LTOperator: () => operator("<"),
   OrOperator: () => operator("|"),
   AndOperator: () => operator("&"),
-  DotOperator: () => P.string("."),
+  PlusOperator: () => operator("+"),
   MinusOperator: () => operator("-"),
   ColonOperator: () => operator(":"),
   PowerOperator: () => operator("^"),
@@ -16,6 +16,8 @@ export const OPERATORS = {
   DivisionOperator: () => operator("/"),
   EqualityOperator: () => operator("="),
   NegationOperator: () => operator("!"),
+  DotOperator: () => P.string(".").mark(),
   MultiplicationOperator: () => operator("*"),
+  SingleMinusOperator: () => P.string("-").mark(),
   Operator: () => P.regexp(/[:@^+\-$_*/|&!><%=?]+/).mark(),
 };

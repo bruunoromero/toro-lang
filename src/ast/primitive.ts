@@ -2,7 +2,7 @@ import { Node } from "./node";
 import { Location } from "../parser/location";
 
 export abstract class Primitive<T> extends Node {
-  constructor(public readonly loc: Location, public readonly value: T) {
+  constructor(public loc: Location, public value: T) {
     super(loc);
   }
 

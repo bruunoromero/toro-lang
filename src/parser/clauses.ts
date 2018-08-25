@@ -6,6 +6,8 @@ import { Location } from "./location";
 import { Module } from "../ast/module";
 import { Import } from "../ast/import";
 import { FunctionDefinition } from "./../ast/function";
+import { Operator, UnaryMinus, AccessOperator } from "./../ast/operator";
+import { Node } from "../ast/node";
 
 const FILE = {
   File: (r: P.Language) =>
@@ -123,9 +125,21 @@ const EXPRESSION = {
 
   ColonExpression: (r: P.Language) =>
     P.seq(
-      r.MultiplicationExpression,
+      r.AdditionExpression,
       P.seq(
         r.ColonOperator.wrap(P.optWhitespace, P.optWhitespace),
+        r.AdditionExpression,
+      ).many(),
+    ).mark(),
+
+  AdditionExpression: (r: P.Language) =>
+    P.seq(
+      r.MultiplicationExpression,
+      P.seq(
+        P.alt(r.PlusOperator, r.MinusOperator).wrap(
+          P.optWhitespace,
+          P.optWhitespace,
+        ),
         r.MultiplicationExpression,
       ).many(),
     ).mark(),
@@ -145,32 +159,71 @@ const EXPRESSION = {
 
   PowerExpression: (r: P.Language) =>
     P.seq(
-      r.HigherPrecedenceExpression,
+      r.OperatorExpression,
       P.seq(
         r.PowerOperator.wrap(P.optWhitespace, P.optWhitespace),
-        r.HigherPrecedenceExpression,
+        r.OperatorExpression,
       ).many(),
     ).mark(),
 
-  HigherPrecedenceExpression: (r: P.Language) =>
+  OperatorExpression: (r: P.Language) =>
+    P.seq(
+      r.AccessExpression,
+      P.seq(
+        r.Operator.wrap(P.optWhitespace, P.optWhitespace),
+        r.AccessExpression,
+      )
+        .many()
+        .map(R.head),
+    )
+      .mark()
+      .map(({ start, end, value }) => console.log(value)),
+
+  AccessExpression: (r: P.Language) =>
     P.seq(
       r.UnaryExpression,
       P.seq(
-        r.Operator.wrap(P.optWhitespace, P.optWhitespace),
+        r.DotOperator.wrap(P.optWhitespace, P.optWhitespace),
         r.UnaryExpression,
-      ).many(),
-    ).mark(),
+      )
+        .many()
+        .map(R.head),
+    )
+      .mark()
+      .map(({ start, end, value }) => {
+        const [left, res] = value;
+
+        if (res) {
+          const [, right] = res;
+          return new AccessOperator(
+            new Location(start, end),
+            left,
+            right as any,
+          );
+        } else {
+          return left;
+        }
+      }),
 
   UnaryExpression: (r: P.Language) =>
-    P.seq(r.Operator.skip(P.optWhitespace), r.UnaryExpression)
-      .or(r.Primary)
-      .mark(),
+    P.seq(r.SingleMinusOperator.atMost(1), r.Primary)
+      .mark()
+      .map(({ start, end, value }) => {
+        if (value[0].length) {
+          return new UnaryMinus(
+            new Location(value[0][0].start, value[0][0].end),
+            value[1],
+          );
+        } else {
+          return value[1];
+        }
+      }),
 
   Primary: (r: P.Language) =>
     P.alt(
       r.DoubleLiteral,
-      r.IntegerLiteral,
       r.StringLiteral,
+      r.IntegerLiteral,
       r.Expression.wrap(
         r.LParen.wrap(P.optWhitespace, P.optWhitespace),
         r.RParen.wrap(P.optWhitespace, P.optWhitespace),
