@@ -1,5 +1,8 @@
+import { BinaryOperator } from "./../ast/operator";
 import * as R from "ramda";
 import * as P from "parsimmon";
+import { Location } from "./location";
+import { Identifier } from "../ast/identifier";
 const operator = (token: string) =>
   P.seq(P.string(token), P.regexp(/[:^+\-*/|&!><%=]/).many())
     .mark()
@@ -25,31 +28,24 @@ export const OPERATORS = {
   DotOperator: () => P.string(".").mark(),
   MultiplicationOperator: () => operator("*"),
   SingleMinusOperator: () => P.string("-").mark(),
-  Operator: () => P.regexp(/[:@^+\-$_*/|&!><%=?]+/).mark(),
-};
+  Operator: (r: P.Language) =>
+    P.alt(
+      r.GTOperator,
+      r.LTOperator,
+      r.OrOperator,
+      r.AndOperator,
+      r.PlusOperator,
+      r.MinusOperator,
+      r.ColonOperator,
+      r.PowerOperator,
+      r.ModulusOperator,
+      r.DivisionOperator,
+      r.EqualityOperator,
+      r.NegationOperator,
+      r.MultiplicationOperator,
+    ).map(({ start, end, value }) => {
+      const loc = new Location(start, end);
 
-enum OperatorAssociativity {
-  Left,
-  Right,
-}
-
-interface OperatorOpt {
-  precedence: number;
-  associativity: OperatorAssociativity;
-}
-
-const OPERATORS_OPT = {
-  "|": { precedence: 1, associativity: OperatorAssociativity.Left },
-  "&": { precedence: 2, associativity: OperatorAssociativity.Left },
-  "=": { precedence: 3, associativity: OperatorAssociativity.Left },
-  "!": { precedence: 3, associativity: OperatorAssociativity.Left },
-  ">": { precedence: 4, associativity: OperatorAssociativity.Left },
-  "<": { precedence: 4, associativity: OperatorAssociativity.Left },
-  ":": { precedence: 5, associativity: OperatorAssociativity.Left },
-  "+": { precedence: 6, associativity: OperatorAssociativity.Left },
-  "-": { precedence: 6, associativity: OperatorAssociativity.Left },
-  "*": { precedence: 7, associativity: OperatorAssociativity.Left },
-  "/": { precedence: 7, associativity: OperatorAssociativity.Left },
-  "%": { precedence: 7, associativity: OperatorAssociativity.Left },
-  "^": { precedence: 8, associativity: OperatorAssociativity.Left },
+      return new BinaryOperator(loc, new Identifier(loc, value));
+    }),
 };

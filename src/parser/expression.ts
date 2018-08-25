@@ -67,149 +67,80 @@ const expression = (start: P.Parser<{}>, end: P.Parser<{}>) =>
     .map(mapper);
 
 export const EXPRESSION = {
-  Expression: (r: P.Language) => r.OrExpression,
+  Expression: (r: P.Language) => r.OperatorExpression,
 
-  OrExpression: (r: P.Language) =>
-    expression(
-      r.AndExpression,
-      P.seq(
-        r.OrOperator.wrap(P.optWhitespace, P.optWhitespace),
-        r.AndExpression,
-      ),
-    ),
+  // InfixFunctionExpression: (r: P.Language) =>
+  //   P.seq(
+  //     r.OperatorExpression,
+  //     P.seq(
+  //       r.Identifier.wrap(P.string("´"), P.string("´")).wrap(
+  //         P.optWhitespace,
+  //         P.optWhitespace,
+  //       ),
+  //       r.OperatorExpression,
+  //     ).many(),
+  //   )
+  //     .mark()
+  //     .map(({ start, end, value }) => {
+  //       const [left, res] = value;
 
-  AndExpression: (r: P.Language) =>
-    expression(
-      r.EqualityExpression,
-      P.seq(
-        r.AndOperator.wrap(P.optWhitespace, P.optWhitespace),
-        r.EqualityExpression,
-      ),
-    ),
+  //       if (res) {
+  //         const [op, right] = res as any;
+  //         return new BinaryOperator(
+  //           new Location(start, end),
+  //           op,
+  //           left,
+  //           right as any,
+  //         );
+  //       }
 
-  EqualityExpression: (r: P.Language) =>
-    expression(
-      r.ComparassionExpression,
-      P.seq(
-        r.EqualityOperator.or(r.NegationOperator).wrap(
-          P.optWhitespace,
-          P.optWhitespace,
-        ),
-        r.ComparassionExpression,
-      ),
-    ),
+  //       return left;
+  //     }),
 
-  ComparassionExpression: (r: P.Language) =>
-    expression(
-      r.ColonExpression,
-      P.seq(
-        P.alt(r.GTOperator, r.LTOperator).wrap(
-          P.optWhitespace,
-          P.optWhitespace,
-        ),
-        r.ColonExpression,
-      ),
-    ),
-
-  ColonExpression: (r: P.Language) =>
-    expression(
-      r.AdditionExpression,
-      P.seq(
-        r.ColonOperator.wrap(P.optWhitespace, P.optWhitespace),
-        r.AdditionExpression,
-      ),
-    ),
-
-  AdditionExpression: (r: P.Language) =>
-    expression(
-      r.MultiplicationExpression,
-      P.seq(
-        P.alt(r.PlusOperator, r.MinusOperator).wrap(
-          P.optWhitespace,
-          P.optWhitespace,
-        ),
-        r.MultiplicationExpression,
-      ),
-    ),
-
-  MultiplicationExpression: (r: P.Language) =>
-    expression(
-      r.PowerExpression,
-      P.seq(
-        P.alt(
-          r.ModulusOperator,
-          r.DivisionOperator,
-          r.MultiplicationOperator,
-        ).wrap(P.optWhitespace, P.optWhitespace),
-        r.PowerExpression,
-      ),
-    ),
-
-  PowerExpression: (r: P.Language) =>
-    expression(
-      r.InfixFunctionExpression,
-      P.seq(
-        r.PowerOperator.wrap(P.optWhitespace, P.optWhitespace),
-        r.InfixFunctionExpression,
-      ),
-    ),
-
-  InfixFunctionExpression: (r: P.Language) =>
-    P.seq(
-      r.AccessExpression,
-      P.seq(
-        r.Identifier.wrap(P.string("´"), P.string("´")).wrap(
-          P.optWhitespace,
-          P.optWhitespace,
-        ),
-        r.AccessExpression,
-      )
-        .many()
-        .map(R.head),
-    )
-      .mark()
-      .map(({ start, end, value }) => {
-        const [left, res] = value;
-
-        if (res) {
-          const [op, right] = res as any;
-          return new BinaryOperator(
-            new Location(start, end),
-            op,
-            left,
-            right as any,
-          );
-        }
-
-        return left;
-      }),
-
-  AccessExpression: (r: P.Language) =>
+  OperatorExpression: (r: P.Language) =>
     P.seq(
       r.UnaryExpression,
       P.seq(
-        r.DotOperator.wrap(P.optWhitespace, P.optWhitespace),
+        r.Operator.wrap(P.optWhitespace, P.optWhitespace),
         r.UnaryExpression,
-      )
-        .many()
-        .mark()
-        .map(buildOperatorTree),
-    )
-      .mark()
-      .map(({ start, end, value }) => {
-        const [left, res] = value;
-
-        if (res.length) {
-          const [, right] = res;
-          return new AccessOperator(
-            new Location(start, end),
-            left,
-            right as any,
-          );
+      ).many(),
+    ).map(value => {
+      const v = R.flatten(value);
+      return v.slice(1).reduce((curr, acc) => {
+        if (acc instanceof BinaryOperator) {
+          return acc.push(curr);
+        } else {
+          return curr.push(acc);
         }
+      }, v[0]);
+    }),
 
-        return left;
-      }),
+  // AccessExpression: (r: P.Language) =>
+  //   P.seq(
+  //     r.UnaryExpression,
+  //     P.seq(
+  //       r.DotOperator.wrap(P.optWhitespace, P.optWhitespace),
+  //       r.UnaryExpression,
+  //     )
+  //       .many()
+  //       .mark()
+  //       .map(buildOperatorTree),
+  //   )
+  //     .mark()
+  //     .map(({ start, end, value }) => {
+  //       const [left, res] = value;
+
+  //       if (res.length) {
+  //         const [, right] = res;
+  //         return new AccessOperator(
+  //           new Location(start, end),
+  //           left,
+  //           right as any,
+  //         );
+  //       }
+
+  //       return left;
+  //     }),
 
   UnaryExpression: (r: P.Language) =>
     P.seq(r.SingleMinusOperator.atMost(1), r.Primary)
