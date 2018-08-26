@@ -45,14 +45,10 @@ export class BinaryOperator extends Operator {
     throw new Error("Method not implemented.");
   }
 
-  get isBinaryOperator() {
-    return true;
-  }
-
   get precedence(): number {
     const start = this.name.name[0];
 
-    return (OPERATORS_OPT as any)[start];
+    return (OPERATORS_OPT as any)[start] || 0;
   }
 
   get associativity(): OperatorAssociativity {
@@ -111,6 +107,16 @@ export class BinaryOperator extends Operator {
 export class UnaryMinus extends Operator {
   constructor(public readonly loc: Location, public readonly value: Node) {
     super(loc, new Identifier(loc, "-"));
+  }
+
+  transform(): JSNode {
+    throw new Error("Method not implemented.");
+  }
+}
+
+export class Parenthesis extends Operator {
+  constructor(public readonly loc: Location, public readonly value: Node) {
+    super(loc, new Identifier(loc, "()"));
   }
 
   transform(): JSNode {

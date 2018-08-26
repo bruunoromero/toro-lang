@@ -4,7 +4,7 @@ import * as P from "parsimmon";
 
 import { Node } from "../ast/node";
 import { Location } from "./location";
-import { UnaryMinus } from "../ast/operator";
+import { UnaryMinus, Parenthesis } from "../ast/operator";
 import { BinaryOperator } from "./../ast/operator";
 
 const buildOperatorTree = (value: any) => {
@@ -21,49 +21,12 @@ const buildOperatorTree = (value: any) => {
 export const EXPRESSION = {
   Expression: (r: P.Language) => r.OperatorExpression,
 
-  // InfixFunctionExpression: (r: P.Language) =>
-  //   P.seq(
-  //     r.OperatorExpression,
-  //     P.seq(
-  //       r.Identifier.wrap(P.string("´"), P.string("´")).wrap(
-  //         P.optWhitespace,
-  //         P.optWhitespace,
-  //       ),
-  //       r.OperatorExpression,
-  //     ).many(),
-  //   )
-  //     .mark()
-  //     .map(({ start, end, value }) => {
-  //       const [left, res] = value;
-
-  //       if (res) {
-  //         const [op, right] = res as any;
-  //         return new BinaryOperator(
-  //           new Location(start, end),
-  //           op,
-  //           left,
-  //           right as any,
-  //         );
-  //       }
-
-  //       return left;
-  //     }),
-
   OperatorExpression: (r: P.Language) =>
-    P.seq(
-      r.AccessExpression,
-      P.seq(
-        r.Operator.wrap(P.optWhitespace, P.optWhitespace),
-        r.AccessExpression,
-      ).many(),
-    ).map(buildOperatorTree),
-
-  AccessExpression: (r: P.Language) =>
     P.seq(
       r.UnaryExpression,
       P.seq(
-        r.DotOperator.wrap(P.optWhitespace, P.optWhitespace).map(mapOperator),
-        r.Identifier,
+        r.Operator.wrap(P.optWhitespace, P.optWhitespace),
+        r.UnaryExpression,
       ).many(),
     ).map(buildOperatorTree),
 
@@ -72,10 +35,7 @@ export const EXPRESSION = {
       .mark()
       .map(({ start, end, value }) => {
         if (value[0].length) {
-          return new UnaryMinus(
-            new Location(value[0][0].start, value[0][0].end),
-            value[1],
-          );
+          return new UnaryMinus(new Location(start, end), value[1]);
         } else {
           return value[1];
         }
@@ -90,6 +50,10 @@ export const EXPRESSION = {
       r.Expression.wrap(
         r.LParen.wrap(P.optWhitespace, P.optWhitespace),
         r.RParen.wrap(P.optWhitespace, P.optWhitespace),
-      ),
+      )
+        .mark()
+        .map(({ start, end, value }) => {
+          return new Parenthesis(new Location(start, end), value);
+        }),
     ),
 };

@@ -11,5 +11,4 @@ import List as L exposing (create)
 def a (teste: List(Int('b), 'a), t:'a) {a}
 `;
 
-const source = Grammar.Expression.parse("teste.t + 10") as any;
-console.log(source);
+const source = Grammar.Expression.parse("2 * (10 + 20 * 30)") as any;
