@@ -63,16 +63,23 @@ const FUNCTION_DEFINITION = {
     r.DefKeyword.skip(P.whitespace)
       .then(
         P.seq(
-          r.Identifier.skip(P.optWhitespace),
-          r.RequiredParenParameterList,
-          r.Body,
+          r.Identifier.or(r.Operator).skip(P.optWhitespace),
+          r.RequiredParenParameterList.atMost(1).skip(
+            P.string("=").trim(P.optWhitespace),
+          ),
+          r.Expression,
         ),
       )
       .wrap(P.optWhitespace, r.end)
       .mark()
       .map(
         ({ start, end, value }) =>
-          new FunctionDefinition(new Location(start, end), value[0], value[1]),
+          new FunctionDefinition(
+            new Location(start, end),
+            value[0],
+            value[0],
+            value[1][0],
+          ),
       ),
 };
 

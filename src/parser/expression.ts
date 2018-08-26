@@ -1,4 +1,3 @@
-import { mapOperator } from "./operators";
 import * as R from "ramda";
 import * as P from "parsimmon";
 
@@ -44,7 +43,6 @@ export const EXPRESSION = {
   Primary: (r: P.Language) =>
     P.alt(
       r.FunctionCall,
-      r.Identifier,
       r.DoubleLiteral,
       r.StringLiteral,
       r.IntegerLiteral,
