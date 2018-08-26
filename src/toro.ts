@@ -1,5 +1,4 @@
 import { Grammar } from "./parser/grammar";
-import { pprint } from "./utils/print";
 
 const sample = `
 module Main.Teste exposing (Just)
@@ -11,4 +10,5 @@ import List as L exposing (create)
 def a (teste: List(Int('b), 'a), t:'a) {a}
 `;
 
-const source = Grammar.Expression.parse("2 * (10 + 20 * 30)") as any;
+const source = Grammar.Expression.parse("1 -: 2 -: 3") as any;
+console.log(source.value);

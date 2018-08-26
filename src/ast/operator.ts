@@ -57,49 +57,37 @@ export class BinaryOperator extends Operator {
       : OperatorAssociativity.Left;
   }
 
-  private pushLeft(value: Node): BinaryOperator {
+  push(value?: Node): BinaryOperator {
+    if (value instanceof BinaryOperator) {
+      const valueOp = value as BinaryOperator;
+      if (
+        (this.associativity === OperatorAssociativity.Left &&
+          valueOp.precedence < this.precedence) ||
+        (this.associativity === OperatorAssociativity.Right &&
+          valueOp.precedence <= this.precedence)
+      ) {
+        return new BinaryOperator(
+          valueOp.loc,
+          valueOp.name,
+          valueOp.left,
+          new BinaryOperator(this.loc, this.name, valueOp.right, this.left),
+        );
+      } else {
+        return new BinaryOperator(this.loc, this.name, valueOp, this.right);
+      }
+    }
+
     if (!this.left) {
       return new BinaryOperator(this.loc, this.name, value);
     } else if (!this.right) {
       return new BinaryOperator(this.loc, this.name, this.left, value);
     } else {
-      const valueOp = value as BinaryOperator;
-
-      if (valueOp.precedence <= this.precedence) {
-        return new BinaryOperator(valueOp.loc, valueOp.name).push(this);
-      } else {
-        return new BinaryOperator(this.loc, this.name)
-          .push(new BinaryOperator(valueOp.loc, valueOp.name, this.right))
-          .push(this.left);
-      }
-    }
-  }
-
-  private pushRight(value: Node): BinaryOperator {
-    if (!this.right) {
-      return new BinaryOperator(this.loc, this.name, undefined, value);
-    } else if (!this.left) {
-      return new BinaryOperator(this.loc, this.name, value, this.right);
-    } else {
-      const valueOp = value as BinaryOperator;
-
-      if (valueOp.precedence <= this.precedence) {
-        return new BinaryOperator(valueOp.loc, valueOp.name).push(this);
-      } else {
-        return new BinaryOperator(this.loc, this.name)
-          .push(this.right)
-          .push(
-            new BinaryOperator(valueOp.loc, valueOp.name, undefined, this.left),
-          );
-      }
-    }
-  }
-
-  push(value: Node): BinaryOperator {
-    if (this.associativity === OperatorAssociativity.Left) {
-      return this.pushLeft(value);
-    } else {
-      return this.pushRight(value);
+      return new BinaryOperator(
+        this.loc,
+        this.name,
+        this.left,
+        (this.right as BinaryOperator).push(value),
+      );
     }
   }
 }

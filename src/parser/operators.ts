@@ -49,5 +49,8 @@ export const OPERATORS = {
       r.EqualityOperator,
       r.NegationOperator,
       r.MultiplicationOperator,
+      r.Identifier.wrap(P.string("´"), P.string("´")).map(
+        ({ loc: { start, end }, name: value }) => ({ start, end, value }),
+      ),
     ).map(mapOperator),
 };
