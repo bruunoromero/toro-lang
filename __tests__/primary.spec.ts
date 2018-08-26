@@ -30,7 +30,6 @@ describe("Primary", () => {
     expect(Grammar.Primary.parse("*10").status).toBe(false);
     expect(Grammar.Primary.parse("+10.0").status).toBe(false);
     expect(Grammar.Primary.parse("*10.0").status).toBe(false);
-    expect(Grammar.Primary.parse("Hello world").status).toBe(false);
     expect(Grammar.Primary.parse("'Hello world'").status).toBe(false);
     expect(Grammar.Primary.parse('+"Hello world"').status).toBe(false);
   });
