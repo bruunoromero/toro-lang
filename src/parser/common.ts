@@ -5,6 +5,17 @@ import { Generic } from "../ast/type";
 import { Parameter } from "./../ast/parameter";
 import { TypeParameter, Type } from "./../ast/type";
 
+const optionalParensList = (r: P.Language, p: P.Parser<{}>) =>
+  r.LParen.atMost(1).chain((start: any[]) => {
+    const parser = p.sepBy(r.Comma.wrap(P.optWhitespace, P.optWhitespace));
+
+    if (start && start.length) {
+      return parser.skip(r.RParen);
+    }
+
+    return parser;
+  });
+
 export const COMMON = {
   Reference: (r: P.Language) =>
     P.sepBy1(r.Identifier, r.DotOperator.trim(P.optWhitespace)),
@@ -22,24 +33,15 @@ export const COMMON = {
       )
       .map(exp => exp[1]),
 
+  ArgumentList: (r: P.Language) => optionalParensList(r, r.Expression),
+
   RequiredParenParameterList: (r: P.Language) =>
     r.Parameter.sepBy(r.Comma.wrap(P.optWhitespace, P.optWhitespace)).wrap(
       r.LParen,
       r.RParen,
     ),
 
-  ParameterList: (r: P.Language) =>
-    r.LParen.atMost(1).chain((start: any[]) => {
-      const parser = r.Parameter.sepBy(
-        r.Comma.wrap(P.optWhitespace, P.optWhitespace),
-      );
-
-      if (start && start.length) {
-        return parser.skip(r.RParen);
-      }
-
-      return parser;
-    }),
+  ParameterList: (r: P.Language) => optionalParensList(r, r.Parameter),
 
   Parameter: (r: P.Language) =>
     P.seq(

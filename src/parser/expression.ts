@@ -21,13 +21,13 @@ const buildOperatorTree = (value: any) => {
 export const EXPRESSION = {
   Expression: (r: P.Language) => r.OperatorExpression,
 
+  FunctionCall: (r: P.Language) =>
+    P.seq(r.Reference.skip(P.optWhitespace), r.ArgumentList).mark(),
+
   OperatorExpression: (r: P.Language) =>
     P.seq(
       r.UnaryExpression,
-      P.seq(
-        r.Operator.wrap(P.optWhitespace, P.optWhitespace),
-        r.UnaryExpression,
-      ).many(),
+      P.seq(r.Operator.trim(P.optWhitespace), r.UnaryExpression).many(),
     ).map(buildOperatorTree),
 
   UnaryExpression: (r: P.Language) =>
@@ -43,13 +43,14 @@ export const EXPRESSION = {
 
   Primary: (r: P.Language) =>
     P.alt(
+      r.FunctionCall,
       r.Identifier,
       r.DoubleLiteral,
       r.StringLiteral,
       r.IntegerLiteral,
       r.Expression.wrap(
-        r.LParen.wrap(P.optWhitespace, P.optWhitespace),
-        r.RParen.wrap(P.optWhitespace, P.optWhitespace),
+        r.LParen.trim(P.optWhitespace),
+        r.RParen.trim(P.optWhitespace),
       )
         .mark()
         .map(({ start, end, value }) => {
