@@ -26,10 +26,10 @@ export class FunctionDefinition extends Definition {
 export class FunctionCall extends Statement {
   constructor(
     public readonly loc: Location,
+    public readonly callee: Statement,
     public readonly params: Statement[],
-    public readonly func: FunctionDefinition,
   ) {
-    super(loc, func.returns);
+    super(loc);
   }
 
   transform(): JSNode {

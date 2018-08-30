@@ -5,16 +5,10 @@ import { Generic } from "../ast/type";
 import { Parameter } from "./../ast/parameter";
 import { TypeParameter, Type } from "./../ast/type";
 
-const optionalParensList = (r: P.Language, p: P.Parser<{}>) =>
-  r.LParen.atMost(1).chain((start: any[]) => {
-    const parser = p.sepBy(r.Comma.wrap(P.optWhitespace, P.optWhitespace));
-
-    if (start && start.length) {
-      return parser.skip(r.RParen);
-    }
-
-    return parser;
-  });
+const parensList = (r: P.Language, p: P.Parser<{}>) =>
+  p
+    .sepBy(r.Comma.wrap(P.optWhitespace, P.optWhitespace))
+    .wrap(r.LParen, r.RParen);
 
 export const COMMON = {
   Reference: (r: P.Language) =>
@@ -33,7 +27,7 @@ export const COMMON = {
       )
       .map(exp => exp[1]),
 
-  ArgumentList: (r: P.Language) => optionalParensList(r, r.Expression),
+  ArgumentList: (r: P.Language) => parensList(r, r.Expression),
 
   RequiredParenParameterList: (r: P.Language) =>
     r.Parameter.sepBy(r.Comma.wrap(P.optWhitespace, P.optWhitespace)).wrap(
@@ -41,7 +35,7 @@ export const COMMON = {
       r.RParen,
     ),
 
-  ParameterList: (r: P.Language) => optionalParensList(r, r.Parameter),
+  ParameterList: (r: P.Language) => parensList(r, r.Parameter),
 
   Parameter: (r: P.Language) =>
     P.seq(

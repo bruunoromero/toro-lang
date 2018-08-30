@@ -1,3 +1,4 @@
+import { FunctionCall } from "./../ast/function";
 import * as R from "ramda";
 import * as P from "parsimmon";
 
@@ -20,13 +21,16 @@ const buildOperatorTree = (value: any) => {
 export const EXPRESSION = {
   Expression: (r: P.Language) => r.OperatorExpression,
 
-  FunctionCall: (r: P.Language) =>
-    P.seq(r.Reference.skip(P.optWhitespace), r.ArgumentList).mark(),
-
   OperatorExpression: (r: P.Language) =>
     P.seq(
+      r.AccessExpression,
+      P.seq(r.Operator.trim(P.optWhitespace), r.AccessExpression).many(),
+    ).map(buildOperatorTree),
+
+  AccessExpression: (r: P.Language) =>
+    P.seq(
       r.UnaryExpression,
-      P.seq(r.Operator.trim(P.optWhitespace), r.UnaryExpression).many(),
+      P.seq(r.DotOperator.trim(P.optWhitespace), r.UnaryExpression).many(),
     ).map(buildOperatorTree),
 
   UnaryExpression: (r: P.Language) =>
@@ -41,18 +45,29 @@ export const EXPRESSION = {
       }),
 
   Primary: (r: P.Language) =>
-    P.alt(
-      r.FunctionCall,
-      r.DoubleLiteral,
-      r.StringLiteral,
-      r.IntegerLiteral,
-      r.Expression.wrap(
-        r.LParen.trim(P.optWhitespace),
-        r.RParen.trim(P.optWhitespace),
-      )
-        .mark()
-        .map(({ start, end, value }) => {
-          return new Parenthesis(new Location(start, end), value);
-        }),
-    ),
+    P.alt(r.FunctionCall, r.DoubleLiteral, r.StringLiteral, r.IntegerLiteral),
+
+  FunctionCall: (r: P.Language) =>
+    P.seq(
+      P.alt(
+        r.Identifier,
+        r.Expression.wrap(
+          r.LParen.trim(P.optWhitespace),
+          r.RParen.trim(P.optWhitespace),
+        )
+          .mark()
+          .map(({ start, end, value }) => {
+            return new Parenthesis(new Location(start, end), value);
+          }),
+      ).skip(P.optWhitespace),
+      r.ArgumentList.many(),
+    )
+      .mark()
+      .map(({ start, end, value: [callee, calls] }) => {
+        if (!calls.length) return callee;
+
+        return calls.reduce((acc, curr) => {
+          return new FunctionCall(acc.loc, acc, curr);
+        }, callee);
+      }),
 };

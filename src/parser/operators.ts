@@ -31,7 +31,10 @@ export const OPERATORS = {
   DivisionOperator: () => operator("/"),
   EqualityOperator: () => operator("="),
   NegationOperator: () => operator("!"),
-  DotOperator: () => P.string(".").mark(),
+  DotOperator: () =>
+    P.string(".")
+      .mark()
+      .map(mapOperator),
   MultiplicationOperator: () => operator("*"),
   SingleMinusOperator: () => P.string("-").mark(),
   Operator: (r: P.Language) =>
