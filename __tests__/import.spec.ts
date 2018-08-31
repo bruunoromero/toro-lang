@@ -57,6 +57,7 @@
 // import List.Core as L exposing (create, map)
 // `;
 
+test("", () => {});
 //     const { status, value } = Grammar.ImportDeclaration.parse(sample) as any;
 //     expect(status).toBe(true);
 //     expect((value as Import).alias.name).toBe("L");

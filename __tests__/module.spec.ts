@@ -1,6 +1,6 @@
 // import { Module } from "../src/ast/module";
 // import { Grammar } from "../src/parser/grammar";
-
+test("", () => {});
 // describe("Module", () => {
 //   it("Should parse correctly a simple module clause", () => {
 //     const sample = `
