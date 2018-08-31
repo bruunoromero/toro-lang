@@ -44,13 +44,13 @@ export const EXPRESSION = {
   OperatorExpression: (r: P.Language) =>
     P.seq(
       r.AccessExpression,
-      P.seq(r.Operator.trim(P.optWhitespace), r.AccessExpression).many(),
+      P.seq(r.Operator.wrap(r._, P.optWhitespace), r.AccessExpression).many(),
     ).map(buildOperatorTree),
 
   AccessExpression: (r: P.Language) =>
     P.seq(
       r.UnaryExpression,
-      P.seq(r.DotOperator.trim(P.optWhitespace), r.UnaryExpression).many(),
+      P.seq(r.DotOperator.wrap(r._, P.optWhitespace), r.UnaryExpression).many(),
     ).map(buildOperatorTree),
 
   UnaryExpression: (r: P.Language) =>

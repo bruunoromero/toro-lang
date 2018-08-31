@@ -11,9 +11,7 @@ const parensList = (r: P.Language, p: P.Parser<{}>) =>
     .wrap(r.LParen, r.RParen);
 
 export const bodyWrapper = (r: P.Language, parser: P.Parser<any>) =>
-  parser
-    .wrap(r.LCurly.trim(P.optWhitespace), r.RCurly.trim(P.optWhitespace))
-    .trim(P.optWhitespace);
+  parser.wrap(r.LCurly.skip(P.optWhitespace), P.optWhitespace.then(r.RCurly));
 
 export const COMMON = {
   Reference: (r: P.Language) =>

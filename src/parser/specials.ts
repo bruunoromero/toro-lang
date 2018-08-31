@@ -3,6 +3,8 @@ import * as P from "parsimmon";
 import { Language } from "parsimmon";
 
 export const SPECIALS = {
+  _: (r: Language) => P.regex(/ */),
+  end: (r: P.Language) => r._.skip(P.end),
   Comma: (r: Language) => P.string(",").mark(),
   Colon: (r: Language) => P.string(":").mark(),
   LParen: (r: Language) => P.string("(").mark(),
@@ -12,5 +14,4 @@ export const SPECIALS = {
   LCurly: (r: Language) => P.string("{").mark(),
   RCurly: (r: Language) => P.string("}").mark(),
   SemiColon: (r: Language) => P.string(";").mark(),
-  end: (r: P.Language) => P.seq(P.optWhitespace, r.SemiColon, P.optWhitespace),
 };
