@@ -10,5 +10,10 @@ import List as L exposing (create)
 def a (teste: List(Int('b), 'a), t:'a) {a}
 `;
 
-const source = Grammar.Expression.parse("teste(10, 20).teste") as any;
-console.log(source.value.left);
+const source = Grammar.Expression.parse(`
+  (a: Int): Int => {
+    10;
+    10;
+  };
+`) as any;
+console.log(source.value);

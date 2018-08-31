@@ -7,6 +7,7 @@ const keyword = (word: string) =>
 export const KEYWORDS = {
   AsKeyword: () => keyword("as"),
   DefKeyword: () => keyword("def"),
+  AsyncKeyword: () => keyword("async"),
   ModuleKeyword: () => keyword("module"),
   ImportKeyword: () => keyword("import"),
   ExposingKeyword: () => keyword("exposing"),

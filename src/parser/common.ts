@@ -2,13 +2,18 @@ import * as P from "parsimmon";
 
 import { Location } from "./location";
 import { Generic } from "../ast/type";
-import { Parameter } from "./../ast/parameter";
 import { TypeParameter, Type } from "./../ast/type";
+import { FunctionParameter } from "./../ast/function";
 
 const parensList = (r: P.Language, p: P.Parser<{}>) =>
   p
     .sepBy(r.Comma.wrap(P.optWhitespace, P.optWhitespace))
     .wrap(r.LParen, r.RParen);
+
+export const bodyWrapper = (r: P.Language, parser: P.Parser<any>) =>
+  parser
+    .wrap(r.LCurly.trim(P.optWhitespace), r.RCurly.trim(P.optWhitespace))
+    .trim(P.optWhitespace);
 
 export const COMMON = {
   Reference: (r: P.Language) =>
@@ -29,24 +34,18 @@ export const COMMON = {
 
   ArgumentList: (r: P.Language) => parensList(r, r.Expression),
 
-  RequiredParenParameterList: (r: P.Language) =>
-    r.Parameter.sepBy(r.Comma.wrap(P.optWhitespace, P.optWhitespace)).wrap(
-      r.LParen,
-      r.RParen,
-    ),
-
   ParameterList: (r: P.Language) => parensList(r, r.Parameter),
 
   Parameter: (r: P.Language) =>
-    P.seq(
-      r.Identifier.skip(r.Colon.wrap(P.optWhitespace, P.optWhitespace)),
-      r.Type,
-    )
+    P.seq(r.Identifier, r.ParameterType)
       .mark()
       .map(
         ({ start, end, value }) =>
-          new Parameter(new Location(start, end), value[0], value[1]),
+          new FunctionParameter(new Location(start, end), value[0], value[1]),
       ),
+
+  ParameterType: (r: P.Language) =>
+    r.Colon.wrap(P.optWhitespace, P.optWhitespace).then(r.Type),
 
   Type: (r: P.Language) =>
     P.seq(r.Reference, r.TypeParameterList.atMost(1))

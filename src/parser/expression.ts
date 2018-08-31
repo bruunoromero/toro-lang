@@ -1,11 +1,12 @@
-import { FunctionCall } from "./../ast/function";
 import * as R from "ramda";
 import * as P from "parsimmon";
 
 import { Node } from "../ast/node";
 import { Location } from "./location";
-import { UnaryMinus, Parenthesis } from "../ast/operator";
+import { CallExpression, FunctionExpression } from "./../ast/function";
 import { BinaryOperator } from "./../ast/operator";
+import { UnaryMinus, Parenthesis } from "../ast/operator";
+import { bodyWrapper } from "./common";
 
 const buildOperatorTree = (value: any) => {
   const v = R.flatten(value);
@@ -19,7 +20,26 @@ const buildOperatorTree = (value: any) => {
 };
 
 export const EXPRESSION = {
-  Expression: (r: P.Language) => r.OperatorExpression,
+  Expression: (r: P.Language) =>
+    r.OperatorExpression.skip(r.end).trim(P.optWhitespace),
+
+  FunctionExpression: (r: P.Language) =>
+    P.seq(
+      r.ParameterList.trim(P.optWhitespace),
+      r.ParameterType.atMost(1).skip(P.string("=>").trim(P.optWhitespace)),
+      r.AsyncKeyword.atMost(1).trim(P.optWhitespace),
+      bodyWrapper(r, r.Expression.atLeast(1)),
+    )
+      .mark()
+      .map(({ start, end, value: [params, [returns], [async], body] }) => {
+        return new FunctionExpression(
+          new Location(start, end),
+          params,
+          async,
+          body,
+          returns,
+        );
+      }),
 
   OperatorExpression: (r: P.Language) =>
     P.seq(
@@ -45,9 +65,15 @@ export const EXPRESSION = {
       }),
 
   Primary: (r: P.Language) =>
-    P.alt(r.FunctionCall, r.DoubleLiteral, r.StringLiteral, r.IntegerLiteral),
+    P.alt(
+      r.CallExpression,
+      r.DoubleLiteral,
+      r.StringLiteral,
+      r.IntegerLiteral,
+      r.FunctionExpression,
+    ),
 
-  FunctionCall: (r: P.Language) =>
+  CallExpression: (r: P.Language) =>
     P.seq(
       P.alt(
         r.Identifier,
@@ -67,7 +93,7 @@ export const EXPRESSION = {
         if (!calls.length) return callee;
 
         return calls.reduce((acc, curr) => {
-          return new FunctionCall(acc.loc, acc, curr);
+          return new CallExpression(acc.loc, acc, curr);
         }, callee);
       }),
 };

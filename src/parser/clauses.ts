@@ -5,7 +5,7 @@ import { File } from "../ast/file";
 import { Location } from "./location";
 import { Module } from "../ast/module";
 import { Import } from "../ast/import";
-import { FunctionDefinition } from "./../ast/function";
+import { FunctionExpression } from "./../ast/function";
 
 const FILE = {
   File: (r: P.Language) =>
@@ -72,15 +72,7 @@ const FUNCTION_DEFINITION = {
       )
       .wrap(P.optWhitespace, r.end)
       .mark()
-      .map(
-        ({ start, end, value }) =>
-          new FunctionDefinition(
-            new Location(start, end),
-            value[0],
-            value[0],
-            value[1][0],
-          ),
-      ),
+      .map(({ start, end, value }) => console.log()),
 };
 
 export const CLAUSES = R.mergeAll([FILE, MODULE, IMPORT, FUNCTION_DEFINITION]);

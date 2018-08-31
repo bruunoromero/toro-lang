@@ -3,14 +3,14 @@ import * as P from "parsimmon";
 import { Language } from "parsimmon";
 
 export const SPECIALS = {
-  _: () => P.regexp(/ */),
-  end: (r: P.Language) => P.seq(r._, P.end),
-  Comma: (r: Language) => P.string(",").node("Comma"),
-  Colon: (r: Language) => P.string(":").node("Colon"),
-  LParen: (r: Language) => P.string("(").node("LParen"),
-  RParen: (r: Language) => P.string(")").node("RParen"),
-  LBrace: (r: Language) => P.string("[").node("LBrace"),
-  RBrace: (r: Language) => P.string("]").node("RBrace"),
-  LCurly: (r: Language) => P.string("{").node("LCurly"),
-  RCurly: (r: Language) => P.string("}").node("RCurly"),
+  Comma: (r: Language) => P.string(",").mark(),
+  Colon: (r: Language) => P.string(":").mark(),
+  LParen: (r: Language) => P.string("(").mark(),
+  RParen: (r: Language) => P.string(")").mark(),
+  LBrace: (r: Language) => P.string("[").mark(),
+  RBrace: (r: Language) => P.string("]").mark(),
+  LCurly: (r: Language) => P.string("{").mark(),
+  RCurly: (r: Language) => P.string("}").mark(),
+  SemiColon: (r: Language) => P.string(";").mark(),
+  end: (r: P.Language) => P.seq(P.optWhitespace, r.SemiColon, P.optWhitespace),
 };

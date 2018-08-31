@@ -1,46 +1,24 @@
-module Main exposing (Person, Animal, Maybe, Just, Nothing)
-
-import Core as C exposing Any
+module Main exposing (Maybe, Just, Nothing)
 
 # Defined at language core
-interface Any {} 
-
-struct Person {
-  let name: String
-  let age: Maybe(Int)
-
-  def sayHello(name: String): String {
-    print("hello " + name + ", my name is " + self.name)
-  }
-
-  def !!(name: String): String {
-    print("HELLO, " + name)
-  }
-}
-
-struct Animal {
-  def sayHello(name: String): String {
-    print("auau " + name)
-  }
-}
-
-type Maybe('a) = # Defined at language core
+type Maybe('a) = 
   | Just('a)
   | Nothing
 
-interface Polite {
-  sayHello(String): String
+data Person = 
+  { name: String
+  , age: Maybe(Int)
+  }
+
+let !! = (p: Person, s: String): String => {
+  p.name ++ s
 }
 
-def greet(p: Polite): String {
-  p.sayHello("User")
-}
+let main = (): Any => {
+  let siri = Person("Siri", Nothing)
 
-def main(): Any {
-  let siri = Person { name: "Siri", age: Nothing }
-  siri.sayHello "User"
-  
-  greet siri
+  # let siri = Person("Siri")(Nothing)
+  # let siri = { name: "Siri", age: Nothing }
 
   siri !! "User"
 }
