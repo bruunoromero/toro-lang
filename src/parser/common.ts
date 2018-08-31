@@ -10,9 +10,6 @@ const parensList = (r: P.Language, p: P.Parser<{}>) =>
     .sepBy(r.Comma.wrap(P.optWhitespace, P.optWhitespace))
     .wrap(r.LParen, r.RParen);
 
-export const bodyWrapper = (r: P.Language, parser: P.Parser<any>) =>
-  parser.wrap(r.LCurly.skip(P.optWhitespace), P.optWhitespace.then(r.RCurly));
-
 export const COMMON = {
   Reference: (r: P.Language) =>
     P.sepBy1(r.Identifier, r.DotOperator.trim(P.optWhitespace)),
@@ -42,8 +39,7 @@ export const COMMON = {
           new FunctionParameter(new Location(start, end), value[0], value[1]),
       ),
 
-  ParameterType: (r: P.Language) =>
-    r.Colon.wrap(P.optWhitespace, P.optWhitespace).then(r.Type),
+  ParameterType: (r: P.Language) => r.Colon.trim(P.optWhitespace).then(r.Type),
 
   Type: (r: P.Language) =>
     P.seq(r.Reference, r.TypeParameterList.atMost(1))

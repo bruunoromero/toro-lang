@@ -3,10 +3,10 @@ import * as P from "parsimmon";
 
 import { Node } from "../ast/node";
 import { Location } from "./location";
-import { CallExpression, FunctionExpression } from "./../ast/function";
 import { BinaryOperator } from "./../ast/operator";
 import { UnaryMinus, Parenthesis } from "../ast/operator";
-import { bodyWrapper } from "./common";
+import { CallExpression, FunctionExpression } from "./../ast/function";
+import { AssignmentExpression } from "../ast/assignment";
 
 const buildOperatorTree = (value: any) => {
   const v = R.flatten(value);
@@ -21,36 +21,52 @@ const buildOperatorTree = (value: any) => {
 
 export const EXPRESSION = {
   Expression: (r: P.Language) =>
-    r.OperatorExpression.skip(r.end).trim(P.optWhitespace),
+    P.alt(r.AssignExpression, r.OperatorExpression).trim(r.opt),
+
+  AssignExpression: (r: P.Language) =>
+    P.seq(
+      r.LetKeyword.skip(P.whitespace).then(r.Identifier),
+      r.ParameterType.atMost(1).skip(P.string("=").trim(r.opt)),
+      r.Expression,
+    )
+      .mark()
+      .map(({ start, end, value: [id, [type], stmt] }) => {
+        return new AssignmentExpression(
+          new Location(start, end),
+          id,
+          stmt,
+          type,
+        );
+      }),
 
   FunctionExpression: (r: P.Language) =>
     P.seq(
-      r.ParameterList.trim(P.optWhitespace),
-      r.ParameterType.atMost(1).skip(P.string("=>").trim(P.optWhitespace)),
-      r.AsyncKeyword.atMost(1).trim(P.optWhitespace),
-      bodyWrapper(r, r.Expression.atLeast(1)),
+      r.ParameterList.trim(r.opt),
+      r.ParameterType.atMost(1).skip(P.string("=>").trim(r.opt)),
+      r.AsyncKeyword.atMost(1).trim(r.opt),
+      r.Expression.atLeast(1).wrap(r.LCurly, r.RCurly),
     )
       .mark()
-      .map(({ start, end, value: [params, [returns], [async], body] }) => {
+      .map(({ start, end, value: [params, [type], [async], body] }) => {
         return new FunctionExpression(
           new Location(start, end),
           params,
           async,
           body,
-          returns,
+          type,
         );
       }),
 
   OperatorExpression: (r: P.Language) =>
     P.seq(
       r.AccessExpression,
-      P.seq(r.Operator.wrap(r._, P.optWhitespace), r.AccessExpression).many(),
+      P.seq(r.Operator.wrap(r._, r.opt), r.AccessExpression).many(),
     ).map(buildOperatorTree),
 
   AccessExpression: (r: P.Language) =>
     P.seq(
       r.UnaryExpression,
-      P.seq(r.DotOperator.wrap(r._, P.optWhitespace), r.UnaryExpression).many(),
+      P.seq(r.DotOperator.wrap(r._, r.opt), r.UnaryExpression).many(),
     ).map(buildOperatorTree),
 
   UnaryExpression: (r: P.Language) =>
@@ -77,15 +93,12 @@ export const EXPRESSION = {
     P.seq(
       P.alt(
         r.Identifier,
-        r.Expression.wrap(
-          r.LParen.trim(P.optWhitespace),
-          r.RParen.trim(P.optWhitespace),
-        )
+        r.Expression.wrap(r.LParen.trim(r.opt), r.RParen.trim(r.opt))
           .mark()
           .map(({ start, end, value }) => {
             return new Parenthesis(new Location(start, end), value);
           }),
-      ).skip(P.optWhitespace),
+      ).skip(r.opt),
       r.ArgumentList.many(),
     )
       .mark()
