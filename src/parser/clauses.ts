@@ -12,11 +12,16 @@ const FILE = {
   File: (r: P.Language) =>
     P.seq(
       r.ModuleDeclaration,
-      r.ImportDeclaration.many(),
+      P.alt(r.ImportDeclaration, r.ExternDeclaration).many(),
       r.FunctionDefinition.many(),
     )
       .trim(r.none)
-      .map(file => new File(file[0], file[1], file[2])),
+      .map(([mod, impOrExt, funs]) => {
+        const impts = impOrExt.filter(ie => ie instanceof Import);
+        const externs = impOrExt.filter(ie => ie instanceof Extern);
+
+        return new File(mod, impts, externs, funs);
+      }),
 };
 
 const MODULE = {

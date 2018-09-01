@@ -6,9 +6,9 @@ import { Location } from "./location";
 import { IfStatement } from "../ast/if";
 import { AwaitExpression } from "../ast/await";
 import { BinaryOperator } from "./../ast/operator";
+import { CallExpression } from "./../ast/function";
 import { AssignmentExpression } from "../ast/assignment";
 import { UnaryMinus, Parenthesis } from "../ast/operator";
-import { CallExpression, FunctionLiteral } from "./../ast/function";
 
 const buildOperatorTree = (value: any) => {
   const v = R.flatten(value);
@@ -39,7 +39,7 @@ export const EXPRESSION = {
   AssignExpression: (r: P.Language) =>
     P.seq(
       r.LetKeyword.skip(P.whitespace).then(r.Identifier),
-      r.ParameterType.atMost(1).skip(P.string("=").trim(r.none)),
+      r.ParameterType.atMost(1).skip(r.Assign.trim(r.none)),
       r.Expression,
     )
       .mark()
@@ -82,25 +82,6 @@ export const EXPRESSION = {
         }, callee);
       }),
 
-  FunctionExpression: (r: P.Language) =>
-    P.seq(
-      r.ParameterList.trim(r.none),
-      r.ParameterType.atMost(1).skip(P.string("=>").trim(r.none)),
-      r.AsyncKeyword.atMost(1).trim(r.none),
-      r.Body,
-    )
-      .mark()
-      .map(({ start, end, value: [params, [type], [async], body] }) => {
-        return new FunctionLiteral(
-          new Location(start, end),
-          null,
-          params,
-          async,
-          body,
-          type,
-        );
-      }),
-
   IfExpression: (r: P.Language) =>
     r.IfKeyword.then(
       P.seq(r.Expression.trim(r.none), r.Body, r.ElseKeyword.then(r.Body)),
@@ -123,14 +104,6 @@ export const EXPRESSION = {
     ).map(buildOperatorTree),
 
   Primary: (r: P.Language) => P.alt(r.CallExpression, r.Primitive),
-
-  Primitive: (r: P.Language) =>
-    P.alt(
-      r.DoubleLiteral,
-      r.StringLiteral,
-      r.IntegerLiteral,
-      r.FunctionExpression,
-    ),
 
   UnaryExpression: (r: P.Language) =>
     P.seq(r.SingleMinusOperator.atMost(1), r.Primary)

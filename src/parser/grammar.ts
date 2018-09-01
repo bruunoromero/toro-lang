@@ -1,7 +1,7 @@
 import * as R from "ramda";
 import * as P from "parsimmon";
 
-import { TOKENS } from "./tokens";
+import { PRIMITIVES } from "./primitives";
 import { COMMON } from "./common";
 import { CLAUSES } from "./clauses";
 import { KEYWORDS } from "./keywords";
@@ -14,7 +14,7 @@ export const Grammar = P.createLanguage(
     OPERATORS,
     SPECIALS,
     KEYWORDS,
-    TOKENS,
+    PRIMITIVES,
     COMMON,
     EXPRESSION,
     CLAUSES,
