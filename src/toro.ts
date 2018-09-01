@@ -10,7 +10,8 @@ import List as L exposing (create)
 let a = (teste: List(Int('b), 'a), t:'a) => { a }
 `;
 
-const source = Grammar.Expression.parse(`
-  await 10
+const source = Grammar.ExternDeclaration.parse(`
+  extern "ola" as O
 `) as any;
-console.log(source.value);
+
+console.log(source);

@@ -1,8 +1,8 @@
-import { FunctionExpression } from "./../src/ast/function";
 import { Grammar } from "../src/parser/grammar";
 import { StringLiteral } from "./../src/ast/string";
 import { DoubleLiteral } from "./../src/ast/double";
 import { IntegerLiteral } from "./../src/ast/integer";
+import { FunctionLiteral } from "./../src/ast/function";
 
 describe("Primitive", () => {
   it("Should parse a positive Integer literal", () => {
@@ -31,7 +31,7 @@ describe("Primitive", () => {
 
     expect(status).toBe(true);
     expect(
-      ((value as FunctionExpression).body[0] as IntegerLiteral).value,
+      ((value as FunctionLiteral).body.stmts[0] as IntegerLiteral).value,
     ).toBe(10);
   });
 

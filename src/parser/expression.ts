@@ -3,11 +3,12 @@ import * as P from "parsimmon";
 
 import { Node } from "../ast/node";
 import { Location } from "./location";
+import { IfStatement } from "../ast/if";
+import { AwaitExpression } from "../ast/await";
 import { BinaryOperator } from "./../ast/operator";
+import { AssignmentExpression } from "../ast/assignment";
 import { UnaryMinus, Parenthesis } from "../ast/operator";
 import { CallExpression, FunctionLiteral } from "./../ast/function";
-import { AssignmentExpression } from "../ast/assignment";
-import { AwaitExpression } from "../ast/await";
 
 const buildOperatorTree = (value: any) => {
   const v = R.flatten(value);
@@ -22,23 +23,23 @@ const buildOperatorTree = (value: any) => {
 
 export const EXPRESSION = {
   Expression: (r: P.Language) =>
-    P.alt(r.AssignExpression, r.AwaitExpression, r.OperatorExpression).trim(
-      r.opt,
-    ),
+    P.alt(
+      r.IfExpression,
+      r.AssignExpression,
+      r.AwaitExpression,
+      r.OperatorExpression,
+    ).trim(r.none),
 
-  AwaitExpression: (r: P.Language) =>
-    r.AwaitKeyword.skip(r.opt)
-      .then(r.Expression)
-      .mark()
-      .map(
-        ({ start, end, value }) =>
-          new AwaitExpression(new Location(start, end), value),
-      ),
+  AccessExpression: (r: P.Language) =>
+    P.seq(
+      r.UnaryExpression,
+      P.seq(r.DotOperator.wrap(r._, r.none), r.UnaryExpression).many(),
+    ).map(buildOperatorTree),
 
   AssignExpression: (r: P.Language) =>
     P.seq(
       r.LetKeyword.skip(P.whitespace).then(r.Identifier),
-      r.ParameterType.atMost(1).skip(P.string("=").trim(r.opt)),
+      r.ParameterType.atMost(1).skip(P.string("=").trim(r.none)),
       r.Expression,
     )
       .mark()
@@ -51,11 +52,41 @@ export const EXPRESSION = {
         );
       }),
 
+  AwaitExpression: (r: P.Language) =>
+    r.AwaitKeyword.skip(r.none)
+      .then(r.Expression)
+      .mark()
+      .map(
+        ({ start, end, value }) =>
+          new AwaitExpression(new Location(start, end), value),
+      ),
+
+  CallExpression: (r: P.Language) =>
+    P.seq(
+      P.alt(
+        r.Identifier,
+        r.Expression.wrap(r.LParen.trim(r.none), r.RParen.trim(r.none))
+          .mark()
+          .map(({ start, end, value }) => {
+            return new Parenthesis(new Location(start, end), value);
+          }),
+      ).skip(r.none),
+      r.ArgumentList.many(),
+    )
+      .mark()
+      .map(({ start, end, value: [callee, calls] }) => {
+        if (!calls.length) return callee;
+
+        return calls.reduce((acc, curr) => {
+          return new CallExpression(acc.loc, acc, curr);
+        }, callee);
+      }),
+
   FunctionExpression: (r: P.Language) =>
     P.seq(
-      r.ParameterList.trim(r.opt),
-      r.ParameterType.atMost(1).skip(P.string("=>").trim(r.opt)),
-      r.AsyncKeyword.atMost(1).trim(r.opt),
+      r.ParameterList.trim(r.none),
+      r.ParameterType.atMost(1).skip(P.string("=>").trim(r.none)),
+      r.AsyncKeyword.atMost(1).trim(r.none),
       r.Body,
     )
       .mark()
@@ -70,17 +101,36 @@ export const EXPRESSION = {
         );
       }),
 
+  IfExpression: (r: P.Language) =>
+    r.IfKeyword.then(
+      P.seq(r.Expression.trim(r.none), r.Body, r.ElseKeyword.then(r.Body)),
+    )
+      .mark()
+      .map(
+        ({ start, end, value: [test, consequent, alternate] }) =>
+          new IfStatement(
+            new Location(start, end),
+            test,
+            consequent,
+            alternate,
+          ),
+      ),
+
   OperatorExpression: (r: P.Language) =>
     P.seq(
       r.AccessExpression,
-      P.seq(r.Operator.wrap(r._, r.opt), r.AccessExpression).many(),
+      P.seq(r.Operator.wrap(r._, r.none), r.AccessExpression).many(),
     ).map(buildOperatorTree),
 
-  AccessExpression: (r: P.Language) =>
-    P.seq(
-      r.UnaryExpression,
-      P.seq(r.DotOperator.wrap(r._, r.opt), r.UnaryExpression).many(),
-    ).map(buildOperatorTree),
+  Primary: (r: P.Language) => P.alt(r.CallExpression, r.Primitive),
+
+  Primitive: (r: P.Language) =>
+    P.alt(
+      r.DoubleLiteral,
+      r.StringLiteral,
+      r.IntegerLiteral,
+      r.FunctionExpression,
+    ),
 
   UnaryExpression: (r: P.Language) =>
     P.seq(r.SingleMinusOperator.atMost(1), r.Primary)
@@ -91,36 +141,5 @@ export const EXPRESSION = {
         } else {
           return value[1];
         }
-      }),
-
-  Primitive: (r: P.Language) =>
-    P.alt(
-      r.DoubleLiteral,
-      r.StringLiteral,
-      r.IntegerLiteral,
-      r.FunctionExpression,
-    ),
-
-  Primary: (r: P.Language) => P.alt(r.CallExpression, r.Primitive),
-
-  CallExpression: (r: P.Language) =>
-    P.seq(
-      P.alt(
-        r.Identifier,
-        r.Expression.wrap(r.LParen.trim(r.opt), r.RParen.trim(r.opt))
-          .mark()
-          .map(({ start, end, value }) => {
-            return new Parenthesis(new Location(start, end), value);
-          }),
-      ).skip(r.opt),
-      r.ArgumentList.many(),
-    )
-      .mark()
-      .map(({ start, end, value: [callee, calls] }) => {
-        if (!calls.length) return callee;
-
-        return calls.reduce((acc, curr) => {
-          return new CallExpression(acc.loc, acc, curr);
-        }, callee);
       }),
 };

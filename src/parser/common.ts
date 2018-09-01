@@ -1,10 +1,10 @@
 import * as P from "parsimmon";
 
+import { Body } from "../ast/body";
 import { Location } from "./location";
 import { Generic } from "../ast/type";
 import { TypeParameter, Type } from "./../ast/type";
 import { FunctionParameter } from "./../ast/function";
-import { Body } from "../ast/body";
 
 const parensList = (r: P.Language, p: P.Parser<{}>) =>
   p
@@ -18,6 +18,7 @@ export const COMMON = {
   Body: (r: P.Language) =>
     r.Expression.atLeast(1)
       .wrap(r.LCurly, r.RCurly)
+      .trim(r.none)
       .mark()
       .map(
         ({ start, end, value }) => new Body(new Location(start, end), value),
