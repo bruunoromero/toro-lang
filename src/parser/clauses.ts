@@ -5,7 +5,7 @@ import { File } from "../ast/file";
 import { Location } from "./location";
 import { Module } from "../ast/module";
 import { Import } from "../ast/import";
-import { FunctionExpression } from "./../ast/function";
+import { FunctionLiteral } from "./../ast/function";
 
 const FILE = {
   File: (r: P.Language) =>
@@ -60,19 +60,26 @@ const IMPORT = {
 
 const FUNCTION_DEFINITION = {
   FunctionDefinition: (r: P.Language) =>
-    r.DefKeyword.skip(P.whitespace)
-      .then(
-        P.seq(
-          r.Identifier.or(r.Operator).skip(P.optWhitespace),
-          r.RequiredParenParameterList.atMost(1).skip(
-            P.string("=").trim(P.optWhitespace),
-          ),
-          r.Expression,
-        ),
-      )
-      .wrap(P.optWhitespace, r.end)
+    P.seq(
+      r.AsyncKeyword.atMost(1).skip(r.FunKeyword.trim(r.opt)),
+      P.alt(r.Identifier, r.Operator).skip(r.opt),
+      r.ParameterList.trim(r.opt),
+      r.ParameterType.atMost(1).trim(r.opt),
+      r.Body,
+    )
+      .trim(r.opt)
       .mark()
-      .map(({ start, end, value }) => console.log()),
+      .map(
+        ({ start, end, value: [[async], id, params, [type], body] }) =>
+          new FunctionLiteral(
+            new Location(start, end),
+            id,
+            params,
+            async,
+            body,
+            type,
+          ),
+      ),
 };
 
 export const CLAUSES = R.mergeAll([FILE, MODULE, IMPORT, FUNCTION_DEFINITION]);

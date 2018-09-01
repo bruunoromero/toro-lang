@@ -3,8 +3,8 @@ import * as R from "ramda";
 import * as P from "parsimmon";
 import { Location } from "./location";
 import { Identifier } from "../ast/identifier";
-const operator = (token: string) =>
-  P.seq(P.string(token), P.regexp(/[:^+\-*/|&!><%=]/).many())
+const operator = (token: string, atLeast = 0) =>
+  P.seq(P.string(token), P.regexp(/[:^+\-*/|&!><%=]/).atLeast(atLeast))
     .mark()
     .map(({ start, end, value }) => ({
       end,
@@ -29,8 +29,8 @@ export const OPERATORS = {
   PowerOperator: () => operator("^"),
   ModulusOperator: () => operator("%"),
   DivisionOperator: () => operator("/"),
-  EqualityOperator: () => operator("="),
   NegationOperator: () => operator("!"),
+  EqualityOperator: () => operator("=", 1),
   DotOperator: () =>
     P.string(".")
       .mark()

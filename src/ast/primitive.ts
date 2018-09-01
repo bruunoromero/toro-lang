@@ -5,12 +5,8 @@ import { Type } from "./type";
 import { Identifier } from "./identifier";
 
 export abstract class Primitive<T> extends Statement {
-  constructor(
-    public loc: Location,
-    public type: string,
-    public readonly value: T,
-  ) {
-    super(loc, new Type(loc, new Identifier(loc, type)));
+  constructor(public loc: Location, _type: string, public readonly value: T) {
+    super(loc, new Type(loc, new Identifier(loc, _type)));
   }
 
   transform() {

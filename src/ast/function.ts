@@ -1,18 +1,18 @@
 import { Body } from "./body";
 import { Node } from "./node";
 import { Type } from "./type";
-import { AssignmentExpression } from "./assignment";
+import { Statement } from "./statement";
 import { Identifier } from "./identifier";
 import { JSNode } from "./../generator/js-node";
 import { Location } from "../parser/location";
-import { Statement } from "./statement";
 
-export class FunctionExpression extends Statement {
+export class FunctionLiteral extends Statement {
   constructor(
     public readonly loc: Location,
+    public readonly id: Identifier | null,
     public readonly params: FunctionParameter[],
     public readonly async = false,
-    public readonly body: Node[],
+    public readonly body: Body,
     public readonly type?: Type,
   ) {
     super(loc, type);

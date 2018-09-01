@@ -11,7 +11,6 @@ let a = (teste: List(Int('b), 'a), t:'a) => { a }
 `;
 
 const source = Grammar.Expression.parse(`
-  let a: Int = 
-    () => { let b = 20 }
+  await 10
 `) as any;
-console.log(source);
+console.log(source.value);

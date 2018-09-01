@@ -4,7 +4,7 @@ import { Location } from "../parser/location";
 import { Identifier } from "./identifier";
 
 export class Type extends Node {
-  constructor(public readonly loc: Location, public readonly name: Identifier) {
+  constructor(public readonly loc: Location, public readonly id: Identifier) {
     super(loc);
   }
 
@@ -26,10 +26,10 @@ export class TypeParameter extends Type {
 export class Generic extends Type {
   constructor(
     public readonly loc: Location,
-    public readonly name: Identifier,
+    public readonly id: Identifier,
     public readonly params: Type[],
   ) {
-    super(loc, name);
+    super(loc, id);
   }
 
   get isConcrete() {

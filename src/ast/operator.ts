@@ -26,7 +26,7 @@ export const OPERATORS_OPT = {
 };
 
 export abstract class Operator extends Node {
-  constructor(public readonly loc: Location, public readonly name: Identifier) {
+  constructor(public readonly loc: Location, public readonly id: Identifier) {
     super(loc);
   }
 }
@@ -34,11 +34,11 @@ export abstract class Operator extends Node {
 export class BinaryOperator extends Operator {
   constructor(
     public readonly loc: Location,
-    public readonly name: Identifier,
+    public readonly id: Identifier,
     public left?: Node,
     public right?: Node,
   ) {
-    super(loc, name);
+    super(loc, id);
   }
 
   transform(): JSNode {
@@ -46,13 +46,13 @@ export class BinaryOperator extends Operator {
   }
 
   get precedence(): number {
-    const start = this.name.name[0];
+    const start = this.id.name[0];
 
     return (OPERATORS_OPT as any)[start] || 0;
   }
 
   get associativity(): OperatorAssociativity {
-    return this.name.name.endsWith(":")
+    return this.id.name.endsWith(":")
       ? OperatorAssociativity.Right
       : OperatorAssociativity.Left;
   }
@@ -68,23 +68,23 @@ export class BinaryOperator extends Operator {
       ) {
         return new BinaryOperator(
           valueOp.loc,
-          valueOp.name,
+          valueOp.id,
           valueOp.left,
-          new BinaryOperator(this.loc, this.name, valueOp.right, this.left),
+          new BinaryOperator(this.loc, this.id, valueOp.right, this.left),
         );
       } else {
-        return new BinaryOperator(this.loc, this.name, valueOp, this.right);
+        return new BinaryOperator(this.loc, this.id, valueOp, this.right);
       }
     }
 
     if (!this.left) {
-      return new BinaryOperator(this.loc, this.name, value);
+      return new BinaryOperator(this.loc, this.id, value);
     } else if (!this.right) {
-      return new BinaryOperator(this.loc, this.name, this.left, value);
+      return new BinaryOperator(this.loc, this.id, this.left, value);
     } else {
       return new BinaryOperator(
         this.loc,
-        this.name,
+        this.id,
         this.left,
         (this.right as BinaryOperator).push(value),
       );

@@ -6,10 +6,11 @@ const keyword = (word: string) =>
 
 export const KEYWORDS = {
   AsKeyword: () => keyword("as"),
-  DefKeyword: () => keyword("def"),
+  FunKeyword: () => keyword("fun"),
   LetKeyword: () => keyword("let"),
-  AsyncKeyword: () => keyword("async"),
+  AwaitKeyword: () => keyword("await"),
   ModuleKeyword: () => keyword("module"),
   ImportKeyword: () => keyword("import"),
   ExposingKeyword: () => keyword("exposing"),
+  AsyncKeyword: () => keyword("async").map(() => true),
 };

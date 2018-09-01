@@ -1,11 +1,11 @@
 import { Statement } from "./statement";
-import { Location } from "../parser/location";
 import { JSNode } from "../generator/js-node";
+import { Location } from "./../parser/location";
 
-export class Body extends Statement {
+export class AwaitExpression extends Statement {
   constructor(
     public readonly loc: Location,
-    public readonly stmts: Statement[],
+    public readonly argument: Statement,
   ) {
     super(loc);
   }

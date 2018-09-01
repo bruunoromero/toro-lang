@@ -5,8 +5,9 @@ import { Node } from "../ast/node";
 import { Location } from "./location";
 import { BinaryOperator } from "./../ast/operator";
 import { UnaryMinus, Parenthesis } from "../ast/operator";
-import { CallExpression, FunctionExpression } from "./../ast/function";
+import { CallExpression, FunctionLiteral } from "./../ast/function";
 import { AssignmentExpression } from "../ast/assignment";
+import { AwaitExpression } from "../ast/await";
 
 const buildOperatorTree = (value: any) => {
   const v = R.flatten(value);
@@ -21,7 +22,18 @@ const buildOperatorTree = (value: any) => {
 
 export const EXPRESSION = {
   Expression: (r: P.Language) =>
-    P.alt(r.AssignExpression, r.OperatorExpression).trim(r.opt),
+    P.alt(r.AssignExpression, r.AwaitExpression, r.OperatorExpression).trim(
+      r.opt,
+    ),
+
+  AwaitExpression: (r: P.Language) =>
+    r.AwaitKeyword.skip(r.opt)
+      .then(r.Expression)
+      .mark()
+      .map(
+        ({ start, end, value }) =>
+          new AwaitExpression(new Location(start, end), value),
+      ),
 
   AssignExpression: (r: P.Language) =>
     P.seq(
@@ -44,12 +56,13 @@ export const EXPRESSION = {
       r.ParameterList.trim(r.opt),
       r.ParameterType.atMost(1).skip(P.string("=>").trim(r.opt)),
       r.AsyncKeyword.atMost(1).trim(r.opt),
-      r.Expression.atLeast(1).wrap(r.LCurly, r.RCurly),
+      r.Body,
     )
       .mark()
       .map(({ start, end, value: [params, [type], [async], body] }) => {
-        return new FunctionExpression(
+        return new FunctionLiteral(
           new Location(start, end),
+          null,
           params,
           async,
           body,
@@ -80,14 +93,15 @@ export const EXPRESSION = {
         }
       }),
 
-  Primary: (r: P.Language) =>
+  Primitive: (r: P.Language) =>
     P.alt(
-      r.CallExpression,
       r.DoubleLiteral,
       r.StringLiteral,
       r.IntegerLiteral,
       r.FunctionExpression,
     ),
+
+  Primary: (r: P.Language) => P.alt(r.CallExpression, r.Primitive),
 
   CallExpression: (r: P.Language) =>
     P.seq(

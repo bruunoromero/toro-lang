@@ -4,6 +4,7 @@ import { Location } from "./location";
 import { Generic } from "../ast/type";
 import { TypeParameter, Type } from "./../ast/type";
 import { FunctionParameter } from "./../ast/function";
+import { Body } from "../ast/body";
 
 const parensList = (r: P.Language, p: P.Parser<{}>) =>
   p
@@ -13,6 +14,14 @@ const parensList = (r: P.Language, p: P.Parser<{}>) =>
 export const COMMON = {
   Reference: (r: P.Language) =>
     P.sepBy1(r.Identifier, r.DotOperator.trim(P.optWhitespace)),
+
+  Body: (r: P.Language) =>
+    r.Expression.atLeast(1)
+      .wrap(r.LCurly, r.RCurly)
+      .mark()
+      .map(
+        ({ start, end, value }) => new Body(new Location(start, end), value),
+      ),
 
   ExposingDeclaration: (r: P.Language) =>
     P.whitespace
@@ -65,9 +74,4 @@ export const COMMON = {
     r.Type.trim(P.optWhitespace)
       .sepBy1(r.Comma)
       .wrap(r.LParen, r.RParen),
-
-  Body: (r: P.Language) =>
-    r.Identifier.trim(P.optWhitespace)
-      .wrap(r.LCurly, r.RCurly)
-      .wrap(P.whitespace, r.end),
 };
