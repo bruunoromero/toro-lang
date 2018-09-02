@@ -9,7 +9,7 @@ import List
 
     const { status, value } = Grammar.ImportDeclaration.parse(sample) as any;
     expect(status).toBe(true);
-    expect((value as Import).ids.map(n => n.name)).toEqual(["List"]);
+    expect((value as Import).id.map(n => n.name)).toEqual(["List"]);
   });
 
   it("Should parse a nested path import clause", () => {
@@ -19,7 +19,7 @@ import List.Core
 
     const { status, value } = Grammar.ImportDeclaration.parse(sample) as any;
     expect(status).toBe(true);
-    expect((value as Import).ids.map(n => n.name)).toEqual(["List", "Core"]);
+    expect((value as Import).id.map(n => n.name)).toEqual(["List", "Core"]);
   });
 
   it("Should parse a nested path import clause with as", () => {
@@ -30,7 +30,7 @@ import List.Core
 
     const { status, value } = Grammar.ImportDeclaration.parse(sample) as any;
     expect(status).toBe(true);
-    expect((value as Import).ids.map(n => n.name)).toEqual(["List", "Core"]);
+    expect((value as Import).id.map(n => n.name)).toEqual(["List", "Core"]);
     expect((value as Import).alias.name).toBe("L");
   });
 
@@ -45,7 +45,7 @@ import List.Core
 
     const { status, value } = Grammar.ImportDeclaration.parse(sample) as any;
     expect(status).toBe(true);
-    expect((value as Import).ids.map(n => n.name)).toEqual(["List", "Core"]);
+    expect((value as Import).id.map(n => n.name)).toEqual(["List", "Core"]);
     expect((value as Import).exports.map(e => e.name)).toEqual([
       "create",
       "map",
@@ -60,7 +60,7 @@ import List.Core as L exposing (create, map)
     const { status, value } = Grammar.ImportDeclaration.parse(sample) as any;
     expect(status).toBe(true);
     expect((value as Import).alias.name).toBe("L");
-    expect((value as Import).ids.map(n => n.name)).toEqual(["List", "Core"]);
+    expect((value as Import).id.map(n => n.name)).toEqual(["List", "Core"]);
     expect((value as Import).exports.map(e => e.name)).toEqual([
       "create",
       "map",

@@ -1,14 +1,14 @@
-import { RecordLiteral, RecordUpdate } from "./../ast/record";
-import { ListLiteral } from "../ast/list";
 import * as P from "parsimmon";
 
-import { Location } from "./location";
-import { Identifier } from "../ast/identifier";
+import { Location } from "../ast/location";
+import { ListLiteral } from "../ast/list";
+import { TupleLiteral } from "./../ast/tuple";
 import { StringLiteral } from "../ast/string";
 import { DoubleLiteral } from "../ast/double";
+import { Identifier } from "../ast/identifier";
 import { IntegerLiteral } from "../ast/integer";
 import { FunctionLiteral } from "../ast/function";
-import { RecordProperty } from "../ast/record";
+import { RecordProperty, RecordLiteral, RecordUpdate } from "../ast/record";
 
 export const PRIMITIVES = {
   Identifier: () =>
@@ -65,11 +65,11 @@ export const PRIMITIVES = {
 
   RecordProperties: (r: P.Language) =>
     P.seq(r.Identifier.skip(r.Assign.trim(r.none)), r.Expression)
-      .sepBy(r.Comma.trim(r.none))
       .mark()
-      .map(({ start, end, value }) =>
+      .sepBy(r.Comma.trim(r.none))
+      .map(value =>
         value.map(
-          ([key, expr]) =>
+          ({ start, end, value: [key, expr] }) =>
             new RecordProperty(new Location(start, end), key, expr),
         ),
       ),
@@ -89,6 +89,15 @@ export const PRIMITIVES = {
       .map(
         ({ start, end, value: [id, props] }) =>
           new RecordUpdate(new Location(start, end), id, props),
+      ),
+
+  TupleLiteral: (r: P.Language) =>
+    r.Expression.sepBy(r.Comma.trim(r.none))
+      .wrap(r.LCurly.trim(r.none), r.RCurly.trim(r.none))
+      .mark()
+      .map(
+        ({ start, end, value }) =>
+          new TupleLiteral(new Location(start, end), value),
       ),
 
   FunctionLiteral: (r: P.Language) =>

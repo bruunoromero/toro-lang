@@ -1,5 +1,5 @@
 import { Primitive } from "./primitive";
-import { Location } from "../parser/location";
+import { Location } from "./location";
 
 export class StringLiteral extends Primitive<string> {
   constructor(public readonly loc: Location, public readonly value: string) {

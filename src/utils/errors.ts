@@ -1,4 +1,4 @@
-import { Position } from "./../parser/location";
+import { Position } from "../ast/location";
 export function duplicatedDefinition(definition: any) {}
 
 export function unexpectedEndOfInput() {

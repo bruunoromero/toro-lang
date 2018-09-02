@@ -1,7 +1,7 @@
 export interface Position {
   line: number;
-  offset?: number;
   column: number;
+  offset?: number;
 }
 
 export class Location {

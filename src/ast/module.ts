@@ -1,6 +1,6 @@
 import { Node } from "./node";
 import { Identifier } from "./identifier";
-import { Location } from "../parser/location";
+import { Location } from "./location";
 import { JSNode } from "../generator/js-node";
 
 export class Module extends Node {

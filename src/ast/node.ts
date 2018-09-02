@@ -1,5 +1,5 @@
 import { JSNode } from "../generator/js-node";
-import { Location } from "./../parser/location";
+import { Location } from "./location";
 
 export abstract class Node {
   constructor(public readonly loc: Location) {}

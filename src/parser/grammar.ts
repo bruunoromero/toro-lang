@@ -1,12 +1,13 @@
 import * as R from "ramda";
 import * as P from "parsimmon";
 
-import { PRIMITIVES } from "./primitives";
+import { TYPES } from "./types";
 import { COMMON } from "./common";
 import { CLAUSES } from "./clauses";
 import { KEYWORDS } from "./keywords";
 import { SPECIALS } from "./specials";
 import { OPERATORS } from "./operators";
+import { PRIMITIVES } from "./primitives";
 import { EXPRESSION } from "./expression";
 
 export const Grammar = P.createLanguage(
@@ -16,6 +17,7 @@ export const Grammar = P.createLanguage(
     KEYWORDS,
     PRIMITIVES,
     COMMON,
+    TYPES,
     EXPRESSION,
     CLAUSES,
   ]),

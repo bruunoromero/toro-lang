@@ -1,8 +1,8 @@
 import * as P from "parsimmon";
 
 import { Body } from "../ast/body";
-import { Location } from "./location";
-import { Generic } from "../ast/type";
+import { Location } from "../ast/location";
+import { Generic, FirstTypeNode } from "../ast/type";
 import { TypeParameter, Type } from "./../ast/type";
 import { FunctionParameter } from "./../ast/function";
 
@@ -13,7 +13,11 @@ const parensList = (r: P.Language, p: P.Parser<{}>) =>
 
 export const COMMON = {
   Reference: (r: P.Language) =>
-    P.sepBy1(r.Identifier, r.DotOperator.trim(P.optWhitespace)),
+    P.sepBy1(r.Identifier, r.DotOperator.trim(r.none)).map(value =>
+      value
+        .slice(1)
+        .reduce((acc, curr) => acc.push(curr), new FirstTypeNode(value[0])),
+    ),
 
   Body: (r: P.Language) =>
     r.Expression.atLeast(1)
@@ -40,31 +44,6 @@ export const COMMON = {
   ArgumentList: (r: P.Language) => parensList(r, r.Expression),
 
   ParameterList: (r: P.Language) => parensList(r, r.Parameter),
-
-  Type: (r: P.Language) =>
-    P.seq(r.Reference, r.TypeParameterList.atMost(1))
-      .or(r.Generic)
-      .mark()
-      .map(({ value, start, end }) => {
-        if (value[0]) {
-          if (value[1][0]) {
-            return new Generic(
-              new Location(start, end),
-              value[0][0],
-              value[1][0],
-            );
-          } else {
-            return new Type(new Location(start, end), value[0][0]);
-          }
-        } else {
-          return new TypeParameter(new Location(start, end), value);
-        }
-      }),
-
-  TypeParameterList: (r: P.Language) =>
-    r.Type.trim(P.optWhitespace)
-      .sepBy1(r.Comma)
-      .wrap(r.LParen, r.RParen),
 
   Parameter: (r: P.Language) =>
     P.seq(r.Identifier, r.ParameterType)

@@ -2,7 +2,7 @@ import { Type } from "./type";
 import { ContextNode } from "./node";
 import { Statement } from "./statement";
 import { Identifier } from "./identifier";
-import { Location } from "../parser/location";
+import { Location } from "./location";
 import { JSNode } from "../generator/js-node";
 
 export class RecordPropertyType extends ContextNode {
@@ -21,7 +21,7 @@ export class RecordType extends Type {
     public readonly id: Identifier,
     public readonly properties: RecordPropertyType[],
   ) {
-    super(loc, id);
+    super(loc);
   }
 }
 

@@ -1,7 +1,7 @@
 import { BinaryOperator } from "./../ast/operator";
 import * as R from "ramda";
 import * as P from "parsimmon";
-import { Location } from "./location";
+import { Location } from "../ast/location";
 import { Identifier } from "../ast/identifier";
 const operator = (token: string, atLeast = 0) =>
   P.seq(P.string(token), P.regexp(/[:^+\-*/|&!><%=]/).atLeast(atLeast))

@@ -4,7 +4,17 @@ import { Type } from "./type";
 import { Statement } from "./statement";
 import { Identifier } from "./identifier";
 import { JSNode } from "./../generator/js-node";
-import { Location } from "../parser/location";
+import { Location } from "./location";
+
+export class FunctionType extends Type {
+  constructor(
+    public readonly loc: Location,
+    public readonly params: Type[],
+    public readonly type: Type,
+  ) {
+    super(loc);
+  }
+}
 
 export class FunctionLiteral extends Statement {
   constructor(

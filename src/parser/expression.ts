@@ -2,7 +2,7 @@ import * as R from "ramda";
 import * as P from "parsimmon";
 
 import { Node } from "../ast/node";
-import { Location } from "./location";
+import { Location } from "../ast/location";
 import { IfStatement } from "../ast/if";
 import { AwaitExpression } from "../ast/await";
 import { BinaryOperator } from "./../ast/operator";

@@ -1,15 +1,10 @@
-import { Node } from "./node";
-import { JSNode } from "../generator/js-node";
-import { Location } from "../parser/location";
+import { ContextNode } from "./node";
 import { Identifier } from "./identifier";
+import { Location } from "./location";
 
-export class Type extends Node {
-  constructor(public readonly loc: Location, public readonly id: Identifier) {
+export class Type extends ContextNode {
+  constructor(public readonly loc: Location) {
     super(loc);
-  }
-
-  transform(): JSNode {
-    throw new Error("Method not implemented.");
   }
 
   get isConcrete() {
@@ -17,7 +12,36 @@ export class Type extends Node {
   }
 }
 
-export class TypeParameter extends Type {
+export class FirstTypeNode extends Type {
+  constructor(
+    public readonly id: Identifier,
+    public readonly next?: FirstTypeNode,
+  ) {
+    super(id.loc);
+  }
+
+  push(id: Identifier): FirstTypeNode {
+    if (this.next) {
+      return this.next.push(id);
+    } else {
+      return new FirstTypeNode(this.id, new FirstTypeNode(id));
+    }
+  }
+
+  map<T>(fn: (id: Identifier) => T): T[] {
+    const res = [];
+    let curr: FirstTypeNode | undefined = this;
+
+    do {
+      res.push(fn(curr.id));
+      curr = curr.next;
+    } while (curr);
+
+    return res;
+  }
+}
+
+export class TypeParameter extends FirstTypeNode {
   get isConcrete() {
     return false;
   }
@@ -26,10 +50,10 @@ export class TypeParameter extends Type {
 export class Generic extends Type {
   constructor(
     public readonly loc: Location,
-    public readonly id: Identifier,
+    public readonly id: FirstTypeNode,
     public readonly params: Type[],
   ) {
-    super(loc, id);
+    super(loc);
   }
 
   get isConcrete() {

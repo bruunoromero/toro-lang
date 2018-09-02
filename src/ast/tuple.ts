@@ -1,15 +1,18 @@
 import { Type } from "./type";
 import { Statement } from "./statement";
-import { Identifier } from "./identifier";
 import { Location } from "./location";
 import { JSNode } from "../generator/js-node";
 
-export class AssignmentExpression extends Statement {
+export class TupleType extends Type {
+  constructor(public readonly loc: Location, public readonly types: Type[]) {
+    super(loc);
+  }
+}
+
+export class TupleLiteral extends Statement {
   constructor(
     public readonly loc: Location,
-    public readonly name: Identifier,
-    public readonly value: Statement,
-    public readonly type?: Type,
+    public readonly properties: Statement[],
   ) {
     super(loc);
   }

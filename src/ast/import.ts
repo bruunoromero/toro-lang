@@ -1,12 +1,13 @@
 import { Node } from "./node";
+import { FirstTypeNode } from "./type";
 import { Identifier } from "./identifier";
 import { JSNode } from "../generator/js-node";
-import { Location } from "../parser/location";
+import { Location } from "./location";
 
 export class Import extends Node {
   constructor(
     public readonly loc: Location,
-    public readonly ids: Identifier[],
+    public readonly id: FirstTypeNode,
     public readonly alias?: Identifier,
     public readonly exports?: Identifier[],
   ) {

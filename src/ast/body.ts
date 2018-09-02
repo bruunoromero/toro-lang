@@ -1,5 +1,5 @@
 import { Statement } from "./statement";
-import { Location } from "../parser/location";
+import { Location } from "./location";
 import { JSNode } from "../generator/js-node";
 
 export class Body extends Statement {

@@ -2,7 +2,7 @@ import * as R from "ramda";
 import * as P from "parsimmon";
 
 import { File } from "../ast/file";
-import { Location } from "./location";
+import { Location } from "../ast/location";
 import { Module } from "../ast/module";
 import { Import, Extern } from "../ast/import";
 import { StringLiteral } from "./../ast/string";
@@ -114,11 +114,11 @@ const DEFINITION = {
 
   RecordPropertiesType: (r: P.Language) =>
     P.seq(r.Identifier.skip(r.Colon.trim(r.none)), r.Type)
-      .sepBy(r.Comma.trim(r.none))
       .mark()
-      .map(({ start, end, value }) =>
+      .sepBy(r.Comma.trim(r.none))
+      .map(value =>
         value.map(
-          ([key, type]) =>
+          ({ start, end, value: [key, type] }) =>
             new RecordPropertyType(new Location(start, end), key, type),
         ),
       ),

@@ -1,7 +1,7 @@
 import { Body } from "./body";
 import { Statement } from "./statement";
 import { JSNode } from "../generator/js-node";
-import { Location } from "./../parser/location";
+import { Location } from "./location";
 
 export class IfStatement extends Statement {
   constructor(
