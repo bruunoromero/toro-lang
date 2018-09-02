@@ -13,5 +13,5 @@ let a = (teste: List(Int('b), 'a), t:'a) => { a }
 `;
 
 const source = Grammar.Definition.parse(
-  `type A('a, 'b) = Teste({String}, 'a)`,
+  `type A('a, 'b) = Teste({String}, 'a) | tes`,
 ) as any;

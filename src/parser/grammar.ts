@@ -4,6 +4,7 @@ import * as P from "parsimmon";
 import { TYPES } from "./types";
 import { COMMON } from "./common";
 import { CLAUSES } from "./clauses";
+import { PATTERN } from "./patterns";
 import { KEYWORDS } from "./keywords";
 import { SPECIALS } from "./specials";
 import { OPERATORS } from "./operators";
@@ -18,6 +19,7 @@ export const Grammar = P.createLanguage(
     PRIMITIVES,
     COMMON,
     TYPES,
+    PATTERN,
     EXPRESSION,
     CLAUSES,
   ]),
