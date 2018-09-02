@@ -22,6 +22,7 @@ export class FunctionLiteral extends Statement {
     public readonly id: Identifier | null,
     public readonly params: FunctionParameter[],
     public readonly async = false,
+    public readonly recursive = false,
     public readonly body: Body,
     public readonly type?: Type,
   ) {

@@ -12,4 +12,5 @@ import List as L exposing (create)
 let a = (teste: List(Int('b), 'a), t:'a) => { a }
 `;
 
-const source = Grammar.Type.parse(`(Int) => Int`) as any;
+const source = Grammar.Expression.parse(`a = () => async { 10 }`) as any;
+console.log(source);

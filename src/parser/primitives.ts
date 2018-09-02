@@ -108,12 +108,15 @@ export const PRIMITIVES = {
       r.Body,
     )
       .mark()
-      .map(({ start, end, value: [params, [type], [async], body] }) => {
+      .map(({ start, end, value: [params, [type], [hasAsync], body] }) => {
+        const async = (hasAsync && hasAsync === "async") || false;
+
         return new FunctionLiteral(
           new Location(start, end),
           null,
           params,
           async,
+          false,
           body,
           type,
         );

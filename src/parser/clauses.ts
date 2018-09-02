@@ -83,7 +83,9 @@ const IMPORT = {
 const DEFINITION = {
   FunctionDefinition: (r: P.Language) =>
     P.seq(
-      r.AsyncKeyword.atMost(1).skip(r.FunKeyword.trim(r.none)),
+      P.alt(r.AsyncKeyword, r.RecKeyword)
+        .atMost(1)
+        .skip(r.FunKeyword.trim(r.none)),
       P.alt(r.Identifier, r.Operator).skip(r.none),
       r.ParameterList.trim(r.none),
       r.ParameterType.atMost(1).trim(r.none),
@@ -92,15 +94,20 @@ const DEFINITION = {
       .trim(r.none)
       .mark()
       .map(
-        ({ start, end, value: [[async], id, params, [type], body] }) =>
-          new FunctionLiteral(
+        ({ start, end, value: [[asyncOrRec], id, params, [type], body] }) => {
+          const rec = (asyncOrRec && asyncOrRec === "rec") || false;
+          const async = (asyncOrRec && asyncOrRec === "async") || false;
+
+          return new FunctionLiteral(
             new Location(start, end),
             id,
             params,
             async,
+            rec,
             body,
             type,
-          ),
+          );
+        },
       ),
 
   DataDefinition: (r: P.Language) =>

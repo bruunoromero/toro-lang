@@ -38,14 +38,23 @@ export const EXPRESSION = {
 
   AssignExpression: (r: P.Language) =>
     P.seq(
-      r.LetKeyword.skip(P.whitespace).then(r.Identifier),
+      P.seq(
+        r.LetKeyword.skip(r.none),
+        r.MutKeyword.atMost(1).skip(r.none),
+      ).atMost(1),
+      r.Identifier,
       r.ParameterType.atMost(1).skip(r.Assign.trim(r.none)),
       r.Expression,
     )
       .mark()
-      .map(({ start, end, value: [id, [type], stmt] }) => {
+      .map(({ start, end, value: [[st], id, [type], stmt] }) => {
+        const definition = st && st[0];
+        const mutable = st && st[1][0];
+
         return new AssignmentExpression(
           new Location(start, end),
+          definition,
+          mutable,
           id,
           stmt,
           type,
