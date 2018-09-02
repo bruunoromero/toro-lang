@@ -41,16 +41,6 @@ export const COMMON = {
 
   ParameterList: (r: P.Language) => parensList(r, r.Parameter),
 
-  Parameter: (r: P.Language) =>
-    P.seq(r.Identifier, r.ParameterType)
-      .mark()
-      .map(
-        ({ start, end, value }) =>
-          new FunctionParameter(new Location(start, end), value[0], value[1]),
-      ),
-
-  ParameterType: (r: P.Language) => r.Colon.trim(P.optWhitespace).then(r.Type),
-
   Type: (r: P.Language) =>
     P.seq(r.Reference, r.TypeParameterList.atMost(1))
       .or(r.Generic)
@@ -75,4 +65,14 @@ export const COMMON = {
     r.Type.trim(P.optWhitespace)
       .sepBy1(r.Comma)
       .wrap(r.LParen, r.RParen),
+
+  Parameter: (r: P.Language) =>
+    P.seq(r.Identifier, r.ParameterType)
+      .mark()
+      .map(
+        ({ start, end, value }) =>
+          new FunctionParameter(new Location(start, end), value[0], value[1]),
+      ),
+
+  ParameterType: (r: P.Language) => r.Colon.trim(P.optWhitespace).then(r.Type),
 };

@@ -1,8 +1,29 @@
-import { Identifier } from "./identifier";
-import { Node } from "./node";
+import { Type } from "./type";
+import { ContextNode } from "./node";
 import { Statement } from "./statement";
+import { Identifier } from "./identifier";
 import { Location } from "../parser/location";
 import { JSNode } from "../generator/js-node";
+
+export class RecordPropertyType extends ContextNode {
+  constructor(
+    public readonly loc: Location,
+    public readonly key: Identifier,
+    public readonly type: Type,
+  ) {
+    super(loc);
+  }
+}
+
+export class RecordType extends Type {
+  constructor(
+    public readonly loc: Location,
+    public readonly id: Identifier,
+    public readonly properties: RecordPropertyType[],
+  ) {
+    super(loc, id);
+  }
+}
 
 export class RecordLiteral extends Statement {
   constructor(
@@ -31,16 +52,12 @@ export class RecordUpdate extends Statement {
   }
 }
 
-export class RecordProperty extends Node {
+export class RecordProperty extends ContextNode {
   constructor(
     public readonly loc: Location,
     public readonly key: Identifier,
     public readonly value: Statement,
   ) {
     super(loc);
-  }
-
-  transform(): JSNode {
-    throw new Error("Method not implemented.");
   }
 }

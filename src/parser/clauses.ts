@@ -7,6 +7,8 @@ import { Module } from "../ast/module";
 import { Import, Extern } from "../ast/import";
 import { StringLiteral } from "./../ast/string";
 import { FunctionLiteral } from "./../ast/function";
+import { Generic, Type, TypeParameter } from "../ast/type";
+import { RecordPropertyType, RecordType } from "../ast/record";
 
 const FILE = {
   File: (r: P.Language) =>
@@ -57,7 +59,7 @@ const IMPORT = {
       ),
 
   ImportDeclaration: (r: P.Language) =>
-    r.ImportKeyword.skip(P.whitespace)
+    r.ImportKeyword.skip(r.none)
       .then(
         P.seq(
           r.Reference,
@@ -78,7 +80,7 @@ const IMPORT = {
       ),
 };
 
-const FUNCTION_DEFINITION = {
+const DEFINITION = {
   FunctionDefinition: (r: P.Language) =>
     P.seq(
       r.AsyncKeyword.atMost(1).skip(r.FunKeyword.trim(r.none)),
@@ -100,6 +102,29 @@ const FUNCTION_DEFINITION = {
             type,
           ),
       ),
+
+  DataDefinition: (r: P.Language) =>
+    r.DataKeyword.skip(r.none)
+      .then(P.seq(r.Identifier.skip(r.Assign.trim(r.none)), r.RecordType))
+      .mark()
+      .map(
+        ({ start, end, value: [id, props] }) =>
+          new RecordType(new Location(start, end), id, props),
+      ),
+
+  RecordPropertiesType: (r: P.Language) =>
+    P.seq(r.Identifier.skip(r.Colon.trim(r.none)), r.Type)
+      .sepBy(r.Comma.trim(r.none))
+      .mark()
+      .map(({ start, end, value }) =>
+        value.map(
+          ([key, type]) =>
+            new RecordPropertyType(new Location(start, end), key, type),
+        ),
+      ),
+
+  RecordType: (r: P.Language) =>
+    r.RecordPropertiesType.wrap(r.LCurly.trim(r.none), r.RCurly.trim(r.none)),
 };
 
-export const CLAUSES = R.mergeAll([FILE, MODULE, IMPORT, FUNCTION_DEFINITION]);
+export const CLAUSES = R.mergeAll([FILE, MODULE, IMPORT, DEFINITION]);

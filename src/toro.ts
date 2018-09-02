@@ -1,4 +1,3 @@
-import { RecordUpdate } from "./ast/record";
 import { Grammar } from "./parser/grammar";
 
 const sample = `
@@ -13,8 +12,8 @@ import List as L exposing (create)
 let a = (teste: List(Int('b), 'a), t:'a) => { a }
 `;
 
-const source = Grammar.Expression.parse(
-  `{ x | teste = 20, tt = [1, 2, 3] }.tt`,
+const source = Grammar.DataDefinition.parse(
+  `data Person = { name: String }`,
 ) as any;
 
-console.log(source.value.left.properties);
+console.log(source.value);
