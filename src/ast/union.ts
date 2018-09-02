@@ -7,7 +7,7 @@ export class Constructor extends ContextNode {
   constructor(
     public readonly loc: Location,
     public readonly id: Identifier,
-    public readonly params: Type[],
+    public readonly params: Type[] = [],
   ) {
     super(loc);
   }
@@ -17,7 +17,7 @@ export class Union extends Type {
   constructor(
     public readonly loc: Location,
     public readonly id: Identifier,
-    public readonly params: Identifier[],
+    public readonly params: Identifier[] = [],
     public readonly constructors: Constructor[],
   ) {
     super(loc);

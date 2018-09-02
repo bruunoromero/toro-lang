@@ -8,6 +8,7 @@ export const KEYWORDS = {
   FunKeyword: () => keyword("fun"),
   ElseKeyword: () => keyword("else"),
   DataKeyword: () => keyword("data"),
+  TypeKeyword: () => keyword("type"),
   AwaitKeyword: () => keyword("await"),
   ModuleKeyword: () => keyword("module"),
   ImportKeyword: () => keyword("import"),

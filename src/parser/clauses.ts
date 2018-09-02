@@ -1,3 +1,4 @@
+import { Constructor, Union } from "./../ast/union";
 import * as R from "ramda";
 import * as P from "parsimmon";
 
@@ -81,6 +82,9 @@ const IMPORT = {
 };
 
 const DEFINITION = {
+  Definition: (r: P.Language) =>
+    P.alt(r.FunctionDefinition, r.DataDefinition, r.UnionDefinition),
+
   FunctionDefinition: (r: P.Language) =>
     P.seq(
       P.alt(r.AsyncKeyword, r.RecKeyword)
@@ -108,6 +112,36 @@ const DEFINITION = {
             type,
           );
         },
+      ),
+
+  UnionType: (r: P.Language) =>
+    P.seq(
+      r.Identifier.skip(r.none),
+      r.Generic.sepBy(r.Comma.trim(r.none))
+        .wrap(r.LParen.trim(r.none), r.RParen.trim(r.none))
+        .atMost(1),
+    ),
+
+  UnionContructorType: (r: P.Language) =>
+    P.seq(r.Identifier.skip(r.none), r.TypeParameterList.atMost(1))
+      .mark()
+      .map(
+        ({ start, end, value: [id, [params]] }) =>
+          new Constructor(new Location(start, end), id, params),
+      ),
+
+  UnionDefinition: (r: P.Language) =>
+    r.TypeKeyword.skip(r.none)
+      .then(
+        P.seq(
+          r.UnionType.skip(r.Assign.trim(r.none)),
+          r.UnionContructorType.sepBy1(r.Pipe.trim(r.none)),
+        ),
+      )
+      .mark()
+      .map(
+        ({ start, end, value: [[id, [params]], ctors] }) =>
+          new Union(new Location(start, end), id, params, ctors),
       ),
 
   DataDefinition: (r: P.Language) =>
