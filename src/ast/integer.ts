@@ -14,7 +14,7 @@ export class IntegerPattern extends Pattern {
 }
 
 export class IntegerLiteral extends Primitive<number> {
-  constructor(public readonly loc: Location, public readonly value: number) {
+  constructor(loc: Location, value: number) {
     super(loc, "Int", value);
   }
 }

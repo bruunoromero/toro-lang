@@ -1,37 +1,44 @@
-import { IntegerPattern } from "./../ast/integer";
-import * as R from "ramda";
 import * as P from "parsimmon";
 
 import { ListPattern } from "../ast/list";
+import { CharPattern } from "../ast/char";
 import { Location } from "../ast/location";
 import { TuplePattern } from "../ast/tuple";
 import { StringPattern } from "../ast/string";
-import { ConcatPattern } from "../ast/pattern";
 import { DoublePattern } from "../ast/double";
-import { IdentifierPattern } from "../ast/identifier";
+import { ConcatPattern } from "../ast/pattern";
+import { IntegerPattern } from "./../ast/integer";
+import { ConstructorPattern } from "./../ast/union";
 
 export const PATTERN = {
-  Pattern: (r: P.Language) => P.alt(r.ListPattern).trim(r.none),
+  Pattern: (r: P.Language) =>
+    P.alt(
+      r.CharPattern,
+      r.ListPattern,
+      r.TuplePattern,
+      r.StringPattern,
+      r.DoublePattern,
+      r.IntegerPattern,
+      r.ConstructorPattern,
+    )
+      .sepBy(P.string("::").trim(r.none))
+      .trim(r.none)
+      .mark()
+      .map(({ start, end, value }) => {
+        if (value.length > 1) {
+          return new ConcatPattern(new Location(start, end), value);
+        } else {
+          return value[0];
+        }
+      }),
 
   ListPattern: (r: P.Language) =>
     r.Pattern.sepBy(r.Comma.trim(r.none))
       .wrap(r.LBrace.trim(r.none), r.RBrace.trim(r.none))
       .mark()
-      .map(
-        ({ start, end, value }) =>
-          new ListPattern(new Location(start, end), value),
-      ),
-
-  ConcatPattern: (r: P.Language) =>
-    P.seq(
-      r.Pattern.skip(P.string("::").trim(r.none)),
-      r.Pattern.sepBy1(P.string("::").trim(r.none)),
-    )
-      .mark()
-      .map(
-        ({ start, end, value: [first, rest] }) =>
-          new ConcatPattern(new Location(start, end), R.insert(0, first, rest)),
-      ),
+      .map(({ start, end, value }) => {
+        return new ListPattern(new Location(start, end), value);
+      }),
 
   TuplePattern: (r: P.Language) =>
     r.Pattern.sepBy1(r.Comma.trim(r.none))
@@ -42,8 +49,21 @@ export const PATTERN = {
           new TuplePattern(new Location(start, end), value),
       ),
 
-  IdentifierPattern: (r: P.Language) =>
-    r.Identifier.map(id => new IdentifierPattern(id)),
+  ConstructorPattern: (r: P.Language) =>
+    P.seq(
+      r.Reference,
+      r.Pattern.sepBy1(r.Comma.trim(r.none))
+        .wrap(r.LParen.trim(r.none), r.RParen.trim(r.none))
+        .atMost(1),
+    )
+      .mark()
+      .map(
+        ({ start, end, value: [ref, [patterns]] }) =>
+          new ConstructorPattern(new Location(start, end), ref, patterns),
+      ),
+
+  CharPattern: (r: P.Language) =>
+    r.CharLiteral.map(char => new CharPattern(char)),
 
   StringPattern: (r: P.Language) =>
     r.StringLiteral.map(str => new StringPattern(str)),
@@ -52,5 +72,5 @@ export const PATTERN = {
     r.IntegerLiteral.map(int => new IntegerPattern(int)),
 
   DoublePattern: (r: P.Language) =>
-    r.IntegerLiteral.map(doub => new DoublePattern(doub)),
+    r.DoubleLiteral.map(doub => new DoublePattern(doub)),
 };

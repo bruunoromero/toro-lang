@@ -8,7 +8,7 @@ import { Location } from "./location";
 
 export class FunctionType extends Type {
   constructor(
-    public readonly loc: Location,
+    loc: Location,
     public readonly params: Type[],
     public readonly type: Type,
   ) {
@@ -18,13 +18,13 @@ export class FunctionType extends Type {
 
 export class FunctionLiteral extends Statement {
   constructor(
-    public readonly loc: Location,
+    loc: Location,
     public readonly id: Identifier | null,
     public readonly params: FunctionParameter[],
     public readonly async = false,
     public readonly recursive = false,
     public readonly body: Body,
-    public readonly type?: Type,
+    type?: Type,
   ) {
     super(loc, type);
   }
@@ -36,7 +36,7 @@ export class FunctionLiteral extends Statement {
 
 export class FunctionParameter extends Node {
   constructor(
-    public readonly loc: Location,
+    loc: Location,
     public readonly id: Identifier,
     public readonly type: Type,
   ) {
@@ -50,7 +50,7 @@ export class FunctionParameter extends Node {
 
 export class CallExpression extends Statement {
   constructor(
-    public readonly loc: Location,
+    loc: Location,
     public readonly callee: Statement,
     public readonly params: Statement[],
   ) {

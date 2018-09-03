@@ -6,7 +6,7 @@ import { Location } from "./location";
 
 export class Import extends Node {
   constructor(
-    public readonly loc: Location,
+    loc: Location,
     public readonly id: FirstTypeNode,
     public readonly alias?: Identifier,
     public readonly exports?: Identifier[],
@@ -21,7 +21,7 @@ export class Import extends Node {
 
 export class Extern extends Node {
   constructor(
-    public readonly loc: Location,
+    loc: Location,
     public readonly path: string,
     public readonly alias?: Identifier,
   ) {

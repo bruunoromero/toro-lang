@@ -26,15 +26,15 @@ export const OPERATORS_OPT = {
 };
 
 export abstract class Operator extends Node {
-  constructor(public readonly loc: Location, public readonly id: Identifier) {
+  constructor(loc: Location, public readonly id: Identifier) {
     super(loc);
   }
 }
 
 export class BinaryOperator extends Operator {
   constructor(
-    public readonly loc: Location,
-    public readonly id: Identifier,
+    loc: Location,
+    id: Identifier,
     public left?: Node,
     public right?: Node,
   ) {
@@ -93,7 +93,7 @@ export class BinaryOperator extends Operator {
 }
 
 export class UnaryMinus extends Operator {
-  constructor(public readonly loc: Location, public readonly value: Node) {
+  constructor(loc: Location, public readonly value: Node) {
     super(loc, new Identifier(loc, "-"));
   }
 
@@ -103,7 +103,7 @@ export class UnaryMinus extends Operator {
 }
 
 export class Parenthesis extends Operator {
-  constructor(public readonly loc: Location, public readonly value: Node) {
+  constructor(loc: Location, public readonly value: Node) {
     super(loc, new Identifier(loc, "()"));
   }
 

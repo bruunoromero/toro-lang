@@ -3,7 +3,7 @@ import { Identifier } from "./identifier";
 import { Location } from "./location";
 
 export class Type extends ContextNode {
-  constructor(public readonly loc: Location) {
+  constructor(loc: Location) {
     super(loc);
   }
 
@@ -49,7 +49,7 @@ export class TypeParameter extends FirstTypeNode {
 
 export class Generic extends Type {
   constructor(
-    public readonly loc: Location,
+    loc: Location,
     public readonly id: FirstTypeNode,
     public readonly params: Type[],
   ) {

@@ -14,7 +14,7 @@ export class DoublePattern extends Pattern {
 }
 
 export class DoubleLiteral extends Primitive<number> {
-  constructor(public readonly loc: Location, public readonly value: number) {
+  constructor(loc: Location, value: number) {
     super(loc, "Double", value);
   }
 }

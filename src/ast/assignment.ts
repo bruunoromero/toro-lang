@@ -6,14 +6,14 @@ import { JSNode } from "../generator/js-node";
 
 export class AssignmentExpression extends Statement {
   constructor(
-    public readonly loc: Location,
+    loc: Location,
     public readonly definition = false,
     public readonly mutable = false,
-    public readonly name: Identifier,
+    public readonly id: Identifier,
     public readonly value: Statement,
-    public readonly type?: Type,
+    type?: Type,
   ) {
-    super(loc);
+    super(loc, type);
   }
 
   transform(): JSNode {

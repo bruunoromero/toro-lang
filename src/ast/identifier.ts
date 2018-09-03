@@ -14,7 +14,7 @@ export class IdentifierPattern extends Pattern {
 }
 
 export class Identifier extends Node {
-  constructor(public readonly loc: Location, public readonly name: string) {
+  constructor(loc: Location, public readonly name: string) {
     super(loc);
   }
 

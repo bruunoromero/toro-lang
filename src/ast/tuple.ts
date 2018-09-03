@@ -5,7 +5,7 @@ import { JSNode } from "../generator/js-node";
 import { DerivatedPattern } from "./pattern";
 
 export class TupleType extends Type {
-  constructor(public readonly loc: Location, public readonly types: Type[]) {
+  constructor(loc: Location, public readonly types: Type[]) {
     super(loc);
   }
 }
@@ -17,10 +17,7 @@ export class TuplePattern extends DerivatedPattern {
 }
 
 export class TupleLiteral extends Statement {
-  constructor(
-    public readonly loc: Location,
-    public readonly properties: Statement[],
-  ) {
+  constructor(loc: Location, public readonly properties: Statement[]) {
     super(loc);
   }
 

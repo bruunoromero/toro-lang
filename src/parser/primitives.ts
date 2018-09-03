@@ -1,7 +1,8 @@
 import * as P from "parsimmon";
 
-import { Location } from "../ast/location";
 import { ListLiteral } from "../ast/list";
+import { Location } from "../ast/location";
+import { CharLiteral } from "./../ast/char";
 import { TupleLiteral } from "./../ast/tuple";
 import { StringLiteral } from "../ast/string";
 import { DoubleLiteral } from "../ast/double";
@@ -12,7 +13,7 @@ import { RecordProperty, RecordLiteral, RecordUpdate } from "../ast/record";
 
 export const PRIMITIVES = {
   Identifier: () =>
-    P.regexp(/[a-zA-Z][a-zA-Z0-9]*/)
+    P.regexp(/[a-zA-Z_][a-zA-Z0-9_]*/)
       .mark()
       .map(
         ({ start, end, value }) =>
@@ -20,7 +21,7 @@ export const PRIMITIVES = {
       ),
 
   Generic: () =>
-    P.regexp(/'[a-z]/)
+    P.regexp(/'[a-z]+/)
       .mark()
       .map(
         ({ start, end, value }) =>
@@ -34,6 +35,15 @@ export const PRIMITIVES = {
         ({ start, end, value }) =>
           new StringLiteral(new Location(start, end), value.slice(1, -1)),
       ),
+
+  CharLiteral: () =>
+    P.regexp(/'.'/)
+      .mark()
+      .map(
+        ({ start, end, value }) =>
+          new CharLiteral(new Location(start, end), value.slice(1, -1)),
+      ),
+
   IntegerNumber: () => P.regexp(/0|[1-9][0-9]*/),
 
   IntegerLiteral: (r: P.Language) =>

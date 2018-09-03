@@ -5,7 +5,7 @@ import { Location } from "./location";
 
 export class IfStatement extends Statement {
   constructor(
-    public readonly loc: Location,
+    loc: Location,
     public readonly test: Statement,
     public readonly consequent: Body,
     public readonly alternate: Body,

@@ -14,7 +14,7 @@ export class StringPattern extends Pattern {
 }
 
 export class StringLiteral extends Primitive<string> {
-  constructor(public readonly loc: Location, public readonly value: string) {
+  constructor(loc: Location, value: string) {
     super(loc, "String", value);
   }
 }

@@ -5,7 +5,7 @@ import { Location } from "./location";
 import { DerivatedPattern } from "./pattern";
 
 export class ListType extends Type {
-  constructor(public readonly loc: Location, public readonly type: Type) {
+  constructor(loc: Location, public readonly type: Type) {
     super(loc);
   }
 }
@@ -17,10 +17,7 @@ export class ListPattern extends DerivatedPattern {
 }
 
 export class ListLiteral extends Statement {
-  constructor(
-    public readonly loc: Location,
-    public readonly elements: Statement[],
-  ) {
+  constructor(loc: Location, public readonly elements: Statement[]) {
     super(loc);
   }
 

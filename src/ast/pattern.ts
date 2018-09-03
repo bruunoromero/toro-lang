@@ -1,16 +1,16 @@
 import { Node } from "./node";
 import { Location } from "./location";
-import { Identifier } from "./identifier";
 import { JSNode } from "../generator/js-node";
 
 export abstract class Pattern extends Node {}
 
 export abstract class DerivatedPattern extends Pattern {
-  constructor(
-    public readonly loc: Location,
-    public readonly patterns: Pattern[],
-  ) {
+  public readonly patterns: Pattern[];
+
+  constructor(loc: Location, patterns: Pattern[] = []) {
     super(loc);
+
+    this.patterns = patterns.filter((p: any) => p);
   }
 }
 
