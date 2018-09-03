@@ -13,7 +13,15 @@ import { RecordProperty, RecordLiteral, RecordUpdate } from "../ast/record";
 
 export const PRIMITIVES = {
   Identifier: () =>
-    P.regexp(/[a-zA-Z_][a-zA-Z0-9_]*/)
+    P.regexp(/[a-z][a-zA-Z0-9_]*/)
+      .mark()
+      .map(
+        ({ start, end, value }) =>
+          new Identifier(new Location(start, end), value),
+      ),
+
+  CapIdentifier: () =>
+    P.regexp(/[A-Z][a-zA-Z0-9_]*/)
       .mark()
       .map(
         ({ start, end, value }) =>

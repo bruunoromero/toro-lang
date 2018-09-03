@@ -73,7 +73,7 @@ export const EXPRESSION = {
   CallExpression: (r: P.Language) =>
     P.seq(
       P.alt(
-        r.Identifier,
+        P.alt(r.Identifier, r.CapIdentifier),
         r.Expression.wrap(r.LParen.trim(r.none), r.RParen.trim(r.none))
           .mark()
           .map(({ start, end, value }) => {

@@ -29,7 +29,7 @@ const FILE = {
 
 const MODULE = {
   ModuleDeclaration: (r: P.Language) =>
-    r.ModuleKeyword.skip(P.whitespace)
+    r.ModuleKeyword.skip(r.none)
       .then(P.seq(r.Reference, r.ExposingDeclaration.atMost(1)))
       .wrap(r.none, r.end)
       .mark()
@@ -39,8 +39,8 @@ const MODULE = {
       ),
 
   AsDeclaration: (r: P.Language) =>
-    P.whitespace
-      .then(P.seq(r.AsKeyword.skip(P.whitespace), r.Identifier))
+    r.none
+      .then(P.seq(r.AsKeyword.skip(r.none), r.CapIdentifier))
       .map(alias => alias[1]),
 };
 
@@ -92,13 +92,13 @@ const DEFINITION = {
         .skip(r.FunKeyword.trim(r.none)),
       P.alt(r.Identifier, r.Operator).skip(r.none),
       r.ParameterList.trim(r.none),
-      r.ParameterType.atMost(1).trim(r.none),
+      r.ParameterType.trim(r.none),
       r.Body,
     )
       .trim(r.none)
       .mark()
       .map(
-        ({ start, end, value: [[asyncOrRec], id, params, [type], body] }) => {
+        ({ start, end, value: [[asyncOrRec], id, params, type, body] }) => {
           const rec = (asyncOrRec && asyncOrRec === "rec") || false;
           const async = (asyncOrRec && asyncOrRec === "async") || false;
 
@@ -116,14 +116,14 @@ const DEFINITION = {
 
   UnionType: (r: P.Language) =>
     P.seq(
-      r.Identifier.skip(r.none),
+      r.CapIdentifier.skip(r.none),
       r.Generic.sepBy(r.Comma.trim(r.none))
         .wrap(r.LParen.trim(r.none), r.RParen.trim(r.none))
         .atMost(1),
     ),
 
   UnionContructorType: (r: P.Language) =>
-    P.seq(r.Identifier.skip(r.none), r.TypeParameterList.atMost(1))
+    P.seq(r.CapIdentifier.skip(r.none), r.TypeParameterList.atMost(1))
       .mark()
       .map(
         ({ start, end, value: [id, [params]] }) =>
@@ -146,7 +146,7 @@ const DEFINITION = {
 
   DataDefinition: (r: P.Language) =>
     r.DataKeyword.skip(r.none)
-      .then(P.seq(r.Identifier.skip(r.Assign.trim(r.none)), r.RecordType))
+      .then(P.seq(r.CapIdentifier.skip(r.Assign.trim(r.none)), r.RecordType))
       .mark()
       .map(
         ({ start, end, value: [id, props] }) =>

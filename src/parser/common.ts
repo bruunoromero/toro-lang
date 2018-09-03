@@ -13,7 +13,10 @@ const parensList = (r: P.Language, p: P.Parser<{}>) =>
 
 export const COMMON = {
   Reference: (r: P.Language) =>
-    P.sepBy1(r.Identifier, r.DotOperator.trim(r.none)).map(value =>
+    P.sepBy1(
+      P.alt(r.Identifier, r.CapIdentifier),
+      r.DotOperator.trim(r.none),
+    ).map(value =>
       value
         .slice(1)
         .reduce((acc, curr) => acc.push(curr), new FirstTypeNode(value[0])),
@@ -33,10 +36,12 @@ export const COMMON = {
       .then(
         P.seq(
           r.ExposingKeyword.skip(P.optWhitespace),
-          P.sepBy1(r.Identifier.trim(P.optWhitespace), r.Comma).wrap(
-            r.LParen,
-            r.RParen,
-          ),
+          P.sepBy1(
+            P.alt(r.Identifier, r.CapIdentifier, r.Operator).trim(
+              P.optWhitespace,
+            ),
+            r.Comma,
+          ).wrap(r.LParen, r.RParen),
         ),
       )
       .map(exp => exp[1]),

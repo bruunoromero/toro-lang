@@ -20,6 +20,12 @@ export class FirstTypeNode extends Type {
     super(id.loc);
   }
 
+  static fromMultiple(ids: Identifier[]): FirstTypeNode {
+    return ids
+      .slice(1)
+      .reduce((acc, curr) => acc.push(curr), new FirstTypeNode(ids[0]));
+  }
+
   push(id: Identifier): FirstTypeNode {
     if (this.next) {
       return this.next.push(id);

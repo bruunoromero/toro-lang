@@ -22,3 +22,5 @@ export class Identifier extends Node {
     throw new Error("Method not implemented.");
   }
 }
+
+export class CapIdentifier extends Identifier {}

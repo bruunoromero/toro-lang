@@ -15,6 +15,7 @@ export const PATTERN = {
     P.alt(
       r.CharPattern,
       r.ListPattern,
+      r.Placeholder,
       r.TuplePattern,
       r.StringPattern,
       r.DoublePattern,
@@ -31,6 +32,8 @@ export const PATTERN = {
           return value[0];
         }
       }),
+
+  PlaceholderPattern: (r: P.Language) => r.Placeholder.trim(r.none),
 
   ListPattern: (r: P.Language) =>
     r.Pattern.sepBy(r.Comma.trim(r.none))
